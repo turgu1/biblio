@@ -1,6 +1,7 @@
 mod db;
 mod library;
 mod api;
+mod config;
 
 use actix_web::{web, App, HttpServer, middleware};
 use actix_files::Files;
@@ -17,13 +18,12 @@ async fn main() -> std::io::Result<()> {
     let mut cache = LibraryCache::new();
     
     // Load libraries from the configured path
-    // For now, use a default path. In production, this should be configurable
-    let libraries_path = Path::new("/home/turgu1/calibre-libraries");
+    let libraries_path = Path::new(config::LIBRARY_PATH);
     if libraries_path.exists() {
         cache.load_libraries(libraries_path)?;
     } else {
         println!("Warning: Libraries directory not found at {:?}", libraries_path);
-        println!("Creating empty cache. Please add Calibre libraries to the 'libraries' folder.");
+        println!("Please configure LIBRARY_PATH in src/config.rs");
     }
 
     let cache = web::Data::new(Mutex::new(cache));

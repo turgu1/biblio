@@ -8,7 +8,7 @@ The Biblio e-book library application now includes comprehensive browser cookie-
 
 ### Core Cookie Management Methods
 
-**In `/home/turgu1/Dev/biblio/public/app.js`:**
+**In `<biblio-parent-folder>/biblio/public/app.js`:**
 
 #### 1. `setCookie(name, value, days = 30)`
 - Sets a browser cookie with JSON serialization
@@ -132,23 +132,23 @@ The persisted state is stored as a single JSON object in a cookie named `biblioA
 
 ## Files Modified
 
-### 1. `/home/turgu1/Dev/biblio/public/app.js`
+### 1. `<biblio-parent-folder>/biblio/public/app.js`
 - **Lines Added**: ~150+ lines of cookie management and integration code
 - **New Methods**: 5 (setCookie, getCookie, saveAppState, loadAppState, restoreFilterUI)
 - **Modified Methods**: 8 (init, selectLibrary, 4 toggle methods, setupEventListeners, updateSort)
 - **Total Lines Now**: 500+ (was 415)
 
-### 2. `/home/turgu1/Dev/biblio/README.md`
+### 2. `<biblio-parent-folder>/biblio/README.md`
 - **Updated**: Features list to include "Session Persistence"
 - **Added**: Cookie feature to feature list
 
-### 3. `/home/turgu1/Dev/biblio/doc/IMPLEMENTATION.md`
+### 3. `<biblio-parent-folder>/biblio/doc/IMPLEMENTATION.md`
 - **Updated**: app.js description with session persistence details
 - **Added**: New "Session Persistence" section under "Key Features Implemented"
 - **Updated**: File sizes table (app.js line count: 500+)
 - **Updated**: Future Enhancement Opportunities (marked features now completed)
 
-### 4. `/home/turgu1/Dev/biblio/doc/COOKIE_TESTING.md` (NEW)
+### 4. `<biblio-parent-folder>/biblio/doc/COOKIE_TESTING.md` (NEW)
 - **Created**: Comprehensive testing guide for cookie persistence
 - **Contents**: 
   - Overview of saved state
@@ -196,7 +196,7 @@ The persisted state is stored as a single JSON object in a cookie named `biblioA
 5. Click it to view the JSON state
 
 ### Full Testing (5-10 minutes)
-Follow the detailed tests in [COOKIE_TESTING.md](/home/turgu1/Dev/biblio/doc/COOKIE_TESTING.md):
+Follow the detailed tests in [COOKIE_TESTING.md](<biblio-parent-folder>/biblio/doc/COOKIE_TESTING.md):
 - Test 1: Cookie Creation
 - Test 2: Filter Persistence
 - Test 3: Search Persistence

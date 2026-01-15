@@ -22,3 +22,5 @@ Cargo.lock
 
 # Logs
 *.log
+
+src/config.rs

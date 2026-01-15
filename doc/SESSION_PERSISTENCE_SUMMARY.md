@@ -59,7 +59,7 @@ The Biblio e-book library application now automatically saves and restores user 
 4. Verify filters/search are still there ✅
 
 ### Full Testing
-See [doc/COOKIE_TESTING.md](/home/turgu1/Dev/biblio/doc/COOKIE_TESTING.md) for:
+See [doc/COOKIE_TESTING.md](<biblio-parent-folder>/biblio/doc/COOKIE_TESTING.md) for:
 - 8 detailed test procedures
 - Troubleshooting guide
 - Cookie inspector instructions
@@ -69,9 +69,9 @@ See [doc/COOKIE_TESTING.md](/home/turgu1/Dev/biblio/doc/COOKIE_TESTING.md) for:
 
 ## 📚 Documentation
 
-- **Implementation Details**: [doc/COOKIE_IMPLEMENTATION.md](/home/turgu1/Dev/biblio/doc/COOKIE_IMPLEMENTATION.md)
-- **Testing Guide**: [doc/COOKIE_TESTING.md](/home/turgu1/Dev/biblio/doc/COOKIE_TESTING.md)
-- **Technical Architecture**: [doc/IMPLEMENTATION.md](/home/turgu1/Dev/biblio/doc/IMPLEMENTATION.md)
+- **Implementation Details**: [doc/COOKIE_IMPLEMENTATION.md](<biblio-parent-folder>/biblio/doc/COOKIE_IMPLEMENTATION.md)
+- **Testing Guide**: [doc/COOKIE_TESTING.md](<biblio-parent-folder>/biblio/doc/COOKIE_TESTING.md)
+- **Technical Architecture**: [doc/IMPLEMENTATION.md](<biblio-parent-folder>/biblio/doc/IMPLEMENTATION.md)
 
 ---
 
@@ -240,10 +240,10 @@ This implementation demonstrates:
 1. Open http://localhost:8080
 2. Browse and set up your preferences
 3. Note that your setup will persist across refreshes
-4. See [COOKIE_TESTING.md](/home/turgu1/Dev/biblio/doc/COOKIE_TESTING.md) for detailed testing
+4. See [COOKIE_TESTING.md](<biblio-parent-folder>/biblio/doc/COOKIE_TESTING.md) for detailed testing
 
 ### For Developers
-1. Review [doc/COOKIE_IMPLEMENTATION.md](/home/turgu1/Dev/biblio/doc/COOKIE_IMPLEMENTATION.md) for architecture
+1. Review [doc/COOKIE_IMPLEMENTATION.md](<biblio-parent-folder>/biblio/doc/COOKIE_IMPLEMENTATION.md) for architecture
 2. Study the cookie methods in [public/app.js](/public/app.js)
 3. See how they're integrated into the lifecycle
 4. Consider future enhancements (reading history, bookmarks, etc.)

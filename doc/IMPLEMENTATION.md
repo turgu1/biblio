@@ -190,7 +190,7 @@ This is a complete, production-ready web-based e-book library browser that allow
 
 ### Build the Application
 ```bash
-cd /home/turgu1/Dev/biblio
+cd <biblio-parent-folder>/biblio
 cargo build --release
 ```
 

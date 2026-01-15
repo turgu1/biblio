@@ -57,38 +57,26 @@ biblio/
 
 1. **Clone or extract the project**:
    ```bash
-   cd /home/turgu1/Dev/biblio
+   cd <biblio-parent-folder>/biblio
    ```
 
-2. **Create libraries directory** (if not exists):
-   ```bash
-   mkdir -p libraries
-   ```
-
-3. **Add Calibre libraries**:
-   - Copy your Calibre library folders to the `libraries/` directory
-   - Each library should contain a `metadata.db` file
-   - Example structure:
+2. **Configure the library path**:
+   - Copy the configuration example file:
+     ```bash
+     cp src/config.rs.example src/config.rs
      ```
-     libraries/
-     ├── MyLibrary1/
-     │   ├── metadata.db
-     │   ├── cache/
-     │   │   └── covers/
-     │   └── ...
-     └── MyLibrary2/
-         ├── metadata.db
-         ├── cache/
-         │   └── covers/
-         └── ...
+   - Edit `src/config.rs` and set the `LIBRARY_PATH` to your Calibre libraries directory:
+     ```rust
+     pub const LIBRARY_PATH: &str = "/path/to/your/calibre-libraries";
      ```
+   - **Note**: The `src/config.rs` file is local configuration and should not be committed to version control
 
-4. **Build the application**:
+3. **Build the application**:
    ```bash
    cargo build --release
    ```
 
-5. **Run the server**:
+4. **Run the server**:
    ```bash
    cargo run --release
    ```
@@ -98,7 +86,7 @@ biblio/
    ./target/release/biblio
    ```
 
-6. **Access the application**:
+5. **Access the application**:
    - Open your web browser and go to: `http://localhost:8080`
 
 ## Usage

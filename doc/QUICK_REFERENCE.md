@@ -4,7 +4,7 @@
 
 ```bash
 # Navigate to project
-cd /home/turgu1/Dev/biblio
+cd <biblio-parent-folder>/biblio
 
 # Copy your Calibre libraries
 mkdir -p libraries

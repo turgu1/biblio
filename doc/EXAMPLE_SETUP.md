@@ -5,7 +5,7 @@ This guide walks through a complete example of setting up Biblio with sample Cal
 ## Step 1: Verify Installation
 
 ```bash
-cd /home/turgu1/Dev/biblio
+cd <biblio-parent-folder>/biblio
 
 # Check binary exists
 ls -lh target/release/biblio
@@ -100,7 +100,7 @@ libraries/
 ### Option A: Using Cargo (Development)
 
 ```bash
-cd /home/turgu1/Dev/biblio
+cd <biblio-parent-folder>/biblio
 
 # Build and run
 cargo run --release
@@ -116,7 +116,7 @@ cargo run --release
 ### Option B: Using Pre-built Binary
 
 ```bash
-cd /home/turgu1/Dev/biblio
+cd <biblio-parent-folder>/biblio
 
 # Run directly
 ./target/release/biblio
@@ -274,7 +274,7 @@ lsof -i :8080
 # 2. Change port in src/main.rs and rebuild
 
 # Check permissions
-ls -la /home/turgu1/Dev/biblio/target/release/biblio
+ls -la <biblio-parent-folder>/biblio/target/release/biblio
 # Should be executable (x permission)
 ```
 
@@ -323,9 +323,9 @@ After=network.target
 
 [Service]
 Type=simple
-User=turgu1
-WorkingDirectory=/home/turgu1/Dev/biblio
-ExecStart=/home/turgu1/Dev/biblio/target/release/biblio
+User=<username>
+WorkingDirectory=<biblio-parent-folder>/biblio
+ExecStart=<biblio-parent-folder>/biblio/target/release/biblio
 Restart=on-failure
 RestartSec=10
 

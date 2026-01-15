@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
 use crate::library::{LibraryCache, LibraryMetadata};
 use crate::db::Book;
+use crate::config;
 
 #[derive(Debug, Serialize)]
 pub struct ApiResponse<T> {
@@ -408,7 +409,7 @@ pub async fn refresh_libraries(
     cache: web::Data<Mutex<LibraryCache>>,
 ) -> Result<HttpResponse> {
     let mut cache = cache.lock().unwrap();
-    let libraries_path = std::path::Path::new("/home/turgu1/calibre-libraries");
+    let libraries_path = std::path::Path::new(config::LIBRARY_PATH);
     
     // Clear and reload the cache
     cache.clear();

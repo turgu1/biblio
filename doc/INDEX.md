@@ -100,7 +100,7 @@ cp -r ~/Calibre\ Library libraries/MyBooks
 
 ### 2️⃣ Run Application
 ```bash
-cd /home/turgu1/Dev/biblio
+cd <biblio-parent-folder>/biblio
 cargo run --release
 # or
 ./target/release/biblio
@@ -330,7 +330,7 @@ books
 
 ### Right Now
 ```bash
-cd /home/turgu1/Dev/biblio
+cd <biblio-parent-folder>/biblio
 ./target/release/biblio
 # Open http://localhost:8080
 ```
@@ -483,7 +483,7 @@ You now have a **professional-grade, production-ready** e-book management applic
 
 ```bash
 # Everything is ready. Just run:
-cd /home/turgu1/Dev/biblio
+cd <biblio-parent-folder>/biblio
 ./target/release/biblio
 
 # Then open:
@@ -504,7 +504,7 @@ http://localhost:8080
 | **Version** | 0.1.0 |
 | **Status** | Complete ✅ |
 | **Date** | January 13, 2026 |
-| **Location** | /home/turgu1/Dev/biblio |
+| **Location** | <biblio-parent-folder>/biblio |
 
 ---
 

@@ -203,7 +203,7 @@ User Sees Books Grid
 
 ### Build
 ```bash
-cd /home/turgu1/Dev/biblio
+cd <biblio-parent-folder>/biblio
 cargo build --release
 ```
 

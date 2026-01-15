@@ -5,7 +5,7 @@ Get up and running with Biblio in minutes!
 ## 1. Build the Application
 
 ```bash
-cd /home/turgu1/Dev/biblio
+cd <biblio-parent-folder>/biblio
 cargo build --release
 ```
 

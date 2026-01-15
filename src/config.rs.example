@@ -1,0 +1,11 @@
+/// Configuration module for Biblio
+/// 
+/// SETUP INSTRUCTIONS:
+/// 1. Copy this file to `config.rs`
+/// 2. Update the LIBRARY_PATH to point to your Calibre libraries directory
+/// 3. Do not commit `config.rs` to version control (add it to .gitignore)
+
+/// Path to the Calibre libraries directory
+/// Example: "/home/username/calibre-libraries" (Linux/Mac)
+///          "C:\\Users\\username\\calibre-libraries" (Windows)
+pub const LIBRARY_PATH: &str = "/path/to/your/calibre-libraries";

@@ -53,7 +53,7 @@ biblio/
 - Rust 1.70+ ([Install Rust](https://rustup.rs/))
 - Calibre libraries with `metadata.db` files
 
-### Setup Steps
+### Option 1: Local Installation
 
 1. **Clone or extract the project**:
    ```bash
@@ -88,6 +88,65 @@ biblio/
 
 5. **Access the application**:
    - Open your web browser and go to: `http://localhost:8080`
+
+### Option 2: Docker Installation
+
+#### Prerequisites for Docker
+- Docker ([Install Docker](https://docs.docker.com/get-docker/))
+- Docker Compose ([Install Docker Compose](https://docs.docker.com/compose/install/))
+
+#### Setup Steps
+
+1. **Configure the library path**:
+   - Copy the configuration example file:
+     ```bash
+     cp src/config.rs.example src/config.rs
+     ```
+   - Edit `src/config.rs` and set the `LIBRARY_PATH` to your Calibre libraries directory:
+     ```rust
+     pub const LIBRARY_PATH: &str = "/path/to/your/calibre-libraries";
+     ```
+
+2. **Update docker-compose.yml** (if needed):
+   - Edit `docker-compose.yml` and update the volume mount path for your Calibre libraries:
+     ```yaml
+     volumes:
+       - /your/actual/calibre/path:/calibre-libraries:ro
+     ```
+
+3. **Build and run with Docker Compose**:
+   ```bash
+   docker-compose up -d
+   ```
+
+4. **Access the application**:
+   - Open your web browser and go to: `http://localhost:8080`
+
+#### Docker Commands
+
+- **View logs**:
+  ```bash
+  docker-compose logs -f biblio
+  ```
+
+- **Stop the application**:
+  ```bash
+  docker-compose down
+  ```
+
+- **Rebuild the image**:
+  ```bash
+  docker-compose build --no-cache
+  ```
+
+- **Run with manual Docker**:
+  ```bash
+  docker build -t biblio .
+  docker run -p 8080:8080 \
+    -v /your/calibre/path:/calibre-libraries:ro \
+    -v $(pwd)/src/config.rs:/app/config.rs:ro \
+    biblio
+  ```
 
 ## Usage
 

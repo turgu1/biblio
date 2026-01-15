@@ -330,7 +330,7 @@ Biblio reads Calibre's SQLite metadata.db files. The main tables accessed are:
 
 ## License
 
-[Specify your license here]
+This project is licensed under the MIT License - see the [LICENSE](MIT-License.txt) file for details.
 
 ## Contributing
 

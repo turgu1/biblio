@@ -111,7 +111,7 @@ biblio/
    - Edit `compose.yml` and update the volume mount path for your Calibre libraries:
      ```yaml
      volumes:
-       - /your/actual/calibre/path:/calibre-libraries:ro
+       - /your/actual/calibre/path:/calibre-libraries:rw
      ```
 
 3. **Build and run with Docker Compose**:
@@ -143,8 +143,7 @@ biblio/
   ```bash
   docker build -t biblio .
   docker run -p 8080:8080 \
-    -v /your/calibre/path:/calibre-libraries:ro \
-    -v $(pwd)/src/config.rs:/app/config.rs:ro \
+    -v /your/calibre/path:/calibre-libraries:rw \
     biblio
   ```
 

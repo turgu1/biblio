@@ -12,7 +12,7 @@
 /// For Docker, if compose.yaml contains the following lines:
 ///    volumes:
 ///      # Mount the Calibre libraries directory
-///      - /path/to/your/calibre-libraries:/calibre-libraries:ro
+///      - /path/to/your/calibre-libraries:/calibre-libraries:rw
 /// Use the following for LIBRARY_PATH: /calibre-libraries
 
 pub const LIBRARY_PATH: &str = "/path/to/your/calibre-libraries";

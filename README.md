@@ -104,11 +104,11 @@ biblio/
      ```
    - Edit `src/config.rs` and set the `LIBRARY_PATH` to your Calibre libraries directory:
      ```rust
-     pub const LIBRARY_PATH: &str = "/path/to/your/calibre-libraries";
+     pub const LIBRARY_PATH: &str = "/calibre-libraries";
      ```
 
-2. **Update docker-compose.yml** (if needed):
-   - Edit `docker-compose.yml` and update the volume mount path for your Calibre libraries:
+2. **Update compose.yml** (if needed):
+   - Edit `compose.yml` and update the volume mount path for your Calibre libraries:
      ```yaml
      volumes:
        - /your/actual/calibre/path:/calibre-libraries:ro
@@ -116,7 +116,7 @@ biblio/
 
 3. **Build and run with Docker Compose**:
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
 
 4. **Access the application**:
@@ -126,17 +126,17 @@ biblio/
 
 - **View logs**:
   ```bash
-  docker-compose logs -f biblio
+  docker compose logs -f biblio
   ```
 
 - **Stop the application**:
   ```bash
-  docker-compose down
+  docker compose down
   ```
 
 - **Rebuild the image**:
   ```bash
-  docker-compose build --no-cache
+  docker compose build --no-cache
   ```
 
 - **Run with manual Docker**:

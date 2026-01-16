@@ -2,10 +2,22 @@
 /// 
 /// SETUP INSTRUCTIONS:
 /// 1. Copy this file to `config.rs`
-/// 2. Update the LIBRARY_PATH to point to your Calibre libraries directory
-/// 3. Do not commit `config.rs` to version control (add it to .gitignore)
+/// 2. Update the LIBRARY_PATH to point to your Calibre libraries directory. 
+///    If using Docker, synchronize with the compose.yaml volumes definition.
 
 /// Path to the Calibre libraries directory
 /// Example: "/home/username/calibre-libraries" (Linux/Mac)
 ///          "C:\\Users\\username\\calibre-libraries" (Windows)
+///
+/// For Docker, if compose.yaml contains the following lines:
+///    volumes:
+///      # Mount the Calibre libraries directory
+///      - /path/to/your/calibre-libraries:/calibre-libraries:ro
+/// Use the following for LIBRARY_PATH: /calibre-libraries
+
 pub const LIBRARY_PATH: &str = "/path/to/your/calibre-libraries";
+
+/// IP and port for the Biblio server to bind to.
+/// For Docker, insure that this is in line with definitions in the 
+/// compose.yaml and Dockerfile.
+pub const SERVICE_IP_AND_PORT: &str = "0.0.0.0:8080";

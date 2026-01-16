@@ -24,4 +24,4 @@ Cargo.lock
 *.log
 
 src/config.rs
-docker-compose.yml
+compose.yml

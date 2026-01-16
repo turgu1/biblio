@@ -1,4 +1,4 @@
-use rusqlite::{Connection, Result as SqlResult, OptionalExtension};
+use rusqlite::{Connection, Result as SqlResult, OptionalExtension, OpenFlags};
 use std::path::Path;
 use serde::{Deserialize, Serialize};
 
@@ -50,7 +50,10 @@ pub struct CalibreDb {
 
 impl CalibreDb {
     pub fn open<P: AsRef<Path>>(path: P) -> SqlResult<Self> {
-        let conn = Connection::open(path)?;
+        let conn = Connection::open_with_flags(
+            path,
+            OpenFlags::SQLITE_OPEN_READ_ONLY,
+        )?;
         Ok(CalibreDb { conn })
     }
 

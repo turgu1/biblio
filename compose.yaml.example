@@ -1,0 +1,31 @@
+# If you need help, visit the Docker Compose reference guide at
+# https://docs.docker.com/go/compose-spec-reference/
+
+# Here the instructions define your application as a service called "server".
+# This service is built from the Dockerfile in the current directory.
+# You can add other services your application may depend on here, such as a
+# database or a cache. For examples, see the Awesome Compose repository:
+# https://github.com/docker/awesome-compose
+services:
+  web-server:
+    build:
+      context: .
+      target: final
+    ports:
+      - 8080:8080
+    environment:
+      - RUST_LOG=info
+    volumes:
+      # ⚠️ IMPORTANT: Update this path to your Calibre libraries location
+      # Examples:
+      #   Linux/Mac:   /home/username/calibre-libraries
+      #   Windows:     C:/Users/username/calibre-libraries
+      # The path should point to the directory containing your Calibre library folders
+      - /path/to/your/calibre-libraries:/calibre-libraries:rw
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s

@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use crate::db::CalibreDb;
 use std::collections::HashMap;
+use tracing::{debug, warn, error};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LibraryMetadata {
@@ -41,7 +42,11 @@ impl LibraryScanner {
                 // This is a Calibre library
                 if let Ok(lib_metadata) = self.create_library_metadata(path, &metadata_db) {
                     libraries.push(lib_metadata);
+                } else {
+                    warn!("Failed to create library metadata for path: {:?}", path);
                 }
+            } else if path.is_dir() && entry.depth() <= 2 {
+                debug!("No metadata.db found in directory: {:?}", path);
             }
         }
 
@@ -80,9 +85,24 @@ impl LibraryScanner {
     }
 
     fn get_book_count(&self, metadata_db_path: &Path) -> Result<usize, Box<dyn std::error::Error>> {
-        let db = CalibreDb::open(metadata_db_path)?;
-        let books = db.get_all_books()?;
-        Ok(books.len())
+        match CalibreDb::open(metadata_db_path) {
+            Ok(db) => {
+                match db.get_all_books() {
+                    Ok(books) => {
+                        debug!("Successfully retrieved {} books from database", books.len());
+                        Ok(books.len())
+                    }
+                    Err(e) => {
+                        error!("Failed to access tables in database at {:?}: {}", metadata_db_path, e);
+                        Err(Box::new(e))
+                    }
+                }
+            }
+            Err(e) => {
+                error!("Failed to open database at {:?}: {}", metadata_db_path, e);
+                Err(Box::new(e))
+            }
+        }
     }
 }
 
@@ -110,9 +130,15 @@ impl LibraryCache {
         let libraries = scanner.scan()?;
 
         for lib in libraries {
-            if let Ok(db) = CalibreDb::open(&lib.metadata_db_path) {
-                self.databases.insert(lib.id.clone(), db);
-                self.libraries.insert(lib.id.clone(), lib);
+            match CalibreDb::open(&lib.metadata_db_path) {
+                Ok(db) => {
+                    debug!("Successfully loaded library '{}' from {:?}", lib.name, lib.metadata_db_path);
+                    self.databases.insert(lib.id.clone(), db);
+                    self.libraries.insert(lib.id.clone(), lib);
+                }
+                Err(e) => {
+                    error!("Failed to open database for library '{}' at {:?}: {}", lib.name, lib.metadata_db_path, e);
+                }
             }
         }
 

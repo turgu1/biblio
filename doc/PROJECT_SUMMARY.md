@@ -13,17 +13,17 @@ A fully functional, production-ready web-based e-book library browser has been s
 #### Backend (Rust)
 | File | Lines | Purpose | Status |
 |------|-------|---------|--------|
-| `src/main.rs` | 35 | Server initialization & routing | ✅ Complete |
-| `src/db.rs` | 348 | SQLite database access layer | ✅ Complete |
-| `src/library.rs` | 163 | Library discovery & caching | ✅ Complete |
-| `src/api.rs` | 239 | REST API endpoints | ✅ Complete |
+| `src/main.rs` | 47 | Server initialization & routing | ✅ Complete |
+| `src/db.rs` | 254 | SQLite database access layer (read-only) | ✅ Complete |
+| `src/library.rs` | 161 | Library discovery & caching with logging | ✅ Complete |
+| `src/api.rs` | 459 | REST API endpoints | ✅ Complete |
 | `Cargo.toml` | 17 | Rust dependencies & config | ✅ Complete |
 
 #### Frontend (Web)
 | File | Lines | Purpose | Status |
 |------|-------|---------|--------|
-| `public/index.html` | 518 | Web UI + embedded CSS | ✅ Complete |
-| `public/app.js` | 415 | Frontend JavaScript logic | ✅ Complete |
+| `public/index.html` | 555 | Web UI + embedded CSS | ✅ Complete |
+| `public/app.js` | 1065 | Frontend JavaScript logic | ✅ Complete |
 
 #### Documentation
 | File | Content | Status |
@@ -47,7 +47,7 @@ A fully functional, production-ready web-based e-book library browser has been s
 ### ✅ Core Functionality
 - [x] **Multi-Library Support** - Browse multiple Calibre libraries simultaneously
 - [x] **Library Discovery** - Automatic scanning of subdirectories for Calibre libraries
-- [x] **Database Access** - Direct read access to Calibre SQLite metadata.db files
+- [x] **Database Access** - Direct read-only access to Calibre SQLite metadata.db files with error logging
 - [x] **Book Metadata** - Display title, authors, series, tags, publisher, rating, comments
 - [x] **Book Cover Images** - Serve cover images from Calibre cache
 
@@ -82,7 +82,9 @@ A fully functional, production-ready web-based e-book library browser has been s
 - [x] **Book Endpoints** - GET /api/libraries/{id}/books and details
 - [x] **Cover Endpoint** - GET /api/libraries/{id}/books/{id}/cover
 - [x] **Metadata Endpoints** - GET authors, tags, series
-- [x] **Error Handling** - Proper error responses and logging
+- [x] **Error Handling** - Comprehensive error responses and tracing-based logging
+- [x] **Read-Only Database Access** - SQLite databases opened in read-only mode (SQLITE_OPEN_READ_ONLY)
+- [x] **Detailed Logging** - Logs for missing metadata.db, database access failures, and table access issues
 - [x] **JSON Response Format** - Consistent API response structure
 
 ---

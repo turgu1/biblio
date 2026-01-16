@@ -197,15 +197,15 @@ Then rebuild: `cargo build --release`
 ## 📚 File Reference
 
 ### Backend
-- `main.rs` (35 lines) - Server setup
-- `db.rs` (348 lines) - Database layer
-- `library.rs` (136 lines) - Library discovery and scanning
-- `api.rs` (239 lines) - REST endpoints
+- `main.rs` (47 lines) - Server setup with logging
+- `db.rs` (254 lines) - Database layer (read-only access)
+- `library.rs` (161 lines) - Library discovery, scanning, and logging
+- `api.rs` (459 lines) - REST endpoints
 - `Cargo.toml` - Dependencies
 
 ### Frontend
-- `index.html` (518 lines) - UI + CSS
-- `app.js` (415 lines) - JavaScript logic
+- `index.html` (555 lines) - UI + CSS
+- `app.js` (1065 lines) - JavaScript logic
 
 ### Documentation
 - `README.md` - Complete documentation
@@ -214,7 +214,7 @@ Then rebuild: `cargo build --release`
 
 ## 🔐 Security Notes
 
-- Read-only access to Calibre libraries
+- Read-only access to Calibre libraries (enforced via SQLite OpenFlags::SQLITE_OPEN_READ_ONLY)
 - No authentication (add if needed for production)
 - Local file system access (secure by default)
 - No data modification
@@ -230,7 +230,27 @@ RUST_LOG=debug
 RUST_LOG=info
 RUST_LOG=warn
 RUST_LOG=error
+
+# Enable logging for specific module
+RUST_LOG=biblio=debug
 ```
+
+## 🔍 Logging Features
+
+The application logs important events to help troubleshoot issues:
+
+**Library Discovery**
+- Debug logs when scanning directories without metadata.db
+- Warning logs when library metadata creation fails
+- Error logs with details if database access fails
+
+**Database Access**
+- Debug logs for successful book count retrieval
+- Error logs when databases cannot be opened
+- Error logs when SQL table queries fail (schema issues)
+
+**Server Startup**
+- Info logs showing the server address and port
 
 ## 🎨 Frontend Customization
 

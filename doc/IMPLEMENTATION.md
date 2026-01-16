@@ -14,8 +14,9 @@ This is a complete, production-ready web-based e-book library browser that allow
    - Static file serving for the web UI
    - Library loading and caching on startup
    
-2. **src/db.rs** - Database Access Layer (348 lines)
-   - SQLite connection management
+2. **src/db.rs** - Database Access Layer (254 lines)
+   - SQLite connection management with read-only access
+   - OpenFlags::SQLITE_OPEN_READ_ONLY ensures databases cannot be modified
    - Book, Author, Tag, and Series data structures
    - Query methods for:
      - Retrieving all books
@@ -23,13 +24,16 @@ This is a complete, production-ready web-based e-book library browser that allow
      - Fetching book metadata (authors, tags, series)
      - Filtering books by authors, tags, series
    
-3. **src/library.rs** - Library Discovery (136 lines)
+3. **src/library.rs** - Library Discovery (161 lines)
    - Library scanner to discover Calibre libraries in subfolders
+   - Debug logging when no metadata.db found in directories
+   - Warning/error logging for library metadata creation failures
+   - Detailed error logging for database access issues and table access failures
    - LibraryMetadata structure for library information
    - In-memory LibraryCache for managing loaded libraries
-   - Book count calculation
+   - Book count calculation with error handling
    
-4. **src/api.rs** - REST API Endpoints (239 lines)
+4. **src/api.rs** - REST API Endpoints (459 lines)
    - `/api/libraries` - Get all libraries
    - `/api/libraries/{id}` - Get library details
    - `/api/libraries/{id}/books` - Get books in library
@@ -41,7 +45,7 @@ This is a complete, production-ready web-based e-book library browser that allow
    - JSON response wrapper with error handling
 
 #### Frontend (HTML/CSS/JavaScript)
-5. **public/index.html** - Web Interface (518 lines including CSS)
+5. **public/index.html** - Web Interface (555 lines including CSS)
    - 5-panel responsive layout:
      - Top: Command bar with buttons
      - Left: Filtering panel (Libraries, Authors, Tags, Series)
@@ -51,7 +55,7 @@ This is a complete, production-ready web-based e-book library browser that allow
    - Embedded responsive CSS with mobile support
    - Loading states and error handling
    
-6. **public/app.js** - Frontend Application (500+ lines)
+6. **public/app.js** - Frontend Application (1065 lines)
    - BiblioApp JavaScript class with methods for:
      - Loading libraries from API
      - Loading books and metadata
@@ -175,9 +179,11 @@ This is a complete, production-ready web-based e-book library browser that allow
 
 ### Database Design
 - Direct SQLite access to Calibre's metadata.db format
+- Read-only access enforced via OpenFlags::SQLITE_OPEN_READ_ONLY
 - No data duplication - read-only access to existing Calibre libraries
 - Supports all standard Calibre metadata tables
 - Efficient join queries for related data
+- Comprehensive logging of database access errors and table access failures
 
 ### Frontend Architecture
 - Vanilla JavaScript (no heavy frameworks for simplicity)
@@ -212,9 +218,9 @@ Open your browser to `http://localhost:8080`
 
 ## Project Statistics
 
-- **Total Lines of Code**: ~1,900
-- **Backend Code**: ~750 lines (Rust)
-- **Frontend Code**: ~930 lines (HTML/CSS/JavaScript)
+- **Total Lines of Code**: ~2,600
+- **Backend Code**: ~922 lines (Rust)
+- **Frontend Code**: ~1,620 lines (HTML/CSS/JavaScript)
 - **Documentation**: 500+ lines
 - **Build Time**: ~15 seconds (first build with dependencies)
 - **Runtime Memory**: ~50-100 MB baseline
@@ -224,12 +230,12 @@ Open your browser to `http://localhost:8080`
 
 | File | Lines | Purpose |
 |------|-------|---------|
-| src/main.rs | 35 | Server setup |
-| src/db.rs | 348 | Database layer |
-| src/library.rs | 136 | Library discovery and scanning |
-| src/api.rs | 239 | REST endpoints |
-| public/index.html | 518 | Web UI + CSS |
-| public/app.js | 500+ | Frontend logic + session persistence |
+| src/main.rs | 47 | Server setup with logging |
+| src/db.rs | 254 | Database layer (read-only) |
+| src/library.rs | 161 | Library discovery and scanning with logging |
+| src/api.rs | 459 | REST endpoints |
+| public/index.html | 555 | Web UI + CSS |
+| public/app.js | 1065 | Frontend logic + session persistence |
 | README.md | 300+ | Documentation |
 | QUICKSTART.md | 200+ | Quick start guide |
 

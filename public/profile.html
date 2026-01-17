@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>My Profile - Biblio</title>
     <style>
         * {
@@ -311,7 +314,7 @@
 
                 <div class="form-group">
                     <label for="newPassword">New Password</label>
-                    <input type="password" id="newPassword" required autocomplete="new-password" onkeyup="checkPasswordStrength(); updateSubmitButton();">
+                    <input type="password" id="newPassword" required autocomplete="new-password" onkeyup="checkPasswordStrength(); checkPasswordMatch(); updateSubmitButton();">
                     <div class="password-requirements">
                         <strong>Password Requirements:</strong>
                         <div id="passwordChecklist"></div>
@@ -399,13 +402,17 @@
         function checkPasswordStrength() {
             const password = document.getElementById('newPassword').value;
             const checklist = document.getElementById('passwordChecklist');
+            
+            if (!checklist) {
+                return;
+            }
 
             const requirements = [
                 { name: 'At least 8 characters', test: password.length >= 8 },
                 { name: 'At least one uppercase letter', test: /[A-Z]/.test(password) },
                 { name: 'At least one lowercase letter', test: /[a-z]/.test(password) },
-                { name: 'At least one digit', test: /\d/.test(password) },
-                { name: 'At least one special character', test: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) }
+                { name: 'At least one digit', test: /[0-9]/.test(password) },
+                { name: 'At least one special character', test: /[^\w\s]/.test(password) }
             ];
 
             checklist.innerHTML = requirements.map(req => `
@@ -443,8 +450,8 @@
                 newPassword.length >= 8,
                 /[A-Z]/.test(newPassword),
                 /[a-z]/.test(newPassword),
-                /\d/.test(newPassword),
-                /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword)
+                /[0-9]/.test(newPassword),
+                /[^\w\s]/.test(newPassword)
             ];
             const allRequirementsMet = requirements.every(r => r);
 
@@ -535,8 +542,15 @@
 
         // Update submit button on input changes
         document.getElementById('currentPassword').addEventListener('input', updateSubmitButton);
-        document.getElementById('newPassword').addEventListener('input', updateSubmitButton);
-        document.getElementById('confirmPassword').addEventListener('input', updateSubmitButton);
+        document.getElementById('newPassword').addEventListener('input', function() {
+            checkPasswordStrength();
+            checkPasswordMatch();
+            updateSubmitButton();
+        });
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            checkPasswordMatch();
+            updateSubmitButton();
+        });
     </script>
 </body>
 </html>

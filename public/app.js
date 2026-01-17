@@ -23,6 +23,29 @@ class BiblioApp {
         this.isLoadingMore = false;
         this.isAuthenticated = false;
         this.currentUsername = null;
+        
+        // Splitter drag state
+        this.resizing = null;
+        
+        // View mode and table settings
+        this.currentViewMode = 'grid';
+        this.coverSize = 120;
+        this.tableColumnWidths = {
+            title: 30,
+            authors: 20,
+            series: 15,
+            publisher: 15,
+            rating: 10,
+            pubdate: 10
+        };
+        this.columnVisibility = {
+            title: true,
+            authors: true,
+            series: true,
+            publisher: true,
+            rating: true,
+            pubdate: true
+        };
     }
 
     // Cookie Management Methods
@@ -132,6 +155,9 @@ class BiblioApp {
     async init() {
         console.log('Initializing Biblio App...');
         
+        // Load view preferences
+        this.loadViewPreferences();
+        
         // Check if user is authenticated
         const authState = this.loadAuthState();
         if (authState && authState.isAuthenticated) {
@@ -157,6 +183,9 @@ class BiblioApp {
             if (this.selectedBookId && this.selectedBookLibraryId) {
                 await this.restoreSelectedBook();
             }
+            
+            // Update view display with saved preferences
+            this.updateViewDisplay();
         } else {
             this.showLoginPage();
         }
@@ -205,9 +234,11 @@ class BiblioApp {
         try {
             const contentArea = document.querySelector('.content-area');
             const topPanel = document.querySelector('.top-panel');
+            const bottomPanel = document.querySelector('.bottom-panel');
             
-            // Hide the main content
+            // Hide the main content and panels
             contentArea.style.display = 'none';
+            if (bottomPanel) bottomPanel.style.display = 'none';
             
             // Create login container
             const loginContainer = document.createElement('div');
@@ -398,6 +429,9 @@ class BiblioApp {
                 // Show main app
                 this.showMainApp();
                 
+                // Check admin status AFTER auth state is saved
+                this.checkAdminStatus();
+                
                 // Initialize app
                 const savedState = this.loadAppState();
                 await this.loadLibraries();
@@ -424,12 +458,21 @@ class BiblioApp {
     showMainApp() {
         const contentArea = document.querySelector('.content-area');
         const topPanel = document.querySelector('.top-panel');
+        const bottomPanel = document.querySelector('.bottom-panel');
         
         contentArea.style.display = 'flex';
+        if (bottomPanel) bottomPanel.style.display = 'flex';
         
-        // Show/update buttons in top panel
+        // Show/update buttons in top panel (except admin button, which is handled by checkAdminStatus)
         const buttons = topPanel.querySelectorAll('button');
-        buttons.forEach(btn => btn.style.display = 'inline-block');
+        buttons.forEach(btn => {
+            // Don't show admin button here; let checkAdminStatus handle it
+            if (btn.id === 'adminBtn') {
+                btn.style.display = 'none';
+            } else {
+                btn.style.display = 'inline-block';
+            }
+        });
         
         // Add user info and logout button
         const userInfo = topPanel.querySelector('#userInfo');
@@ -997,6 +1040,11 @@ class BiblioApp {
         document.getElementById('statusFiltered').textContent = filtered.length;
         this.displayedBooksCount = 0;
         this.renderBooks();
+        
+        // Fill screen with available books if there's room
+        if (this.currentViewMode === 'grid') {
+            setTimeout(() => this.fillScreenWithCovers(), 100);
+        }
     }
 
     sortBooks(books) {
@@ -1032,6 +1080,15 @@ class BiblioApp {
     }
 
     renderBooks() {
+        // Check current view mode and render accordingly
+        if (this.currentViewMode === 'table') {
+            this.renderBooksTable();
+        } else {
+            this.renderBooksGrid();
+        }
+    }
+
+    renderBooksGrid() {
         const booksGrid = document.getElementById('booksGrid');
         
         // Clear grid on first render
@@ -1116,17 +1173,38 @@ class BiblioApp {
         booksGrid.addEventListener('scroll', this.handleScroll);
     }
 
-    async selectBook(book) {
+    async selectBook(book, libraryId) {
         this.selectedBook = book;
         this.selectedBookId = book.id;
-        this.selectedBookLibraryId = this.currentLibraryId;
+        this.selectedBookLibraryId = libraryId || this.currentLibraryId;
         this.saveAppState();
         
-        // Update selected styling
+        // Update selected styling for grid view
         document.querySelectorAll('.book-item').forEach(item => {
             item.classList.remove('selected');
         });
-        event.target.closest('.book-item')?.classList.add('selected');
+        
+        // Update selected styling for table view
+        document.querySelectorAll('.books-table tbody tr').forEach(row => {
+            row.classList.remove('selected');
+        });
+        
+        // Add selected class to appropriate element
+        if (this.currentViewMode === 'grid') {
+            // For grid view, try to find the element that was clicked
+            if (event && event.target) {
+                const bookItem = event.target.closest('.book-item');
+                if (bookItem) {
+                    bookItem.classList.add('selected');
+                }
+            }
+        } else if (this.currentViewMode === 'table') {
+            // For table view, find and highlight the row
+            const selectedRow = document.querySelector(`tr[data-book-id="${book.id}"][data-library-id="${this.selectedBookLibraryId}"]`);
+            if (selectedRow) {
+                selectedRow.classList.add('selected');
+            }
+        }
 
         this.renderBookDetails(book);
     }
@@ -1341,9 +1419,573 @@ class BiblioApp {
     setupEventListeners() {
         document.getElementById('searchInput').addEventListener('input', (e) => {
             this.searchTerm = e.target.value;
+            
+            // Show/hide clear button based on input value
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (clearBtn) {
+                clearBtn.style.display = this.searchTerm ? 'flex' : 'none';
+            }
+            
             this.saveAppState();
             this.applyFilters();
         });
+        
+        // Setup splitter event listeners
+        this.setupSplitters();
+    }
+
+    clearSearch() {
+        const searchInput = document.getElementById('searchInput');
+        const clearBtn = document.getElementById('clearSearchBtn');
+        
+        // Clear the input and search term
+        searchInput.value = '';
+        this.searchTerm = '';
+        
+        // Hide clear button
+        if (clearBtn) {
+            clearBtn.style.display = 'none';
+        }
+        
+        // Focus back on input
+        searchInput.focus();
+        
+        // Reapply filters
+        this.displayedBooksCount = 0;
+        this.saveAppState();
+        this.applyFilters();
+    }
+
+    setupSplitters() {
+        const splitterLeft = document.getElementById('splitterLeft');
+        const splitterRight = document.getElementById('splitterRight');
+        
+        if (splitterLeft) {
+            splitterLeft.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                this.resizing = {
+                    side: 'left',
+                    startX: e.clientX,
+                    startLeftWidth: document.querySelector('.left-panel').offsetWidth,
+                    startRightWidth: document.querySelector('.right-panel').offsetWidth,
+                    splitter: e.target
+                };
+                e.target.classList.add('active');
+            });
+        }
+        
+        if (splitterRight) {
+            splitterRight.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                this.resizing = {
+                    side: 'right',
+                    startX: e.clientX,
+                    startLeftWidth: document.querySelector('.left-panel').offsetWidth,
+                    startRightWidth: document.querySelector('.right-panel').offsetWidth,
+                    splitter: e.target
+                };
+                e.target.classList.add('active');
+            });
+        }
+        
+        document.addEventListener('mousemove', (e) => this.handleResize(e));
+        document.addEventListener('mouseup', () => this.stopResizing());
+        
+        // Load saved pane sizes
+        this.loadPaneSizes();
+    }
+
+    handleResize(e) {
+        if (!this.resizing) return;
+        
+        const leftPanel = document.querySelector('.left-panel');
+        const rightPanel = document.querySelector('.right-panel');
+        
+        if (!leftPanel || !rightPanel) return;
+        
+        if (this.resizing.side === 'left') {
+            const deltaX = e.clientX - this.resizing.startX;
+            const newLeftWidth = Math.max(150, Math.min(500, this.resizing.startLeftWidth + deltaX));
+            leftPanel.style.width = newLeftWidth + 'px';
+            leftPanel.style.flex = `0 0 ${newLeftWidth}px`;
+        } else if (this.resizing.side === 'right') {
+            const deltaX = e.clientX - this.resizing.startX;
+            const newRightWidth = Math.max(150, Math.min(500, this.resizing.startRightWidth - deltaX));
+            rightPanel.style.width = newRightWidth + 'px';
+            rightPanel.style.flex = `0 0 ${newRightWidth}px`;
+        }
+    }
+
+    stopResizing() {
+        if (this.resizing) {
+            if (this.resizing.splitter) {
+                this.resizing.splitter.classList.remove('active');
+            }
+            this.savePaneSizes();
+            
+            // Re-apply table column widths when panels are resized
+            if (this.currentViewMode === 'table') {
+                this.loadTableColumnWidths();
+            }
+            
+            this.resizing = null;
+        }
+    }
+
+    savePaneSizes() {
+        const leftWidth = document.querySelector('.left-panel').offsetWidth;
+        const rightWidth = document.querySelector('.right-panel').offsetWidth;
+        
+        const paneSizes = {
+            leftWidth: leftWidth,
+            rightWidth: rightWidth
+        };
+        
+        localStorage.setItem('biblioPaneSizes', JSON.stringify(paneSizes));
+    }
+
+    loadPaneSizes() {
+        const paneSizes = localStorage.getItem('biblioPaneSizes');
+        if (paneSizes) {
+            try {
+                const sizes = JSON.parse(paneSizes);
+                const leftPanel = document.querySelector('.left-panel');
+                const rightPanel = document.querySelector('.right-panel');
+                
+                if (sizes.leftWidth && leftPanel) {
+                    leftPanel.style.width = sizes.leftWidth + 'px';
+                    leftPanel.style.flex = `0 0 ${sizes.leftWidth}px`;
+                }
+                
+                if (sizes.rightWidth && rightPanel) {
+                    rightPanel.style.width = sizes.rightWidth + 'px';
+                    rightPanel.style.flex = `0 0 ${sizes.rightWidth}px`;
+                }
+            } catch (error) {
+                console.error('Error loading pane sizes:', error);
+            }
+        }
+    }
+
+    // View Mode and Table Column Width Management
+    setViewMode(mode) {
+        this.currentViewMode = mode;
+        this.saveViewPreferences();
+        this.updateViewDisplay();
+    }
+
+    updateViewDisplay() {
+        const booksGrid = document.getElementById('booksGrid');
+        const booksTable = document.getElementById('booksTable');
+        const gridRadio = document.querySelector('input[name="viewMode"][value="grid"]');
+        const tableRadio = document.querySelector('input[name="viewMode"][value="table"]');
+        const columnVisibilityItem = document.getElementById('columnVisibilityItem');
+        const coverSizeItem = document.getElementById('coverSizeItem');
+        
+        if (this.currentViewMode === 'grid') {
+            booksGrid.style.display = 'grid';
+            booksTable.style.display = 'none';
+            if (gridRadio) gridRadio.checked = true;
+            if (columnVisibilityItem) columnVisibilityItem.style.display = 'none';
+            if (coverSizeItem) coverSizeItem.style.display = 'flex';
+            
+            // Apply current cover size (set CSS custom properties)
+            this.applyCoverSizeCSS();
+            
+            // Re-render grid if it's empty or needs refresh (library changed)
+            if (booksGrid.innerHTML === '' || this.displayedBooksCount === 0) {
+                this.renderBooks();
+            }
+            this.setupInfiniteScroll();
+        } else {
+            booksGrid.style.display = 'none';
+            booksTable.style.display = 'flex';
+            if (tableRadio) tableRadio.checked = true;
+            if (columnVisibilityItem) columnVisibilityItem.style.display = 'flex';
+            if (coverSizeItem) coverSizeItem.style.display = 'none';
+            this.renderBooksTable();
+        }
+    }
+
+    saveViewPreferences() {
+        const preferences = {
+            viewMode: this.currentViewMode,
+            coverSize: this.coverSize,
+            tableColumnWidths: this.tableColumnWidths,
+            columnVisibility: this.columnVisibility
+        };
+        localStorage.setItem('biblioViewPreferences', JSON.stringify(preferences));
+    }
+
+    loadViewPreferences() {
+        const preferences = localStorage.getItem('biblioViewPreferences');
+        if (preferences) {
+            try {
+                const prefs = JSON.parse(preferences);
+                if (prefs.viewMode) {
+                    this.currentViewMode = prefs.viewMode;
+                }
+                if (prefs.coverSize) {
+                    this.coverSize = prefs.coverSize;
+                }
+                if (prefs.tableColumnWidths) {
+                    this.tableColumnWidths = prefs.tableColumnWidths;
+                }
+                if (prefs.columnVisibility) {
+                    this.columnVisibility = prefs.columnVisibility;
+                }
+            } catch (error) {
+                console.error('Error loading view preferences:', error);
+            }
+        }
+    }
+
+    toggleColumnVisibility(colName) {
+        this.columnVisibility[colName] = !this.columnVisibility[colName];
+        
+        // If showing a column, ensure it has a valid width
+        if (this.columnVisibility[colName]) {
+            const currentWidth = this.tableColumnWidths[colName];
+            if (!currentWidth || currentWidth <= 0) {
+                // Assign default widths for columns
+                const defaultWidths = {
+                    title: 30,
+                    authors: 20,
+                    series: 15,
+                    publisher: 15,
+                    rating: 10,
+                    pubdate: 10
+                };
+                this.tableColumnWidths[colName] = defaultWidths[colName] || 15;
+            }
+        }
+        
+        this.saveViewPreferences();
+        this.updateColumnVisibility();
+        
+        // Update checkbox state
+        const checkbox = document.querySelector(`input[data-col="${colName}"]`);
+        if (checkbox) {
+            checkbox.checked = this.columnVisibility[colName];
+        }
+    }
+
+    applyCoverSizeCSS() {
+        const size = this.coverSize;
+        const grid = document.getElementById('booksGrid');
+        if (grid) {
+            // Calculate proportional spacing based on default 120px with 15px gap
+            // Ratio: 15/120 = 0.125 for gap, 8/120 = 0.067 for margin
+            const proportionalGap = Math.round(size * 0.125);
+            const proportionalPadding = proportionalGap;
+            const proportionalMargin = Math.round(size * 0.067);
+            
+            grid.style.setProperty('--cover-width', size + 'px');
+            grid.style.setProperty('--item-gap', proportionalGap + 'px');
+            grid.style.setProperty('--grid-padding', proportionalPadding + 'px');
+            grid.style.setProperty('--cover-margin', proportionalMargin + 'px');
+            
+            // Calculate title font size and line clamp based on cover size
+            const { fontSize, lineClamp } = this.calculateTitleMetrics(size);
+            grid.style.setProperty('--title-font-size', fontSize + 'px');
+            grid.style.setProperty('--title-lines', lineClamp.toString());
+            
+            // After CSS properties are applied, check if we need to load more books to fill screen
+            setTimeout(() => this.fillScreenWithCovers(), 50);
+        }
+        
+        // Update range slider and label
+        const slider = document.getElementById('coverSizeSlider');
+        const label = document.getElementById('coverSizeLabel');
+        if (slider) slider.value = size;
+        if (label) label.textContent = size;
+    }
+
+    fillScreenWithCovers() {
+        const booksGrid = document.getElementById('booksGrid');
+        if (!booksGrid || this.currentViewMode !== 'grid') return;
+        
+        const scrollHeight = booksGrid.scrollHeight;
+        const clientHeight = booksGrid.clientHeight;
+        
+        // If there's vertical space available and we have more books to load, load them
+        if (scrollHeight <= clientHeight && this.displayedBooksCount < this.filteredBooks.length) {
+            this.isLoadingMore = true;
+            setTimeout(() => {
+                this.renderBooks();
+                this.isLoadingMore = false;
+                // Recursively check again in case more space is available
+                setTimeout(() => this.fillScreenWithCovers(), 100);
+            }, 50);
+        }
+    }
+
+    calculateTitleMetrics(coverWidth) {
+        // Calculate dynamic font size: scale from 10px (at 50px) to 14px (at 250px)
+        // Linear interpolation: fontSize = 10 + (coverWidth - 50) * (14 - 10) / (250 - 50)
+        const fontSize = Math.max(10, Math.min(14, 10 + (coverWidth - 50) * 4 / 200));
+        
+        // Calculate line clamp based on cover width
+        // At small sizes: 1 line, at medium: 2 lines, at large: 3 lines
+        let lineClamp = 2;
+        if (coverWidth < 80) {
+            lineClamp = 1;
+        } else if (coverWidth < 120) {
+            lineClamp = 2;
+        } else if (coverWidth < 180) {
+            lineClamp = 2;
+        } else if (coverWidth < 220) {
+            lineClamp = 3;
+        } else {
+            lineClamp = 3;
+        }
+        
+        return { fontSize: Math.round(fontSize * 10) / 10, lineClamp };
+    }
+
+    setCoverSize(sizeInPixels) {
+        const size = parseInt(sizeInPixels);
+        this.coverSize = size;
+        this.applyCoverSizeCSS();
+        this.saveViewPreferences();
+    }
+
+    updateColumnVisibility() {
+        const table = document.getElementById('booksTableElement');
+        if (!table) return;
+        
+        const headers = table.querySelectorAll('th.resizable-col');
+        const columns = ['title', 'authors', 'series', 'publisher', 'rating', 'pubdate'];
+        
+        // Hide/show headers
+        headers.forEach((th, index) => {
+            const colName = columns[index];
+            th.style.display = this.columnVisibility[colName] ? 'table-cell' : 'none';
+        });
+        
+        // Hide/show cells in rows
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            cells.forEach((td, index) => {
+                const colName = columns[index];
+                td.style.display = this.columnVisibility[colName] ? 'table-cell' : 'none';
+            });
+        });
+        
+        // Recalculate visible column percentages
+        this.recalculateColumnWidths();
+    }
+
+    recalculateColumnWidths() {
+        // Recalculate percentages based on visible columns only
+        const visibleColumns = Object.entries(this.columnVisibility)
+            .filter(([_, visible]) => visible)
+            .map(([col, _]) => col);
+        
+        const table = document.getElementById('booksTableElement');
+        if (!table || visibleColumns.length === 0) return;
+        
+        const headers = table.querySelectorAll('th.resizable-col');
+        const columns = ['title', 'authors', 'series', 'publisher', 'rating', 'pubdate'];
+        
+        // Default widths for columns
+        const defaultWidths = {
+            title: 30,
+            authors: 20,
+            series: 15,
+            publisher: 15,
+            rating: 10,
+            pubdate: 10
+        };
+        
+        // Ensure all visible columns have valid widths
+        visibleColumns.forEach(colName => {
+            if (!this.tableColumnWidths[colName] || this.tableColumnWidths[colName] <= 0) {
+                this.tableColumnWidths[colName] = defaultWidths[colName] || 15;
+            }
+        });
+        
+        // Calculate new percentages distributed among visible columns
+        let totalVisiblePercentage = 0;
+        headers.forEach((th, index) => {
+            if (th.style.display !== 'none') {
+                totalVisiblePercentage += this.tableColumnWidths[columns[index]] || 0;
+            }
+        });
+        
+        // Redistribute percentages
+        headers.forEach((th, index) => {
+            const colName = columns[index];
+            if (this.columnVisibility[colName]) {
+                const newPercent = totalVisiblePercentage > 0 
+                    ? (this.tableColumnWidths[colName] / totalVisiblePercentage) * 100
+                    : (100 / visibleColumns.length);
+                th.style.width = newPercent + '%';
+            }
+        });
+    }
+
+    renderBooksTable() {
+        const tbody = document.getElementById('booksTableBody');
+        const table = document.getElementById('booksTableElement');
+        if (!tbody || !table) return;
+        
+        tbody.innerHTML = '';
+        
+        const booksToDisplay = this.filteredBooks.slice(0, this.booksPerPage);
+        
+        booksToDisplay.forEach(book => {
+            const row = document.createElement('tr');
+            row.dataset.bookId = book.id;
+            row.dataset.libraryId = this.currentLibraryId;
+            if (this.selectedBookId === book.id && this.selectedBookLibraryId === this.currentLibraryId) {
+                row.classList.add('selected');
+            }
+            
+            row.innerHTML = `
+                <td>${this.escapeHtml(book.title || '')}</td>
+                <td>${this.escapeHtml((book.authors || []).map(author => this.formatAuthorName(author)).join(', '))}</td>
+                <td>${this.escapeHtml((book.series || ''))}</td>
+                <td>${this.escapeHtml((book.publisher || ''))}</td>
+                <td>${book.rating ? (book.rating / 2).toFixed(1) : 'N/A'}</td>
+                <td>${book.pubdate ? new Date(book.pubdate).toLocaleDateString() : 'N/A'}</td>
+            `;
+            
+            row.addEventListener('click', (e) => {
+                this.selectBook(book, this.currentLibraryId);
+            });
+            
+            tbody.appendChild(row);
+        });
+        
+        // Load and apply saved column widths
+        this.loadTableColumnWidths();
+        
+        // Apply column visibility
+        this.updateColumnVisibility();
+        
+        // Setup column resizing
+        this.setupTableColumnResizing();
+        
+        // Setup resize observer for responsive column scaling
+        this.setupTableResizeObserver();
+    }
+
+    setupTableColumnResizing() {
+        const resizeHandles = document.querySelectorAll('.col-resize');
+        
+        resizeHandles.forEach((handle, index) => {
+            handle.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const th = handle.closest('th');
+                const table = document.getElementById('booksTableElement');
+                const startX = e.clientX;
+                const startWidth = th.offsetWidth;
+                const startTableWidth = table.offsetWidth;
+                const colName = th.getAttribute('data-col') || this.getColumnNameByIndex(index);
+                
+                const handleMouseMove = (e) => {
+                    const deltaX = e.clientX - startX;
+                    const newWidth = Math.max(50, startWidth + deltaX);
+                    // Convert to percentage for responsive behavior
+                    const percentage = (newWidth / startTableWidth) * 100;
+                    th.style.width = percentage + '%';
+                };
+                
+                const handleMouseUp = () => {
+                    document.removeEventListener('mousemove', handleMouseMove);
+                    document.removeEventListener('mouseup', handleMouseUp);
+                    
+                    // Save new column widths as percentages
+                    this.saveTableColumnWidths();
+                };
+                
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+            });
+        });
+    }
+
+    getColumnNameByIndex(index) {
+        const columns = ['title', 'authors', 'series', 'publisher', 'rating', 'pubdate'];
+        return columns[index] || 'title';
+    }
+
+    saveTableColumnWidths() {
+        const table = document.getElementById('booksTableElement');
+        if (!table) return;
+        
+        const headers = table.querySelectorAll('th.resizable-col');
+        const columns = ['title', 'authors', 'series', 'publisher', 'rating', 'pubdate'];
+        
+        headers.forEach((th, index) => {
+            const colName = columns[index];
+            const width = th.offsetWidth;
+            const tableWidth = table.offsetWidth;
+            const percentage = (width / tableWidth) * 100;
+            this.tableColumnWidths[colName] = percentage;
+        });
+        
+        this.saveViewPreferences();
+    }
+
+    loadTableColumnWidths() {
+        const table = document.getElementById('booksTableElement');
+        if (!table) return;
+        
+        const headers = table.querySelectorAll('th.resizable-col');
+        const columns = ['title', 'authors', 'series', 'publisher', 'rating', 'pubdate'];
+        
+        // Default widths for columns
+        const defaultWidths = {
+            title: 30,
+            authors: 20,
+            series: 15,
+            publisher: 15,
+            rating: 10,
+            pubdate: 10
+        };
+        
+        headers.forEach((th, index) => {
+            const colName = columns[index];
+            let width = this.tableColumnWidths[colName];
+            
+            // Ensure width is valid
+            if (!width || width <= 0) {
+                width = defaultWidths[colName] || 15;
+                this.tableColumnWidths[colName] = width;
+            }
+            
+            // Always apply as percentage for responsive scaling
+            th.style.width = width + '%';
+        });
+    }
+
+    setupTableResizeObserver() {
+        const booksTable = document.getElementById('booksTable');
+        if (!booksTable) return;
+        
+        // Create resize observer to detect when panel is resized
+        const resizeObserver = new ResizeObserver(() => {
+            // Re-apply column widths when container is resized
+            this.loadTableColumnWidths();
+        });
+        
+        resizeObserver.observe(booksTable);
+    }
+
+    escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
     }
 
     async refreshLibraries() {
@@ -1379,10 +2021,6 @@ class BiblioApp {
             console.error('Error refreshing libraries:', error);
             this.updateStatus('Error refreshing libraries');
         }
-    }
-
-    showSettings() {
-        alert('Settings dialog not yet implemented.\n\nYou can configure the libraries folder path in the environment or by modifying the configuration file.');
     }
 
     showAbout() {

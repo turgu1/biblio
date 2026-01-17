@@ -9,11 +9,19 @@ A modern web application for browsing multiple Calibre e-book libraries with a r
 - **Multiple Library Support**: Browse multiple Calibre libraries from a single interface
 - **Rich Metadata Display**: View detailed information about each book including authors, series, tags, and more
 - **Advanced Filtering**: Filter books by authors, tags, and series
-- **Search Functionality**: Full-text search across book titles and authors
-- **Cover Image Gallery**: Browse book covers in a grid layout with zoom and details
+- **Search Functionality**: Full-text search across book titles and authors with quick clear button
+- **Cover Image Gallery**: Browse book covers in a grid layout with dynamic sizing
+  - **Continuous Size Control**: Range slider to adjust cover size from 50px to 250px
+  - **Responsive Spacing**: Grid gaps and title positioning automatically adjust with cover size
+  - **Dynamic Title Display**: Title font size and line count scale based on available space
+  - **Auto-Fill**: Screen automatically fills with available books when resizing or switching libraries
+- **Table View**: Tabular display of books with resizable columns and visibility controls
+  - **Resizable Columns**: Drag column edges to adjust width
+  - **Column Visibility**: Toggle which columns to display
+  - **Consistent Formatting**: Author names formatted consistently with filter panel
 - **Responsive Design**: Works on desktop, tablet, and mobile devices
 - **Infinite Scroll**: Efficiently browse large libraries with progressive loading
-- **Session Persistence**: Automatically saves your filters, search, and library selection using browser cookies
+- **Session Persistence**: Automatically saves your filters, search, library selection, and view preferences using browser cookies
 - **User Authentication**: Secure login system with role-based access control
 - **Admin Panel**: Comprehensive user management interface for administrators
 - **Role-Based Access Control**: Four-level permission system (Admin, Librarian, User, Reader)
@@ -168,10 +176,23 @@ The application is organized into five panels:
 - **Tags**: Filter books by subject tags
 - **Series**: Filter books by series
 
-#### Center Panel (Books Grid)
+#### Center Panel (Books Grid & Table)
 - **Search Box**: Search for books by title or author
+  - **Quick Clear**: Click the × button to instantly clear search results
+- **View Mode Toggle**: Switch between Grid and Table display modes
+- **Cover Size Control** (Grid mode only):
+  - **Range Slider**: Adjust cover size from 50px to 250px
+  - **Current Size Display**: Shows selected pixel size
+  - **Dynamic Scaling**: Spacing and title formatting adjust automatically
+- **Column Visibility** (Table mode only):
+  - **Visibility Toggles**: Show/hide columns (Title, Authors, Series, Publisher, Rating, Published)
+  - **Resizable Columns**: Drag column separators to adjust width
+  - **Smart Defaults**: Columns have automatic minimum widths for readability
 - **Sort Options**: Sort by recent, title, or author
 - **Grid Display**: Visual gallery of book covers with titles
+  - **Auto-Fill**: Loads more books to fill available screen space
+  - **Dynamic Title Display**: Font size and line clamp scale with cover size
+- **Table Display**: Tabular view with formatted author names matching filter panel
 - **Selection**: Click on a book to view detailed information
 
 #### Right Panel (Book Details)
@@ -184,12 +205,16 @@ Shows comprehensive information for the selected book:
 - Rating (if available)
 - Comments/description
 
-#### Bottom Panel (Status Bar)
-- Current library name
-- Total number of books
-- Number of filtered books
-- Current operation status
-- Admin button (visible to administrators only)
+#### Bottom Panel (Status & View Controls)
+- **Current library name**: Shows active library selection
+- **Total number of books**: Total books in current library
+- **Number of filtered books**: Books matching current filters and search
+- **Current operation status**: Real-time feedback (Ready, Loading, etc.)
+- **Admin button**: Visible to administrators only (🔐)
+- **View Mode Toggle**: Switch between Grid and Table display
+- **Cover Size Control** (Grid mode): Range slider and current size display
+- **Column Visibility Controls** (Table mode): Checkboxes to show/hide table columns
+- **Note**: Status panel is hidden during login for a cleaner login experience
 
 ### Admin Panel (For Administrators)
 
@@ -336,6 +361,14 @@ Biblio reads Calibre's SQLite metadata.db files. The main tables accessed are:
 - [x] **User Authentication** - Secure login system with role-based access control
 - [x] **Admin Panel** - User management interface for administrators
 - [x] **Session Persistence** - Saves user filters, search, and library selection with cookies
+- [x] **Table View** - Tabular display of books with resizable columns and visibility controls
+- [x] **Dynamic Cover Sizing** - Range slider (50-250px) with automatic layout adjustment
+- [x] **Responsive Titles** - Title font size and line count scale with cover size
+- [x] **Auto-Fill Screen** - Automatically loads books to fill available space when resizing or switching libraries
+- [x] **Search Quick Clear** - Clear button (×) for instant search field clearing
+- [x] **Consistent Author Formatting** - Author names displayed consistently across grid, table, and filter views
+- [x] **Smart Column Widths** - Ensures table columns have minimum readable widths
+- [x] **Clean Login UI** - Status panel hidden during login for cleaner appearance
 
 ## Future Enhancements
 
@@ -429,5 +462,5 @@ For issues, questions, or suggestions, please contact the development team or op
 
 ---
 
-**Version**: 0.2.0 (Admin Features Release)  
-**Last Updated**: January 16, 2026
+**Version**: 0.3.0 (Enhanced UI/UX Release)  
+**Last Updated**: January 17, 2026

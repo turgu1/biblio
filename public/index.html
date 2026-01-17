@@ -75,6 +75,27 @@
             flex-shrink: 0;
         }
 
+        /* Splitter Styles */
+        .splitter {
+            width: 2px;
+            background-color: #d0d0d0;
+            cursor: col-resize;
+            transition: background-color 0.2s;
+            flex-shrink: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .splitter:hover {
+            background-color: #999;
+        }
+
+        .splitter.active {
+            background-color: #3498db;
+        }
+
         .filter-section {
             margin-bottom: 20px;
         }
@@ -109,6 +130,7 @@
         /* Center Panel - Books Grid */
         .center-panel {
             flex: 1;
+            min-width: 200px;
             background-color: white;
             border-radius: 4px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
@@ -136,9 +158,9 @@
             flex: 1;
             overflow-y: auto;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 15px;
-            padding: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(var(--cover-width, 140px), 1fr));
+            gap: var(--item-gap, 15px);
+            padding: var(--grid-padding, 15px);
             align-content: start;
         }
 
@@ -156,16 +178,17 @@
         }
 
         .book-cover {
-            width: 120px;
-            height: 160px;
+            width: var(--cover-width, 120px);
+            height: calc(var(--cover-width, 120px) * 1.333);
             background-color: transparent;
             border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            margin-bottom: 8px;
+            margin-bottom: var(--cover-margin, 8px);
             border: 1px solid #bdc3c7;
+            transition: width 0.1s, height 0.1s, margin-bottom 0.1s;
         }
 
         .book-cover img {
@@ -183,16 +206,18 @@
         }
 
         .book-title {
-            font-size: 12px;
+            font-size: var(--title-font-size, 12px);
             font-weight: 500;
             text-align: center;
             color: #2c3e50;
-            width: 120px;
+            width: var(--cover-width, 120px);
             display: -webkit-box;
-            -webkit-line-clamp: 2;
-            line-clamp: 2;
+            -webkit-line-clamp: var(--title-lines, 2);
+            line-clamp: var(--title-lines, 2);
             -webkit-box-orient: vertical;
             overflow: hidden;
+            transition: width 0.1s, font-size 0.1s, -webkit-line-clamp 0.1s, line-clamp 0.1s;
+            line-height: 1.3;
         }
 
         .book-item.selected .book-cover {
@@ -208,6 +233,7 @@
             overflow-y: auto;
             padding: 15px;
             flex-shrink: 0;
+            flex-basis: 300px;
         }
 
         .details-content {
@@ -301,6 +327,100 @@
             gap: 5px;
         }
 
+        .status-item input[type="radio"] {
+            margin-right: 4px;
+            cursor: pointer;
+        }
+
+        .status-item label {
+            cursor: pointer;
+            margin-right: 8px;
+        }
+
+        /* Table View Styles */
+        .books-table {
+            flex: 1;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+        }
+
+        .books-table table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            table-layout: fixed;
+        }
+
+        .books-table thead {
+            position: sticky;
+            top: 0;
+            background-color: #f5f5f5;
+            z-index: 10;
+        }
+
+        .books-table th {
+            border: 1px solid #ddd;
+            padding: 8px 6px;
+            text-align: left;
+            font-weight: 500;
+            font-size: 12px;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .books-table th.resizable-col {
+            padding-right: 2px;
+        }
+
+        .books-table th .col-resize {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            cursor: col-resize;
+            user-select: none;
+            background-color: transparent;
+        }
+
+        .books-table th .col-resize:hover {
+            background-color: #3498db;
+        }
+
+        .books-table tbody tr {
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .books-table tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .books-table tbody tr.selected {
+            background-color: #e3f2fd;
+        }
+
+        .books-table td {
+            border: 1px solid #eee;
+            padding: 8px 12px;
+            font-size: 12px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .books-table tbody tr:hover td {
+            background-color: #f9f9f9;
+        }
+
+        .books-table tbody tr.selected td {
+            background-color: #e3f2fd;
+        }
+
         /* Scrollbar styling */
         ::-webkit-scrollbar {
             width: 8px;
@@ -388,7 +508,6 @@
     <div class="top-panel">
         <h1>Biblio - E-book Library Browser</h1>
         <button onclick="app.refreshLibraries()">🔄 Refresh</button>
-        <button onclick="app.showSettings()">⚙️ Settings</button>
         <button onclick="window.location.href='/profile.html'">👤 My Profile</button>
         <button id="adminBtn" style="display: none;" onclick="window.location.href='/admin.html'">🔐 Admin</button>
         <button onclick="app.showAbout()">ℹ️ About</button>
@@ -455,10 +574,16 @@
             </div>
         </div>
 
+        <!-- Splitter between left and center panels -->
+        <div class="splitter" id="splitterLeft"></div>
+
         <!-- Center Panel - Books Grid -->
         <div class="center-panel">
             <div class="books-toolbar">
-                <input type="text" id="searchInput" placeholder="Search books or authors..." style="flex: 1; padding: 6px 10px; border: 1px solid #bdc3c7; border-radius: 4px;">
+                <div style="flex: 1; display: flex; align-items: center; position: relative;">
+                    <input type="text" id="searchInput" placeholder="Search books or authors..." style="flex: 1; padding: 6px 10px; border: 1px solid #bdc3c7; border-radius: 4px; padding-right: 35px;">
+                    <button id="clearSearchBtn" style="position: absolute; right: 8px; background: none; border: none; cursor: pointer; padding: 4px 6px; color: #95a5a6; font-size: 16px; display: none; line-height: 1; padding: 0; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;" title="Clear search" onclick="app.clearSearch()">✕</button>
+                </div>
                 <select id="sortSelect" onchange="app.updateSort()">
                     <option value="recent">Recent</option>
                     <option value="title">Title A-Z</option>
@@ -468,7 +593,26 @@
             <div class="books-grid" id="booksGrid">
                 <div class="no-selection">Select a library to view books</div>
             </div>
+            <div class="books-table" id="booksTable" style="display: none;">
+                <table id="booksTableElement">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%;" data-col="title" class="resizable-col">Title <span class="col-resize"></span></th>
+                            <th style="width: 20%;" data-col="authors" class="resizable-col">Authors <span class="col-resize"></span></th>
+                            <th style="width: 15%;" data-col="series" class="resizable-col">Series <span class="col-resize"></span></th>
+                            <th style="width: 15%;" data-col="publisher" class="resizable-col">Publisher <span class="col-resize"></span></th>
+                            <th style="width: 10%;" data-col="rating" class="resizable-col">Rating <span class="col-resize"></span></th>
+                            <th style="width: 10%;" data-col="pubdate" class="resizable-col">Published <span class="col-resize"></span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="booksTableBody">
+                    </tbody>
+                </table>
+            </div>
         </div>
+
+        <!-- Splitter between center and right panels -->
+        <div class="splitter" id="splitterRight"></div>
 
         <!-- Right Panel - Book Details -->
         <div class="right-panel">
@@ -548,10 +692,33 @@
                 <span>Filtered:</span>
                 <strong id="statusFiltered">0</strong>
             </div>
+            <div class="status-item" style="margin-left: 20px;">
+                <span>View:</span>
+                <label style="margin-left: 8px; margin-right: 12px;">
+                    <input type="radio" name="viewMode" value="grid" checked onchange="app.setViewMode('grid')"> Grid
+                </label>
+                <label>
+                    <input type="radio" name="viewMode" value="table" onchange="app.setViewMode('table')"> Table
+                </label>
+            </div>
+            <div class="status-item" style="margin-left: 20px;" id="coverSizeItem">
+                <span>Cover Size:</span>
+                <input type="range" id="coverSizeSlider" min="50" max="250" value="120" step="10" style="width: 150px; margin-left: 8px; margin-right: 8px; cursor: pointer;" oninput="app.setCoverSize(this.value)">
+                <span id="coverSizeLabel" style="margin-left: 8px; min-width: 40px;">120</span>
+            </div>
+            <div class="status-item" style="margin-left: 20px;" id="columnVisibilityItem" style="display: none;">
+                <span>Columns:</span>
+                <label style="margin-left: 8px; margin-right: 6px;"><input type="checkbox" data-col="title" checked onchange="app.toggleColumnVisibility('title')"> Title</label>
+                <label style="margin-right: 6px;"><input type="checkbox" data-col="authors" checked onchange="app.toggleColumnVisibility('authors')"> Authors</label>
+                <label style="margin-right: 6px;"><input type="checkbox" data-col="series" checked onchange="app.toggleColumnVisibility('series')"> Series</label>
+                <label style="margin-right: 6px;"><input type="checkbox" data-col="publisher" checked onchange="app.toggleColumnVisibility('publisher')"> Publisher</label>
+                <label style="margin-right: 6px;"><input type="checkbox" data-col="rating" checked onchange="app.toggleColumnVisibility('rating')"> Rating</label>
+                <label><input type="checkbox" data-col="pubdate" checked onchange="app.toggleColumnVisibility('pubdate')"> Published</label>
+            </div>
         </div>
         <div id="statusMessage" style="text-align: right;">Ready</div>
     </div>
 
-    <script src="app.js?v=3"></script>
+    <script src="app.js?v=14"></script>
 </body>
 </html>

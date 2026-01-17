@@ -1,0 +1,5 @@
+# Biblio users file - auto-generated
+# Format: username:password_hash:role:email:created_at
+
+admin:$argon2id$v=19$m=19456,t=2,p=1$UMz28aV2SASX9oQstzpfPQ$WBu76A0o8Q5urp8sw9Z14Wb6X3pU2+LMkmZEwoOcb1s:admin::2026-01-16T00:00:00+00:00
+guy:$argon2id$v=19$m=19456,t=2,p=1$zLp3avieuja4YYwYcn6dpg$fuuX55jVb28ZxvAzUl6SUiWk3p7+R9H/IpQ7Hai/yTs:reader::2026-01-17T03:07:24.465615106+00:00

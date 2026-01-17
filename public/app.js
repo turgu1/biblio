@@ -21,6 +21,8 @@ class BiblioApp {
         this.booksPerPage = 100;
         this.displayedBooksCount = 0;
         this.isLoadingMore = false;
+        this.isAuthenticated = false;
+        this.currentUsername = null;
     }
 
     // Cookie Management Methods
@@ -129,23 +131,358 @@ class BiblioApp {
 
     async init() {
         console.log('Initializing Biblio App...');
-        // Load saved app state from cookies
-        const savedState = this.loadAppState();
         
-        await this.loadLibraries();
-        this.setupEventListeners();
+        // Check if user is authenticated
+        const authState = this.loadAuthState();
+        if (authState && authState.isAuthenticated) {
+            this.isAuthenticated = true;
+            this.currentUsername = authState.username;
+            this.showMainApp();
+            this.checkAdminStatus();
+            
+            // Load saved app state from cookies
+            const savedState = this.loadAppState();
+            
+            await this.loadLibraries();
+            this.setupEventListeners();
+            
+            // If there was a saved library, select it; otherwise select first library
+            if (savedState && savedState.currentLibraryId && this.libraries.some(lib => lib.id === savedState.currentLibraryId)) {
+                await this.selectLibrary(savedState.currentLibraryId);
+            } else if (this.libraries.length > 0) {
+                await this.selectLibrary(this.libraries[0].id);
+            }
+            
+            // After library is loaded, restore the selected book if it exists
+            if (this.selectedBookId && this.selectedBookLibraryId) {
+                await this.restoreSelectedBook();
+            }
+        } else {
+            this.showLoginPage();
+        }
+    }
+
+    checkAdminStatus() {
+        // Check if user has admin role from localStorage
+        const auth = this.loadAuthState();
+        const adminBtn = document.getElementById('adminBtn');
+        if (!adminBtn) return;
         
-        // If there was a saved library, select it; otherwise select first library
-        if (savedState && savedState.currentLibraryId && this.libraries.some(lib => lib.id === savedState.currentLibraryId)) {
-            await this.selectLibrary(savedState.currentLibraryId);
-        } else if (this.libraries.length > 0) {
-            await this.selectLibrary(this.libraries[0].id);
+        if (auth && auth.role === 'admin') {
+            adminBtn.style.display = 'inline-block';
+        } else {
+            adminBtn.style.display = 'none';
+        }
+    }
+
+    // Authentication Methods
+    saveAuthState(username, role = 'reader') {
+        const authState = {
+            isAuthenticated: true,
+            username: username,
+            role: role,
+            timestamp: Date.now()
+        };
+        localStorage.setItem('biblio_auth', JSON.stringify(authState));
+    }
+
+    loadAuthState() {
+        try {
+            const authState = localStorage.getItem('biblio_auth');
+            return authState ? JSON.parse(authState) : null;
+        } catch (error) {
+            console.error('Error loading auth state:', error);
+            this.clearAuthState();
+            return null;
+        }
+    }
+
+    clearAuthState() {
+        localStorage.removeItem('biblio_auth');
+    }
+
+    showLoginPage() {
+        try {
+            const contentArea = document.querySelector('.content-area');
+            const topPanel = document.querySelector('.top-panel');
+            
+            // Hide the main content
+            contentArea.style.display = 'none';
+            
+            // Create login container
+            const loginContainer = document.createElement('div');
+            loginContainer.id = 'loginContainer';
+            loginContainer.style.cssText = `
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            `;
+            
+            loginContainer.innerHTML = `
+                <div style="
+                    background: white;
+                    padding: 40px;
+                    border-radius: 8px;
+                    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+                    width: 100%;
+                    max-width: 400px;
+                    text-align: center;
+                ">
+                    <h1 style="color: #2c3e50; margin-bottom: 10px; font-size: 28px;">Biblio</h1>
+                    <p style="color: #95a5a6; margin-bottom: 30px; font-size: 14px;">E-book Library Browser</p>
+                    
+                    <form id="loginForm" style="text-align: left;" autocomplete="off">
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px; color: #2c3e50; font-weight: 500;">Username</label>
+                            <input 
+                                type="text" 
+                                id="usernameInput" 
+                                placeholder="Enter username"
+                                autocomplete="username"
+                                style="
+                                    width: 100%;
+                                    padding: 10px;
+                                    border: 1px solid #ecf0f1;
+                                    border-radius: 4px;
+                                    font-size: 14px;
+                                    box-sizing: border-box;
+                                "
+                            />
+                        </div>
+                        
+                        <div style="margin-bottom: 30px;">
+                            <label style="display: block; margin-bottom: 8px; color: #2c3e50; font-weight: 500;">Password</label>
+                            <input 
+                                type="password" 
+                                id="passwordInput" 
+                                placeholder="Enter password"
+                                autocomplete="current-password"
+                                style="
+                                    width: 100%;
+                                    padding: 10px;
+                                    border: 1px solid #ecf0f1;
+                                    border-radius: 4px;
+                                    font-size: 14px;
+                                    box-sizing: border-box;
+                                "
+                            />
+                        </div>
+                        
+                        <button 
+                            type="submit"
+                            style="
+                                width: 100%;
+                                padding: 12px;
+                                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                color: white;
+                                border: none;
+                                border-radius: 4px;
+                                font-size: 16px;
+                                font-weight: 500;
+                                cursor: pointer;
+                                transition: opacity 0.3s;
+                            "
+                        >
+                            Login
+                        </button>
+                    </form>
+                    
+                    <div id="loginError" style="
+                        margin-top: 20px;
+                        padding: 12px;
+                        background-color: #fadbd8;
+                        color: #c0392b;
+                        border-radius: 4px;
+                        display: none;
+                        font-size: 14px;
+                    "></div>
+                </div>
+            `;
+            
+            document.body.appendChild(loginContainer);
+            
+            // Clear password field for security (override browser autofill)
+            const passwordField = document.getElementById('passwordInput');
+            const usernameField = document.getElementById('usernameInput');
+            
+            // Aggressive clearing to prevent browser autofill
+            if (passwordField) {
+                // Add input event listener to clear field if autofilled
+                passwordField.addEventListener('input', () => {
+                    // Don't prevent input, just monitor
+                });
+                
+                // Set readonly briefly to prevent autofill, then remove
+                passwordField.setAttribute('readonly', '');
+                passwordField.value = '';
+                
+                // Remove readonly after browser autofill attempt would have happened
+                setTimeout(() => {
+                    if (passwordField) {
+                        passwordField.removeAttribute('readonly');
+                        passwordField.value = '';
+                    }
+                }, 50);
+                
+                // Additional clearing attempts
+                setTimeout(() => {
+                    if (passwordField) {
+                        passwordField.value = '';
+                    }
+                }, 100);
+                
+                setTimeout(() => {
+                    if (passwordField) {
+                        passwordField.value = '';
+                    }
+                }, 200);
+            }
+            
+            // Also clear username field
+            if (usernameField) {
+                usernameField.value = '';
+            }
+            
+            // Hide buttons in top panel
+            const buttons = topPanel.querySelectorAll('button');
+            buttons.forEach(btn => btn.style.display = 'none');
+            
+            // Setup login form handler
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', (e) => this.handleLogin(e));
+            }
+        } catch (error) {
+            console.error('Error showing login page:', error);
+        }
+    }
+
+    async handleLogin(e) {
+        e.preventDefault();
+        
+        const username = document.getElementById('usernameInput').value;
+        const password = document.getElementById('passwordInput').value;
+        const errorDiv = document.getElementById('loginError');
+        
+        if (!username || !password) {
+            errorDiv.textContent = 'Please enter username and password';
+            errorDiv.style.display = 'block';
+            return;
         }
         
-        // After library is loaded, restore the selected book if it exists
-        if (this.selectedBookId && this.selectedBookLibraryId) {
-            await this.restoreSelectedBook();
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                this.isAuthenticated = true;
+                this.currentUsername = username;
+                // Extract role from login response, default to 'reader' if not provided
+                const role = data.data && data.data.role ? data.data.role : 'reader';
+                this.saveAuthState(username, role);
+                
+                // Remove login page
+                const loginContainer = document.getElementById('loginContainer');
+                loginContainer.remove();
+                
+                // Show main app
+                this.showMainApp();
+                
+                // Initialize app
+                const savedState = this.loadAppState();
+                await this.loadLibraries();
+                this.setupEventListeners();
+                
+                if (savedState && savedState.currentLibraryId && this.libraries.some(lib => lib.id === savedState.currentLibraryId)) {
+                    await this.selectLibrary(savedState.currentLibraryId);
+                } else if (this.libraries.length > 0) {
+                    await this.selectLibrary(this.libraries[0].id);
+                }
+            } else {
+                errorDiv.textContent = data.error || 'Login failed';
+                errorDiv.style.display = 'block';
+                // Clear password field on failed login for security
+                document.getElementById('passwordInput').value = '';
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            errorDiv.textContent = 'An error occurred during login';
+            errorDiv.style.display = 'block';
         }
+    }
+
+    showMainApp() {
+        const contentArea = document.querySelector('.content-area');
+        const topPanel = document.querySelector('.top-panel');
+        
+        contentArea.style.display = 'flex';
+        
+        // Show/update buttons in top panel
+        const buttons = topPanel.querySelectorAll('button');
+        buttons.forEach(btn => btn.style.display = 'inline-block');
+        
+        // Add user info and logout button
+        const userInfo = topPanel.querySelector('#userInfo');
+        if (!userInfo) {
+            const userInfoDiv = document.createElement('div');
+            userInfoDiv.id = 'userInfo';
+            userInfoDiv.style.cssText = `
+                margin-left: 20px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-size: 14px;
+            `;
+            userInfoDiv.innerHTML = `
+                <span>Logged in as: <strong>${this.currentUsername}</strong></span>
+                <button id="logoutBtn" style="
+                    background-color: #e74c3c;
+                    padding: 6px 12px;
+                    font-size: 13px;
+                ">Logout</button>
+            `;
+            topPanel.appendChild(userInfoDiv);
+            
+            document.getElementById('logoutBtn').addEventListener('click', () => this.handleLogout());
+        }
+    }
+
+    async handleLogout() {
+        try {
+            await fetch('/api/auth/logout', {
+                method: 'POST'
+            });
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+        
+        this.isAuthenticated = false;
+        this.currentUsername = null;
+        this.clearAuthState();
+        
+        // Hide admin button
+        const adminBtn = document.getElementById('adminBtn');
+        if (adminBtn) {
+            adminBtn.style.display = 'none';
+        }
+        
+        // Remove user info
+        const userInfo = document.getElementById('userInfo');
+        if (userInfo) userInfo.remove();
+        
+        // Hide main content and show login page
+        document.querySelector('.content-area').style.display = 'none';
+        this.showLoginPage();
     }
 
     async loadLibraries() {

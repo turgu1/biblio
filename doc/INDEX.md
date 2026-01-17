@@ -39,7 +39,7 @@ public/
 └── app.js          ← JavaScript logic + cookies (500+ lines)
 ```
 
-**Documentation (2,000+ lines)**
+**Documentation (2,500+ lines)**
 ```
 ├── README.md                  ← Full documentation (300+ lines)
 ├── QUICKSTART.md              ← Setup guide (200+ lines)
@@ -47,6 +47,9 @@ public/
 ├── QUICK_REFERENCE.md         ← Command reference (350+ lines)
 ├── EXAMPLE_SETUP.md           ← Step-by-step guide (400+ lines)
 ├── PROJECT_SUMMARY.md         ← Project overview (400+ lines)
+├── ADMIN_FEATURES.md          ← Admin & user management (300+ lines) ⭐ NEW
+├── AUTHENTICATION.md          ← Authentication details
+├── FRONTEND_AUTHENTICATION.md ← Frontend auth implementation
 ├── COOKIE_IMPLEMENTATION.md   ← Cookie feature details (200+ lines)
 └── COOKIE_TESTING.md          ← Cookie testing guide (250+ lines)
 ```
@@ -69,7 +72,11 @@ public/
 - **Filtering** - By authors, tags, series
 - **Sorting** - Recent, title, or author
 - **Book Details** - Rich metadata display
-- **Session Persistence** - Automatic state saving with browser cookies (NEW!)
+- **Session Persistence** - Automatic state saving with browser cookies
+- **User Authentication** - Secure login system ⭐ NEW
+- **Role-Based Access Control** - Four-level permissions system ⭐ NEW
+- **Admin Panel** - User management interface ⭐ NEW
+- **Admin Features** - Create/update/delete users, reset passwords ⭐ NEW
 
 ### ✅ User Interface  
 - **5-Panel Layout**
@@ -117,6 +124,7 @@ http://localhost:8080
 
 ## 📡 API Endpoints
 
+### Library & Books Endpoints
 | Endpoint | Purpose |
 |----------|---------|
 | `GET /api/libraries` | Get all libraries |
@@ -127,6 +135,19 @@ http://localhost:8080
 | `GET /api/libraries/{id}/authors` | Get all authors |
 | `GET /api/libraries/{id}/tags` | Get all tags |
 | `GET /api/libraries/{id}/series` | Get all series |
+
+### Admin Endpoints ⭐ NEW
+| Endpoint | Purpose |
+|----------|---------|
+| `POST /api/admin/users` | Create new user |
+| `GET /api/admin/users` | List all users |
+| `PUT /api/admin/users/{username}` | Update user role/email |
+| `DELETE /api/admin/users/{username}` | Delete user |
+| `POST /api/admin/users/{username}/password` | Reset user password |
+| `POST /api/auth/login` | Login with credentials |
+| `POST /api/auth/logout` | Logout current session |
+
+**Admin Operations require admin_username parameter for authorization**
 
 ---
 
@@ -455,6 +476,32 @@ You now have a **professional-grade, production-ready** e-book management applic
 | Book grid render | < 500ms |
 | Search response | < 100ms |
 | Filter response | < 50ms |
+
+---
+
+## 📚 Documentation Guide
+
+### Getting Started
+- **[README.md](README.md)** - Start here! Full project overview and setup
+- **[QUICKSTART.md](QUICKSTART.md)** - 5-minute quick start guide
+- **[EXAMPLE_SETUP.md](EXAMPLE_SETUP.md)** - Detailed setup examples
+
+### Features & Implementation
+- **[IMPLEMENTATION.md](IMPLEMENTATION.md)** - Technical architecture and implementation details
+- **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)** - Complete project summary with all features
+- **[ADMIN_FEATURES.md](ADMIN_FEATURES.md)** - ⭐ NEW - Admin panel and user management documentation
+
+### Authentication & Admin
+- **[AUTHENTICATION.md](AUTHENTICATION.md)** - Authentication system details
+- **[FRONTEND_AUTHENTICATION.md](FRONTEND_AUTHENTICATION.md)** - Frontend authentication implementation
+- **[ADMIN_FEATURES.md](ADMIN_FEATURES.md)** - ⭐ NEW - Role-based access control and admin panel
+
+### Session & Cookies
+- **[COOKIE_IMPLEMENTATION.md](COOKIE_IMPLEMENTATION.md)** - Session persistence with cookies
+- **[COOKIE_TESTING.md](COOKIE_TESTING.md)** - Testing the cookie functionality
+
+### Reference
+- **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - Command and API reference
 
 ---
 

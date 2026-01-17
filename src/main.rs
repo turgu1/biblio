@@ -2,18 +2,41 @@ mod db;
 mod library;
 mod api;
 mod config;
+mod auth;
+mod session;
+mod audit;
+mod rbac;
 
 use actix_web::{web, App, HttpServer, middleware};
 use actix_files::Files;
 use library::LibraryCache;
 use std::sync::Mutex;
 use std::path::Path;
-use tracing::{warn, info};
+use tracing::{warn, info, error};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     // Initialize tracing
     tracing_subscriber::fmt::init();
+
+    // Load users for authentication
+    let users = match auth::load_users(config::USERS_FILE_PATH) {
+        Ok(users) => {
+            info!("Loaded {} user(s) for authentication", users.len());
+            web::Data::new(users)
+        }
+        Err(e) => {
+            error!("Failed to load users: {}", e);
+            error!("Authentication will be disabled. Configure USERS_FILE_PATH in src/config.rs");
+            web::Data::new(vec![])
+        }
+    };
+
+    // Initialize session store (30 minute timeout)
+    let session_store = web::Data::new(session::SessionStore::new(30));
+
+    // Initialize audit logger (keep last 1000 events)
+    let audit_logger = web::Data::new(audit::AuditLogger::new(1000));
 
     // Set up library cache
     let mut cache = LibraryCache::new();
@@ -37,6 +60,9 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(cache.clone())
+            .app_data(users.clone())
+            .app_data(session_store.clone())
+            .app_data(audit_logger.clone())
             .wrap(middleware::Logger::default())
             .configure(api::configure)
             .service(Files::new("/", "./public").index_file("index.html"))

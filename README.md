@@ -14,6 +14,10 @@ A modern web application for browsing multiple Calibre e-book libraries with a r
 - **Responsive Design**: Works on desktop, tablet, and mobile devices
 - **Infinite Scroll**: Efficiently browse large libraries with progressive loading
 - **Session Persistence**: Automatically saves your filters, search, and library selection using browser cookies
+- **User Authentication**: Secure login system with role-based access control
+- **Admin Panel**: Comprehensive user management interface for administrators
+- **Role-Based Access Control**: Four-level permission system (Admin, Librarian, User, Reader)
+- **User Management**: Create, update, delete users and manage passwords from admin panel
 
 ## Architecture
 
@@ -185,10 +189,33 @@ Shows comprehensive information for the selected book:
 - Total number of books
 - Number of filtered books
 - Current operation status
+- Admin button (visible to administrators only)
+
+### Admin Panel (For Administrators)
+
+Accessible to users with admin role via the 🔐 Admin button:
+
+#### User Management
+- **Add User**: Create new user accounts with specified role and email
+- **List Users**: View all users with their roles, emails, and creation dates
+- **Edit User**: Update user role and email information
+- **Reset Password**: Change user passwords (admin only)
+- **Delete User**: Remove user accounts from the system
+
+#### Features
+- Role-based user creation (Admin, Librarian, User, Reader)
+- Secure password management with Argon2id hashing
+- Audit logging of all admin operations
+- Admin button hidden for non-admin users
+- Page protection prevents direct access for non-admins
 
 ## API Reference
 
 ### Endpoints
+
+#### Authentication
+- `POST /api/auth/login` - Login with username and password
+- `POST /api/auth/logout` - Logout current user session
 
 #### Libraries
 - `GET /api/libraries` - Get list of all available libraries
@@ -203,6 +230,13 @@ Shows comprehensive information for the selected book:
 - `GET /api/libraries/{id}/authors` - Get all authors in a library
 - `GET /api/libraries/{id}/tags` - Get all tags in a library
 - `GET /api/libraries/{id}/series` - Get all series in a library
+
+#### Admin Endpoints (Admin role required)
+- `POST /api/admin/users` - Create new user
+- `GET /api/admin/users` - List all users
+- `PUT /api/admin/users/{username}` - Update user role and email
+- `DELETE /api/admin/users/{username}` - Delete user
+- `POST /api/admin/users/{username}/password` - Reset user password
 
 #### Query Parameters
 - `search`: Filter books by title or author name
@@ -292,19 +326,31 @@ Biblio reads Calibre's SQLite metadata.db files. The main tables accessed are:
 2. **Large Libraries**: Performance may degrade with libraries containing 10,000+ books
 3. **Book Formats**: Only displays cover images; doesn't provide access to book files
 4. **Read-Only**: Currently read-only access to Calibre libraries (modifications not supported)
+5. **File-Based Storage**: User data stored in file-based format (not database backend)
+6. **No Email Verification**: Email addresses stored but not verified
+7. **No Password Policies**: Any password accepted (to be enforced in production)
+8. **Single Admin Escalation**: System requires at least one admin account to exist
+
+## Completed Enhancements
+
+- [x] **User Authentication** - Secure login system with role-based access control
+- [x] **Admin Panel** - User management interface for administrators
+- [x] **Session Persistence** - Saves user filters, search, and library selection with cookies
 
 ## Future Enhancements
 
 - [ ] Advanced filtering with AND/OR logic
 - [ ] Book metadata editing
 - [ ] Book file access and download
-- [ ] User authentication and per-user libraries
+- [ ] Per-user library access (fine-grained permissions)
 - [ ] Dark theme
 - [ ] Advanced search with full-text indexing
 - [ ] Book recommendations
 - [ ] Reading progress tracking
 - [ ] Export/Import functionality
 - [ ] Mobile app
+- [ ] Email notifications for admin events
+- [ ] Activity audit log viewer
 
 ## Troubleshooting
 
@@ -331,6 +377,48 @@ Biblio reads Calibre's SQLite metadata.db files. The main tables accessed are:
 
 This project is licensed under the MIT License - see the [LICENSE](MIT-License.txt) file for details.
 
+## User Roles
+
+Biblio supports four user roles with different permission levels:
+
+### Admin
+- Full access to all features
+- User management (create, update, delete)
+- Password reset for other users
+- View all users list
+- Access to admin panel
+
+### Librarian
+- Full access to library browsing features
+- Can search, filter, and view all books
+- Reserved for future library management features
+
+### User
+- Access to library browsing features
+- Can search, filter, and view books
+- Standard user permissions
+
+### Reader
+- Read-only access to libraries
+- Can browse and search books
+- Limited to viewing operations only
+
+## Default Admin Credentials
+
+When first deployed, an admin account is available:
+- **Username**: `admin`
+- **Password**: `Admin@Pass123!`
+
+**Important**: Change this password after first login for security.
+
+## Documentation
+
+For detailed documentation, see the `doc/` folder:
+- [ADMIN_FEATURES.md](doc/ADMIN_FEATURES.md) - Complete admin system documentation
+- [IMPLEMENTATION.md](doc/IMPLEMENTATION.md) - Technical implementation details
+- [AUTHENTICATION.md](doc/AUTHENTICATION.md) - Authentication system details
+- [INDEX.md](doc/INDEX.md) - Documentation index and navigation guide
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit issues or pull requests.
@@ -341,5 +429,5 @@ For issues, questions, or suggestions, please contact the development team or op
 
 ---
 
-**Version**: 0.1.0  
-**Last Updated**: January 2026
+**Version**: 0.2.0 (Admin Features Release)  
+**Last Updated**: January 16, 2026

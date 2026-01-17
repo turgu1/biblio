@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Biblio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-panel {
+            background-color: #2c3e50;
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+        }
+
+        .top-panel h1 {
+            font-size: 18px;
+            margin-right: auto;
+        }
+
+        .top-panel button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .top-panel button:hover {
+            background-color: #2980b9;
+        }
+
+        .top-panel button.back-btn {
+            background-color: #27ae60;
+        }
+
+        .top-panel button.back-btn:hover {
+            background-color: #229954;
+        }
+
+        .top-panel button.logout-btn {
+            background-color: #e74c3c;
+        }
+
+        .top-panel button.logout-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .section {
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .form-group input {
+            padding: 8px 12px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 4px rgba(52, 152, 219, 0.3);
+        }
+
+        .form-group input:disabled {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            cursor: not-allowed;
+        }
+
+        .form-group.readonly input {
+            background-color: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-success {
+            background-color: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #229954;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .text-muted {
+            color: #7f8c8d;
+            font-size: 13px;
+        }
+
+        .user-info {
+            background-color: #ecf0f1;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .user-info p {
+            margin: 8px 0;
+            color: #2c3e50;
+        }
+
+        .user-info strong {
+            color: #2c3e50;
+        }
+
+        .password-requirements {
+            background-color: #f9f9f9;
+            padding: 12px;
+            border-left: 4px solid #3498db;
+            margin-top: 10px;
+            border-radius: 2px;
+        }
+
+        .password-requirements ul {
+            margin-left: 20px;
+            margin-top: 8px;
+            color: #2c3e50;
+            font-size: 13px;
+        }
+
+        .password-requirements li {
+            margin: 4px 0;
+        }
+
+        .requirement {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+        }
+
+        .requirement.valid {
+            color: #27ae60;
+        }
+
+        .requirement.invalid {
+            color: #e74c3c;
+        }
+
+        .requirement-check {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .requirement.valid .requirement-check {
+            background-color: #27ae60;
+            color: white;
+        }
+
+        .requirement.invalid .requirement-check {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #ecf0f1;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-panel">
+        <h1>👤 My Profile</h1>
+        <button class="back-btn" onclick="goToLibrary()">← Back to Library</button>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="content">
+        <!-- Messages -->
+        <div id="message" style="display: none;"></div>
+
+        <!-- User Information Section -->
+        <div class="section">
+            <h2>User Information</h2>
+            <div id="userInfo" class="loading">
+                <span class="spinner"></span>Loading user information...
+            </div>
+        </div>
+
+        <!-- Change Password Section -->
+        <div class="section">
+            <h2>Change Password</h2>
+            <form id="changePasswordForm" onsubmit="handleChangePassword(event)" autocomplete="off">
+                <div class="form-group">
+                    <label for="currentPassword">Current Password</label>
+                    <input type="password" id="currentPassword" required autocomplete="current-password" onkeyup="updateSubmitButton();">
+                </div>
+
+                <div class="form-group">
+                    <label for="newPassword">New Password</label>
+                    <input type="password" id="newPassword" required autocomplete="new-password" onkeyup="checkPasswordStrength(); updateSubmitButton();">
+                    <div class="password-requirements">
+                        <strong>Password Requirements:</strong>
+                        <div id="passwordChecklist"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm New Password</label>
+                    <input type="password" id="confirmPassword" required autocomplete="new-password" onkeyup="checkPasswordMatch(); updateSubmitButton();">
+                    <div id="passwordMatchMessage"></div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn-success" id="submitBtn" disabled>Change Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+
+        function showMessage(message, type = 'success') {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = message;
+            messageEl.className = `alert alert-${type}`;
+            messageEl.style.display = 'block';
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 4000);
+        }
+
+        function goToLibrary() {
+            window.location.href = '/';
+        }
+
+        function logout() {
+            fetch(`${API_BASE}/auth/logout`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    // Clear authentication state
+                    localStorage.removeItem('biblio_auth');
+                    // Redirect to main page
+                    window.location.href = '/';
+                })
+                .catch(err => {
+                    console.error('Logout error:', err);
+                    // Still redirect on error
+                    localStorage.removeItem('biblio_auth');
+                    window.location.href = '/';
+                });
+        }
+
+        async function loadUserInfo() {
+            try {
+                // Get username and role from localStorage auth state
+                const authState = localStorage.getItem('biblio_auth');
+                let currentUsername = 'user';
+                let currentRole = 'reader';
+                if (authState) {
+                    try {
+                        const auth = JSON.parse(authState);
+                        currentUsername = auth.username || 'user';
+                        currentRole = auth.role || 'reader';
+                    } catch (e) {
+                        console.error('Error parsing auth state:', e);
+                    }
+                }
+                
+                // Display user info from localStorage (role and username are stored during login)
+                document.getElementById('userInfo').innerHTML = `
+                    <div class="user-info">
+                        <p><strong>Username:</strong> ${escapeHtml(currentUsername)}</p>
+                        <p><strong>Role:</strong> ${escapeHtml(currentRole)}</p>
+                    </div>
+                `;
+                // Store username for password change form
+                window.currentUsername = currentUsername;
+            } catch (error) {
+                showMessage(`Error: ${error.message}`, 'error');
+                document.getElementById('userInfo').innerHTML = '<p>Error loading user information</p>';
+            }
+        }
+
+        function checkPasswordStrength() {
+            const password = document.getElementById('newPassword').value;
+            const checklist = document.getElementById('passwordChecklist');
+
+            const requirements = [
+                { name: 'At least 8 characters', test: password.length >= 8 },
+                { name: 'At least one uppercase letter', test: /[A-Z]/.test(password) },
+                { name: 'At least one lowercase letter', test: /[a-z]/.test(password) },
+                { name: 'At least one digit', test: /\d/.test(password) },
+                { name: 'At least one special character', test: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) }
+            ];
+
+            checklist.innerHTML = requirements.map(req => `
+                <div class="requirement ${req.test ? 'valid' : 'invalid'}">
+                    <div class="requirement-check">${req.test ? '✓' : '✗'}</div>
+                    <span>${req.name}</span>
+                </div>
+            `).join('');
+        }
+
+
+        function checkPasswordMatch() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const message = document.getElementById('passwordMatchMessage');
+
+            if (confirmPassword === '') {
+                message.innerHTML = '';
+            } else if (newPassword === confirmPassword) {
+                message.innerHTML = '<span style="color: #27ae60; font-size: 13px;">✓ Passwords match</span>';
+            } else {
+                message.innerHTML = '<span style="color: #e74c3c; font-size: 13px;">✗ Passwords do not match</span>';
+            }
+
+            updateSubmitButton();
+        }
+
+        function updateSubmitButton() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            const passwordsMatch = newPassword === confirmPassword && newPassword !== '';
+            const requirements = [
+                newPassword.length >= 8,
+                /[A-Z]/.test(newPassword),
+                /[a-z]/.test(newPassword),
+                /\d/.test(newPassword),
+                /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword)
+            ];
+            const allRequirementsMet = requirements.every(r => r);
+
+            document.getElementById('submitBtn').disabled = !currentPassword || !passwordsMatch || !allRequirementsMet;
+        }
+
+        async function handleChangePassword(event) {
+            event.preventDefault();
+
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            // Use the username stored during loadUserInfo
+            const username = window.currentUsername || 'user';
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/change-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username,
+                        current_password: currentPassword,
+                        new_password: newPassword
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('Password changed successfully!', 'success');
+                    clearPasswordFields();
+                } else {
+                    showMessage(data.error || 'Failed to change password', 'error');
+                    // Still clear password fields on error for security
+                    clearPasswordFields();
+                }
+            } catch (error) {
+                showMessage(`Error: ${error.message}`, 'error');
+                // Still clear password fields on error for security
+                clearPasswordFields();
+            }
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Security: Clear all password fields with delay to override browser autofill
+        function clearPasswordFields() {
+            // Clear immediately
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            document.getElementById('passwordChecklist').innerHTML = '';
+            document.getElementById('passwordMatchMessage').innerHTML = '';
+            document.getElementById('submitBtn').disabled = true;
+            
+            // Clear again after a short delay to ensure browser autofill doesn't repopulate
+            setTimeout(() => {
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+                document.getElementById('passwordChecklist').innerHTML = '';
+                document.getElementById('passwordMatchMessage').innerHTML = '';
+                document.getElementById('submitBtn').disabled = true;
+            }, 50);
+        }
+
+        // Load user info on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Clear all password fields when page loads for security
+            // Call multiple times to ensure browser autofill doesn't override
+            clearPasswordFields();
+            
+            // Call again after content loads
+            setTimeout(() => {
+                clearPasswordFields();
+            }, 50);
+            
+            loadUserInfo();
+        });
+
+        // Update submit button on input changes
+        document.getElementById('currentPassword').addEventListener('input', updateSubmitButton);
+        document.getElementById('newPassword').addEventListener('input', updateSubmitButton);
+        document.getElementById('confirmPassword').addEventListener('input', updateSubmitButton);
+    </script>
+</body>
+</html>

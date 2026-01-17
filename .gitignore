@@ -26,3 +26,4 @@ Cargo.lock
 src/config.rs
 compose.yml
 note.txt
+users.ids

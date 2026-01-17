@@ -21,3 +21,7 @@ pub const LIBRARY_PATH: &str = "/path/to/your/calibre-libraries";
 /// For Docker, insure that this is in line with definitions in the 
 /// compose.yaml and Dockerfile.
 pub const SERVICE_IP_AND_PORT: &str = "0.0.0.0:8080";
+
+/// Path to the users.ids file containing user credentials
+/// Format: username:password_hash (one per line)
+pub const USERS_FILE_PATH: &str = "./users.ids";

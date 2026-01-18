@@ -135,7 +135,24 @@ biblio/
    - You can add more users or reset passwords using the admin panel once logged in
    - **Note**: The `users.ids` file should not be committed to version control
 
-4. **Run the server**:
+4. **(Optional) Prepare HTTPS certificates**:
+   - If you want to enable HTTPS, prepare your SSL/TLS certificates:
+     ```bash
+     mkdir -p certs
+     # Place your certificate and key files:
+     # - certs/cert.pem (certificate)
+     # - certs/key.pem (private key)
+     ```
+   - Update `config.yaml` to enable HTTPS:
+     ```yaml
+     use_https: true
+     certificate_path: "certs/cert.pem"
+     key_path: "certs/key.pem"
+     ```
+   - The server will then listen on `https://localhost:8443`
+   - If HTTPS is not configured, the server defaults to HTTP on port 8080
+
+5. **Run the server**:
    ```bash
    cargo run --release
    ```
@@ -145,8 +162,9 @@ biblio/
    ./target/release/biblio
    ```
 
-5. **Access the application**:
-   - Open your web browser and go to: `http://localhost:8080`
+6. **Access the application**:
+   - HTTP: `http://localhost:8080` (default)
+   - HTTPS: `https://localhost:8443` (if configured)
    - **First login**:
      - Username: `admin`
      - Password: `admin`
@@ -182,7 +200,24 @@ biblio/
      - **Username**: `admin`
      - **Password**: `admin`
 
-3. **Update compose.yaml** (if needed):
+3. **(Optional) Prepare HTTPS certificates**:
+   - If you want to enable HTTPS, create and prepare certificates:
+     ```bash
+     mkdir -p config/certs
+     # Place your certificate and key files in config/certs/:
+     # - config/certs/cert.pem (certificate)
+     # - config/certs/key.pem (private key)
+     ```
+   - Update `config.yaml` to enable HTTPS:
+     ```yaml
+     use_https: true
+     certificate_path: "certs/cert.pem"
+     key_path: "certs/key.pem"
+     ```
+   - The server will then listen on `https://0.0.0.0:8443` inside the container
+   - You may need to add port mapping in compose.yaml: `"8443:8443/tcp"`
+
+4. **Update compose.yaml** (if needed):
    - Edit `compose.yaml` and update the volume mounts:
      ```yaml
      volumes:
@@ -190,19 +225,26 @@ biblio/
        - /your/actual/calibre/path:/calibre-libraries:rw  # Mount calibre libraries
      ```
    - The `APP_IN_DOCKER=true` environment variable is already set in compose.yaml
+   - For HTTPS, verify the port mapping is present:
+     ```yaml
+     ports:
+       - "8080:8080/tcp"    # HTTP (if use_https: false)
+       - "8443:8443/tcp"    # HTTPS (if use_https: true)
+     ```
 
-4. **Prepare configuration files**:
+5. **Prepare configuration files**:
    - Ensure your `config.yaml` is in the mounted config directory
    - Ensure your `users.ids` is in the mounted config directory
-   - Create `certs/` subdirectory in the config directory if using HTTPS
+   - If using HTTPS, ensure `certs/` subdirectory exists with `cert.pem` and `key.pem`
 
-5. **Build and run with Docker Compose**:
+6. **Build and run with Docker Compose**:
    ```bash
    docker compose up -d
    ```
 
-6. **Access the application**:
-   - Open your web browser and go to: `http://localhost:8080`
+7. **Access the application**:
+   - HTTP: `http://localhost:8080` (default)
+   - HTTPS: `https://localhost:8443` (if configured)
    - **First login**:
      - Username: `admin`
      - Password: `admin`

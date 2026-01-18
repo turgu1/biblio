@@ -124,10 +124,16 @@ biblio/
    - Other settings (server port, HTTPS, users file, etc.) can also be customized in this file
    - **Note**: The `config.yaml` file is local configuration and should not be committed to version control
 
-3. **Build the application**:
-   ```bash
-   cargo build --release
-   ```
+3. **Set up user authentication**:
+   - Copy the users file example:
+     ```bash
+     cp users.ids.example users.ids
+     ```
+   - The `users.ids` file now contains an admin user with:
+     - **Username**: `admin`
+     - **Password**: `admin`
+   - You can add more users or reset passwords using the admin panel once logged in
+   - **Note**: The `users.ids` file should not be committed to version control
 
 4. **Run the server**:
    ```bash
@@ -141,6 +147,10 @@ biblio/
 
 5. **Access the application**:
    - Open your web browser and go to: `http://localhost:8080`
+   - **First login**:
+     - Username: `admin`
+     - Password: `admin`
+   - **Important**: Change the admin password immediately after first login
 
 ### Option 2: Docker Installation
 
@@ -163,7 +173,16 @@ biblio/
      ```
    - This configuration will be mounted to `/config` in the container
 
-2. **Update compose.yaml** (if needed):
+2. **Set up user authentication**:
+   - Copy the users file example:
+     ```bash
+     cp users.ids.example users.ids
+     ```
+   - This creates a `users.ids` file with an admin user:
+     - **Username**: `admin`
+     - **Password**: `admin`
+
+3. **Update compose.yaml** (if needed):
    - Edit `compose.yaml` and update the volume mounts:
      ```yaml
      volumes:
@@ -172,18 +191,22 @@ biblio/
      ```
    - The `APP_IN_DOCKER=true` environment variable is already set in compose.yaml
 
-3. **Prepare configuration files**:
+4. **Prepare configuration files**:
    - Ensure your `config.yaml` is in the mounted config directory
-   - Create `users.ids` in the config directory if using authentication
+   - Ensure your `users.ids` is in the mounted config directory
    - Create `certs/` subdirectory in the config directory if using HTTPS
 
-4. **Build and run with Docker Compose**:
+5. **Build and run with Docker Compose**:
    ```bash
    docker compose up -d
    ```
 
-5. **Access the application**:
+6. **Access the application**:
    - Open your web browser and go to: `http://localhost:8080`
+   - **First login**:
+     - Username: `admin`
+     - Password: `admin`
+   - **Important**: Change the admin password immediately after first login
 
 #### Docker Commands
 
@@ -470,7 +493,7 @@ Biblio reads Calibre's SQLite metadata.db files. The main tables accessed are:
 ## Known Limitations
 
 1. **Filter Accuracy**: Tag/Author/Series filters currently use simplified matching
-2. **Large Libraries**: Performance may degrade with libraries containing 10,000+ books
+2. **Large Libraries**: Performance may degrade with libraries containing up to 10,000 books
 3. **Book Formats**: Only displays cover images; doesn't provide access to book files
 4. **Read-Only**: Currently read-only access to Calibre libraries (modifications not supported)
 5. **File-Based Storage**: User data stored in file-based format (not database backend)

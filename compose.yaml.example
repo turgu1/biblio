@@ -15,6 +15,7 @@ services:
       - 8080:8080
     environment:
       - RUST_LOG=info
+      - APP_IN_DOCKER=true
     volumes:
       # ⚠️ IMPORTANT: Update this path to your Calibre libraries location
       # Examples:
@@ -22,8 +23,12 @@ services:
       #   Windows:     C:/Users/username/calibre-libraries
       # The path should point to the directory containing your Calibre library folders
       - /path/to/your/calibre-libraries:/calibre-libraries:rw
+      # config location outside of the docker container
+      - /path/to/your/config-location:/config:ro
     restart: unless-stopped
     healthcheck:
+      # Could also be using https if enabled in the config.yaml file
+      # modify the following line accordingly:
       test: ["CMD", "curl", "-f", "http://localhost:8080"]
       interval: 30s
       timeout: 3s

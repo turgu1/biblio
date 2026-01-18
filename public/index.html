@@ -706,7 +706,7 @@
                 <input type="range" id="coverSizeSlider" min="50" max="250" value="120" step="10" style="width: 150px; margin-left: 8px; margin-right: 8px; cursor: pointer;" oninput="app.setCoverSize(this.value)">
                 <span id="coverSizeLabel" style="margin-left: 8px; min-width: 40px;">120</span>
             </div>
-            <div class="status-item" style="margin-left: 20px;" id="columnVisibilityItem" style="display: none;">
+            <div class="status-item" style="margin-left: 20px; display: none;" id="columnVisibilityItem">
                 <span>Columns:</span>
                 <label style="margin-left: 8px; margin-right: 6px;"><input type="checkbox" data-col="title" checked onchange="app.toggleColumnVisibility('title')"> Title</label>
                 <label style="margin-right: 6px;"><input type="checkbox" data-col="authors" checked onchange="app.toggleColumnVisibility('authors')"> Authors</label>
@@ -719,6 +719,6 @@
         <div id="statusMessage" style="text-align: right;">Ready</div>
     </div>
 
-    <script src="app.js?v=14"></script>
+    <script src="app.js?v=18"></script>
 </body>
 </html>

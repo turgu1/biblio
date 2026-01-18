@@ -25,3 +25,36 @@ pub const SERVICE_IP_AND_PORT: &str = "0.0.0.0:8080";
 /// Path to the users.ids file containing user credentials
 /// Format: username:password_hash (one per line)
 pub const USERS_FILE_PATH: &str = "./users.ids";
+
+/// HTTPS/TLS Configuration
+/// 
+/// To enable HTTPS:
+/// 1. Set USE_HTTPS to true
+/// 2. Generate or obtain SSL/TLS certificates
+/// 3. Update CERTIFICATE_PATH and PRIVATE_KEY_PATH with file locations
+/// 4. Rebuild and restart the application
+///
+/// CERTIFICATE GENERATION METHODS:
+///
+/// A. Self-Signed Certificate (for development/testing):
+///    mkdir -p certs
+///    openssl req -x509 -newkey rsa:4096 -keyout certs/key.pem -out certs/cert.pem -days 365 -nodes
+///
+/// B. Let's Encrypt (for production):
+///    Use Certbot to obtain free certificates:
+///    certbot certonly --standalone -d your-domain.com
+///    Update paths to /etc/letsencrypt/live/your-domain.com/
+///
+/// C. Self-Signed with Specific Properties:
+///    openssl req -x509 -newkey rsa:4096 -keyout certs/key.pem -out certs/cert.pem \
+///    -days 365 -nodes -subj "/C=US/ST=State/L=City/O=Organization/CN=localhost"
+
+pub const USE_HTTPS: bool = false;
+
+/// Path to the SSL/TLS certificate file (PEM format)
+/// Must be a valid X.509 certificate in PEM format
+pub const CERTIFICATE_PATH: &str = "./certs/cert.pem";
+
+/// Path to the SSL/TLS private key file (PEM format)
+/// Must be the private key corresponding to the certificate above
+pub const PRIVATE_KEY_PATH: &str = "./certs/key.pem";

@@ -17,8 +17,10 @@ A modern web application for browsing multiple Calibre e-book libraries with a r
   - **Auto-Fill**: Screen automatically fills with available books when resizing or switching libraries
 - **Table View**: Tabular display of books with resizable columns and visibility controls
   - **Resizable Columns**: Drag column edges to adjust width
-  - **Column Visibility**: Toggle which columns to display
+  - **Column Visibility**: Toggle which columns to display (Title, Authors, Series, Publisher, Rating, Published)
   - **Consistent Formatting**: Author names formatted consistently with filter panel
+  - **Infinite Scroll**: Progressively loads more rows as you scroll down
+  - **Column State Persistence**: Remembers your column visibility preferences
 - **Responsive Design**: Works on desktop, tablet, and mobile devices
 - **Infinite Scroll**: Efficiently browse large libraries with progressive loading
 - **Session Persistence**: Automatically saves your filters, search, library selection, and view preferences using browser cookies
@@ -43,19 +45,54 @@ A modern web application for browsing multiple Calibre e-book libraries with a r
 
 ```
 biblio/
-├── Cargo.toml                 # Rust dependencies and project config
+├── Cargo.toml                      # Rust dependencies and project config
+├── Cargo.lock                      # Locked dependency versions
+├── Dockerfile                      # Docker container configuration
+├── compose.yaml                    # Docker Compose production configuration
+├── compose.yaml.example            # Docker Compose example template
+├── .dockerignore                   # Files to exclude from Docker build
+├── .gitignore                      # Git ignore rules
+├── MIT-License.txt                 # License file
+├── README.md                       # This file
+├── README.Docker.md                # Docker-specific setup guide
+├── users.ids                       # User ID storage file
+├── users.ids.example               # User ID storage example
+│
 ├── src/
-│   ├── main.rs              # Application entry point and server setup
-│   ├── db.rs                # Calibre database access layer
-│   ├── library.rs           # Library discovery and scanning
-│   └── api.rs               # REST API endpoint handlers
+│   ├── main.rs                     # Application entry point and server setup
+│   ├── api.rs                      # REST API endpoint handlers
+│   ├── auth.rs                     # Authentication and login logic
+│   ├── db.rs                       # Calibre database access layer
+│   ├── library.rs                  # Library discovery and scanning
+│   ├── config.rs                   # Local configuration (git-ignored)
+│   ├── config.rs.example           # Configuration template
+│   ├── session.rs                  # Session management and cookies
+│   ├── rbac.rs                     # Role-based access control system
+│   ├── audit.rs                    # Audit logging for admin operations
+│   │
+│   └── bin/
+│       └── gen_hash.rs             # Utility to generate Argon2id password hashes
+│
 ├── public/
-│   ├── index.html           # Main web interface with embedded CSS
-│   ├── app.js               # Frontend JavaScript application
-│   └── favicon.ico          # App icon (optional)
-└── libraries/               # Directory for Calibre libraries (auto-created)
+│   ├── index.html                  # Main web interface with embedded CSS
+│   ├── app.js                      # Frontend JavaScript application
+│   ├── admin.html                  # Admin panel interface
+│   └── profile.html                # User profile page
+│
+├── doc/
+│   ├── INDEX.md                    # Documentation index and navigation
+│   ├── ADMIN_FEATURES.md           # Admin system documentation
+│   ├── AUTHENTICATION.md           # Authentication system details
+│   ├── IMPLEMENTATION.md           # Technical implementation details
+│   ├── PROJECT_SUMMARY.md          # High-level project overview
+│   ├── SESSION_PERSISTENCE*.md     # Session and persistence documentation
+│   └── ...                         # Additional documentation files
+│
+├── pictures/                       # Screenshot and image assets
+│
+└── libraries/                      # Directory for Calibre libraries (auto-created)
     └── YourLibrary/
-        └── metadata.db      # Calibre metadata database
+        └── metadata.db             # Calibre metadata database
 ```
 
 ## Installation
@@ -295,11 +332,63 @@ Then rebuild the application.
 
 ### Server Port
 
-The server listens on `0.0.0.0:8080` by default. To change the port, modify `src/main.rs`:
+The server listens on `0.0.0.0:8080` by default. To change the port, modify `src/config.rs`:
 
 ```rust
-.bind("0.0.0.0:8080")?  // Change port here
+pub const SERVICE_IP_AND_PORT: &str = "0.0.0.0:8080";  // Change port here
 ```
+
+### HTTPS/TLS Support
+
+Biblio supports HTTPS for secure connections. To enable HTTPS:
+
+#### 1. Generate SSL/TLS Certificates
+
+Choose one of the following methods:
+
+**A. Self-Signed Certificate (Development/Testing)**
+```bash
+mkdir -p certs
+openssl req -x509 -newkey rsa:4096 -keyout certs/key.pem -out certs/cert.pem -days 365 -nodes
+```
+
+**B. Let's Encrypt (Production)**
+```bash
+# Install Certbot: https://certbot.eff.org
+certbot certonly --standalone -d your-domain.com
+
+# Update config.rs to point to:
+# /etc/letsencrypt/live/your-domain.com/fullchain.pem (certificate)
+# /etc/letsencrypt/live/your-domain.com/privkey.pem (private key)
+```
+
+#### 2. Update Configuration
+
+Edit `src/config.rs` and set:
+
+```rust
+pub const USE_HTTPS: bool = true;
+pub const CERTIFICATE_PATH: &str = "./certs/cert.pem";    // Path to your certificate
+pub const PRIVATE_KEY_PATH: &str = "./certs/key.pem";     // Path to your private key
+```
+
+#### 3. Rebuild and Run
+
+```bash
+cargo build --release
+./target/release/biblio
+# Server will now run on https://0.0.0.0:8080
+```
+
+#### 4. Browser Access
+
+When using self-signed certificates, browsers will show a security warning. This is expected for self-signed certs. For production, use certificates from a trusted CA (like Let's Encrypt).
+
+**Features**:
+- Automatic HTTP/2 support (ALPN negotiation)
+- Supports both HTTP/2 and HTTP/1.1
+- Secure cipher suites via Rustls
+- No external TLS library dependencies required (native Rust implementation)
 
 ## Development
 
@@ -369,6 +458,9 @@ Biblio reads Calibre's SQLite metadata.db files. The main tables accessed are:
 - [x] **Consistent Author Formatting** - Author names displayed consistently across grid, table, and filter views
 - [x] **Smart Column Widths** - Ensures table columns have minimum readable widths
 - [x] **Clean Login UI** - Status panel hidden during login for cleaner appearance
+- [x] **Smart Filter Grouping** - Authors/Tags/Series grouped by first letter when >100 entries (collapsible with auto-expand)
+- [x] **Table Mode Infinite Scroll** - Progressively loads table rows as user scrolls down
+- [x] **Column Visibility Persistence** - Saves and restores user's column visibility preferences on return visits
 
 ## Future Enhancements
 

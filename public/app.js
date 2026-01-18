@@ -46,6 +46,10 @@ class BiblioApp {
             rating: true,
             pubdate: true
         };
+        
+        // Track which library each view was rendered for
+        this.gridRenderedForLibrary = null;
+        this.tableRenderedForLibrary = null;
     }
 
     // Cookie Management Methods
@@ -702,6 +706,16 @@ class BiblioApp {
             return sortA.localeCompare(sortB);
         });
 
+        // If more than 100 authors, group by first letter of sort field
+        if (sortedAuthors.length > 100) {
+            this.renderAuthorsGrouped(sortedAuthors);
+        } else {
+            this.renderAuthorsFlat(sortedAuthors);
+        }
+    }
+
+    renderAuthorsFlat(sortedAuthors) {
+        const authorsList = document.getElementById('authorsList');
         sortedAuthors.forEach(author => {
             const item = document.createElement('div');
             item.className = 'filter-item';
@@ -714,6 +728,95 @@ class BiblioApp {
             `;
             authorsList.appendChild(item);
         });
+    }
+
+    renderAuthorsGrouped(sortedAuthors) {
+        const authorsList = document.getElementById('authorsList');
+        
+        // Group authors by first letter of sort field
+        const groups = {};
+        sortedAuthors.forEach(author => {
+            const lastNameKey = this.getLastNameFirstLetter(author);
+            if (!groups[lastNameKey]) {
+                groups[lastNameKey] = [];
+            }
+            groups[lastNameKey].push(author);
+        });
+        
+        // Sort group keys alphabetically
+        const sortedKeys = Object.keys(groups).sort();
+        
+        // Create collapsible sections for each letter
+        sortedKeys.forEach((letter, index) => {
+            const groupContainer = document.createElement('div');
+            groupContainer.className = 'author-group';
+            
+            // Group header (clickable to expand/collapse)
+            const header = document.createElement('div');
+            header.className = 'author-group-header';
+            header.style.cssText = 'cursor: pointer; padding: 8px 10px; background: #ecf0f1; font-weight: 500; border-radius: 3px; margin-bottom: 5px; user-select: none; display: flex; align-items: center; justify-content: space-between;';
+            
+            const letterSpan = document.createElement('span');
+            letterSpan.textContent = `${letter} (${groups[letter].length})`;
+            header.appendChild(letterSpan);
+            
+            const toggleIcon = document.createElement('span');
+            toggleIcon.textContent = '▼';
+            toggleIcon.style.cssText = 'font-size: 12px; transition: transform 0.2s;';
+            header.appendChild(toggleIcon);
+            
+            // Group content (authors)
+            const content = document.createElement('div');
+            content.className = 'author-group-content';
+            content.style.cssText = 'padding-left: 10px; display: none;';
+            
+            groups[letter].forEach(author => {
+                const item = document.createElement('div');
+                item.className = 'filter-item';
+                const displayName = this.formatAuthorName(author.name);
+                const bookCount = author.book_count || 0;
+                item.innerHTML = `
+                    <input type="checkbox" id="author_${author.id}" value="${author.id}" 
+                           onchange="app.toggleAuthorFilter(${author.id})">
+                    <label for="author_${author.id}">${displayName} (${bookCount})</label>
+                `;
+                content.appendChild(item);
+            });
+            
+            // Toggle functionality
+            header.addEventListener('click', () => {
+                const isOpen = content.style.display !== 'none';
+                content.style.display = isOpen ? 'none' : 'block';
+                toggleIcon.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(-180deg)';
+            });
+            
+            // Expand first group by default
+            if (index === 0) {
+                content.style.display = 'block';
+                toggleIcon.style.transform = 'rotate(-180deg)';
+            }
+            
+            groupContainer.appendChild(header);
+            groupContainer.appendChild(content);
+            authorsList.appendChild(groupContainer);
+        });
+    }
+
+    getLastNameFirstLetter(author) {
+        // Use the sort field for consistent grouping
+        const sortField = author.sort || author.name;
+        
+        // Get first letter and convert to uppercase
+        const firstLetter = sortField.charAt(0).toUpperCase();
+        // Return letter or # for non-alphabetic
+        return /[A-Z]/.test(firstLetter) ? firstLetter : '#';
+    }
+
+    getFirstLetterFromString(str) {
+        // Get first letter from a string and convert to uppercase
+        const firstLetter = str.charAt(0).toUpperCase();
+        // Return letter or # for non-alphabetic
+        return /[A-Z]/.test(firstLetter) ? firstLetter : '#';
     }
 
     formatAuthorName(name) {
@@ -752,7 +855,24 @@ class BiblioApp {
             return;
         }
 
-        tags.forEach(tag => {
+        // Sort tags by name in lowercase
+        const sortedTags = [...tags].sort((a, b) => {
+            const sortA = a.name.toLowerCase();
+            const sortB = b.name.toLowerCase();
+            return sortA.localeCompare(sortB);
+        });
+
+        // If more than 100 tags, group by first letter
+        if (sortedTags.length > 100) {
+            this.renderTagsGrouped(sortedTags);
+        } else {
+            this.renderTagsFlat(sortedTags);
+        }
+    }
+
+    renderTagsFlat(sortedTags) {
+        const tagsList = document.getElementById('tagsList');
+        sortedTags.forEach(tag => {
             const item = document.createElement('div');
             item.className = 'filter-item';
             const bookCount = tag.book_count || 0;
@@ -762,6 +882,77 @@ class BiblioApp {
                 <label for="tag_${tag.id}">${tag.name} (${bookCount})</label>
             `;
             tagsList.appendChild(item);
+        });
+    }
+
+    renderTagsGrouped(sortedTags) {
+        const tagsList = document.getElementById('tagsList');
+        
+        // Group tags by first letter
+        const groups = {};
+        sortedTags.forEach(tag => {
+            const firstLetter = this.getFirstLetterFromString(tag.name);
+            if (!groups[firstLetter]) {
+                groups[firstLetter] = [];
+            }
+            groups[firstLetter].push(tag);
+        });
+        
+        // Sort group keys alphabetically
+        const sortedKeys = Object.keys(groups).sort();
+        
+        // Create collapsible sections for each letter
+        sortedKeys.forEach((letter, index) => {
+            const groupContainer = document.createElement('div');
+            groupContainer.className = 'filter-group';
+            
+            // Group header (clickable to expand/collapse)
+            const header = document.createElement('div');
+            header.className = 'filter-group-header';
+            header.style.cssText = 'cursor: pointer; padding: 8px 10px; background: #ecf0f1; font-weight: 500; border-radius: 3px; margin-bottom: 5px; user-select: none; display: flex; align-items: center; justify-content: space-between;';
+            
+            const letterSpan = document.createElement('span');
+            letterSpan.textContent = `${letter} (${groups[letter].length})`;
+            header.appendChild(letterSpan);
+            
+            const toggleIcon = document.createElement('span');
+            toggleIcon.textContent = '▼';
+            toggleIcon.style.cssText = 'font-size: 12px; transition: transform 0.2s;';
+            header.appendChild(toggleIcon);
+            
+            // Group content (tags)
+            const content = document.createElement('div');
+            content.className = 'filter-group-content';
+            content.style.cssText = 'padding-left: 10px; display: none;';
+            
+            groups[letter].forEach(tag => {
+                const item = document.createElement('div');
+                item.className = 'filter-item';
+                const bookCount = tag.book_count || 0;
+                item.innerHTML = `
+                    <input type="checkbox" id="tag_${tag.id}" value="${tag.id}" 
+                           onchange="app.toggleTagFilter(${tag.id})">
+                    <label for="tag_${tag.id}">${tag.name} (${bookCount})</label>
+                `;
+                content.appendChild(item);
+            });
+            
+            // Toggle functionality
+            header.addEventListener('click', () => {
+                const isOpen = content.style.display !== 'none';
+                content.style.display = isOpen ? 'none' : 'block';
+                toggleIcon.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(-180deg)';
+            });
+            
+            // Expand first group by default
+            if (index === 0) {
+                content.style.display = 'block';
+                toggleIcon.style.transform = 'rotate(-180deg)';
+            }
+            
+            groupContainer.appendChild(header);
+            groupContainer.appendChild(content);
+            tagsList.appendChild(groupContainer);
         });
     }
 
@@ -795,6 +986,16 @@ class BiblioApp {
             return sortA.localeCompare(sortB);
         });
 
+        // If more than 100 series, group by first letter of sort field
+        if (sortedSeries.length > 100) {
+            this.renderSeriesGrouped(sortedSeries);
+        } else {
+            this.renderSeriesFlat(sortedSeries);
+        }
+    }
+
+    renderSeriesFlat(sortedSeries) {
+        const seriesList = document.getElementById('seriesList');
         sortedSeries.forEach(s => {
             const item = document.createElement('div');
             item.className = 'filter-item';
@@ -805,6 +1006,78 @@ class BiblioApp {
                 <label for="series_${s.id}">${s.name} (${bookCount})</label>
             `;
             seriesList.appendChild(item);
+        });
+    }
+
+    renderSeriesGrouped(sortedSeries) {
+        const seriesList = document.getElementById('seriesList');
+        
+        // Group series by first letter of sort field
+        const groups = {};
+        sortedSeries.forEach(s => {
+            const sortField = s.sort || s.name;
+            const firstLetter = this.getFirstLetterFromString(sortField);
+            if (!groups[firstLetter]) {
+                groups[firstLetter] = [];
+            }
+            groups[firstLetter].push(s);
+        });
+        
+        // Sort group keys alphabetically
+        const sortedKeys = Object.keys(groups).sort();
+        
+        // Create collapsible sections for each letter
+        sortedKeys.forEach((letter, index) => {
+            const groupContainer = document.createElement('div');
+            groupContainer.className = 'filter-group';
+            
+            // Group header (clickable to expand/collapse)
+            const header = document.createElement('div');
+            header.className = 'filter-group-header';
+            header.style.cssText = 'cursor: pointer; padding: 8px 10px; background: #ecf0f1; font-weight: 500; border-radius: 3px; margin-bottom: 5px; user-select: none; display: flex; align-items: center; justify-content: space-between;';
+            
+            const letterSpan = document.createElement('span');
+            letterSpan.textContent = `${letter} (${groups[letter].length})`;
+            header.appendChild(letterSpan);
+            
+            const toggleIcon = document.createElement('span');
+            toggleIcon.textContent = '▼';
+            toggleIcon.style.cssText = 'font-size: 12px; transition: transform 0.2s;';
+            header.appendChild(toggleIcon);
+            
+            // Group content (series)
+            const content = document.createElement('div');
+            content.className = 'filter-group-content';
+            content.style.cssText = 'padding-left: 10px; display: none;';
+            
+            groups[letter].forEach(s => {
+                const item = document.createElement('div');
+                item.className = 'filter-item';
+                const bookCount = s.book_count || 0;
+                item.innerHTML = `
+                    <input type="checkbox" id="series_${s.id}" value="${s.id}" 
+                           onchange="app.toggleSeriesFilter(${s.id})">
+                    <label for="series_${s.id}">${s.name} (${bookCount})</label>
+                `;
+                content.appendChild(item);
+            });
+            
+            // Toggle functionality
+            header.addEventListener('click', () => {
+                const isOpen = content.style.display !== 'none';
+                content.style.display = isOpen ? 'none' : 'block';
+                toggleIcon.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(-180deg)';
+            });
+            
+            // Expand first group by default
+            if (index === 0) {
+                content.style.display = 'block';
+                toggleIcon.style.transform = 'rotate(-180deg)';
+            }
+            
+            groupContainer.appendChild(header);
+            groupContainer.appendChild(content);
+            seriesList.appendChild(groupContainer);
         });
     }
 
@@ -1044,6 +1317,8 @@ class BiblioApp {
         // Fill screen with available books if there's room
         if (this.currentViewMode === 'grid') {
             setTimeout(() => this.fillScreenWithCovers(), 100);
+        } else if (this.currentViewMode === 'table') {
+            setTimeout(() => this.fillScreenWithRows(), 100);
         }
     }
 
@@ -1137,6 +1412,7 @@ class BiblioApp {
         });
 
         this.displayedBooksCount = endIndex;
+        this.gridRenderedForLibrary = this.currentLibraryId;
 
         // Setup infinite scroll on first render
         if (this.displayedBooksCount === this.booksPerPage) {
@@ -1592,8 +1868,11 @@ class BiblioApp {
             // Apply current cover size (set CSS custom properties)
             this.applyCoverSizeCSS();
             
-            // Re-render grid if it's empty or needs refresh (library changed)
-            if (booksGrid.innerHTML === '' || this.displayedBooksCount === 0) {
+            // Reset displayed count and re-render if library changed or grid is empty
+            if (this.gridRenderedForLibrary !== this.currentLibraryId) {
+                this.displayedBooksCount = 0;
+                this.renderBooks();
+            } else if (booksGrid.innerHTML === '' || this.displayedBooksCount === 0) {
                 this.renderBooks();
             }
             this.setupInfiniteScroll();
@@ -1603,7 +1882,12 @@ class BiblioApp {
             if (tableRadio) tableRadio.checked = true;
             if (columnVisibilityItem) columnVisibilityItem.style.display = 'flex';
             if (coverSizeItem) coverSizeItem.style.display = 'none';
+            // Reset displayed count if library changed or switching modes
+            if (this.tableRenderedForLibrary !== this.currentLibraryId) {
+                this.displayedBooksCount = 0;
+            }
             this.renderBooksTable();
+            this.setupTableInfiniteScroll();
         }
     }
 
@@ -1638,6 +1922,19 @@ class BiblioApp {
                 console.error('Error loading view preferences:', error);
             }
         }
+        
+        // Sync checkboxes with loaded column visibility state
+        this.syncColumnVisibilityCheckboxes();
+    }
+
+    syncColumnVisibilityCheckboxes() {
+        const columns = ['title', 'authors', 'series', 'publisher', 'rating', 'pubdate'];
+        columns.forEach(colName => {
+            const checkbox = document.querySelector(`input[data-col="${colName}"]`);
+            if (checkbox) {
+                checkbox.checked = this.columnVisibility[colName];
+            }
+        });
     }
 
     toggleColumnVisibility(colName) {
@@ -1716,6 +2013,25 @@ class BiblioApp {
                 this.isLoadingMore = false;
                 // Recursively check again in case more space is available
                 setTimeout(() => this.fillScreenWithCovers(), 100);
+            }, 50);
+        }
+    }
+
+    fillScreenWithRows() {
+        const booksTable = document.getElementById('booksTable');
+        if (!booksTable || this.currentViewMode !== 'table') return;
+        
+        const scrollHeight = booksTable.scrollHeight;
+        const clientHeight = booksTable.clientHeight;
+        
+        // If there's vertical space available and we have more books to load, load them
+        if (scrollHeight <= clientHeight && this.displayedBooksCount < this.filteredBooks.length) {
+            this.isLoadingMore = true;
+            setTimeout(() => {
+                this.renderBooksTable();
+                this.isLoadingMore = false;
+                // Recursively check again in case more space is available
+                setTimeout(() => this.fillScreenWithRows(), 100);
             }, 50);
         }
     }
@@ -1831,10 +2147,17 @@ class BiblioApp {
         const table = document.getElementById('booksTableElement');
         if (!tbody || !table) return;
         
-        tbody.innerHTML = '';
+        // Clear tbody on initial render
+        if (this.displayedBooksCount === 0) {
+            tbody.innerHTML = '';
+        }
         
-        const booksToDisplay = this.filteredBooks.slice(0, this.booksPerPage);
+        // Calculate which books to display
+        const startIndex = this.displayedBooksCount;
+        const endIndex = Math.min(this.displayedBooksCount + this.booksPerPage, this.filteredBooks.length);
+        const booksToDisplay = this.filteredBooks.slice(startIndex, endIndex);
         
+        // Add new rows to table
         booksToDisplay.forEach(book => {
             const row = document.createElement('tr');
             row.dataset.bookId = book.id;
@@ -1859,17 +2182,56 @@ class BiblioApp {
             tbody.appendChild(row);
         });
         
-        // Load and apply saved column widths
-        this.loadTableColumnWidths();
+        // Update displayed count
+        this.displayedBooksCount = endIndex;
+        this.tableRenderedForLibrary = this.currentLibraryId;
+        
+        // Load and apply saved column widths (only on first render)
+        if (startIndex === 0) {
+            this.loadTableColumnWidths();
+            // Setup column resizing
+            this.setupTableColumnResizing();
+            // Setup resize observer for responsive column scaling
+            this.setupTableResizeObserver();
+        }
         
         // Apply column visibility
         this.updateColumnVisibility();
         
-        // Setup column resizing
-        this.setupTableColumnResizing();
+        // Setup infinite scroll on first render
+        if (startIndex === 0 && this.displayedBooksCount === this.booksPerPage) {
+            this.setupTableInfiniteScroll();
+        }
+    }
+
+    setupTableInfiniteScroll() {
+        const booksTable = document.getElementById('booksTable');
+        if (!booksTable) return;
         
-        // Setup resize observer for responsive column scaling
-        this.setupTableResizeObserver();
+        // Remove existing listener if any
+        booksTable.removeEventListener('scroll', this.handleTableScroll);
+        
+        // Add new scroll listener
+        this.handleTableScroll = () => {
+            if (this.isLoadingMore || this.displayedBooksCount >= this.filteredBooks.length) {
+                return;
+            }
+
+            const scrollTop = booksTable.scrollTop;
+            const scrollHeight = booksTable.scrollHeight;
+            const clientHeight = booksTable.clientHeight;
+
+            // Load more books when user scrolls to 80% of the way down
+            if (scrollTop + clientHeight >= scrollHeight * 0.8) {
+                this.isLoadingMore = true;
+                setTimeout(() => {
+                    this.renderBooksTable();
+                    this.isLoadingMore = false;
+                }, 100);
+            }
+        };
+
+        booksTable.addEventListener('scroll', this.handleTableScroll);
     }
 
     setupTableColumnResizing() {

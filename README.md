@@ -186,7 +186,7 @@ biblio/
    - Edit `compose.yaml` and update the volume mounts:
      ```yaml
      volumes:
-       - /path/to/config/dir:/config:rw           # Mount config directory
+       - /path/to/config/dir:/config:ro           # Mount config directory
        - /your/actual/calibre/path:/calibre-libraries:rw  # Mount calibre libraries
      ```
    - The `APP_IN_DOCKER=true` environment variable is already set in compose.yaml
@@ -230,7 +230,7 @@ biblio/
   docker build -t biblio .
   docker run -p 8080:8080 \
     -e APP_IN_DOCKER=true \
-    -v /path/to/config/dir:/config:rw \
+    -v /path/to/config/dir:/config:ro \
     -v /your/calibre/path:/calibre-libraries:rw \
     biblio
   ```
@@ -390,7 +390,7 @@ The application supports two deployment modes controlled by the `APP_IN_DOCKER` 
    - Update `compose.yaml` to mount your config directory:
      ```yaml
      volumes:
-       - /path/to/config/dir:/config:rw
+       - /path/to/config/dir:/config:ro
        - /path/to/calibre-libraries:/calibre-libraries:rw
      ```
    - In `config.yaml`, you can use either:

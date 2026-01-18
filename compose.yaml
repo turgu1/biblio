@@ -19,6 +19,7 @@ services:
     volumes:
       # Mount the Calibre libraries directory
       - /home/turgu1/calibre-libraries:/calibre-libraries:rw
+      - /home/turgu1/Dev/biblio:/config:ro
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080"]

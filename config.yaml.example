@@ -1,46 +1,67 @@
 ---
 # Biblio Configuration Example
 #
+# DEPLOYMENT LOCATION:
+# - Standard Linux: Copy to your working directory as `config.yaml`
+# - Docker: Copy to the mounted /config volume as `config.yaml`
+#   (Use APP_IN_DOCKER=true environment variable to enable Docker mode)
+#
 # SETUP INSTRUCTIONS:
-# 1. Copy this file to `config.yaml`
-# 2. Update the library_path to point to your Calibre libraries directory. 
-#    If using Docker, synchronize with the compose.yaml volumes definition.
+# 1. Copy this file to `config.yaml` in the appropriate location
+# 2. Update the paths to point to your resources. Relative paths are resolved from:
+#    - /config (if running in Docker with APP_IN_DOCKER=true)
+#    - Current working directory (standard Linux)
 # 3. Adjust other settings as needed for your environment
 # 4. Restart the application
 
 # Path to the Calibre libraries directory
-# Examples:
+#
+# Relative paths are resolved from:
+#   - /config in Docker (when APP_IN_DOCKER=true)
+#   - Current working directory in standard mode
+#
+# Examples - Absolute paths:
 #   Linux/Mac: "/home/username/calibre-libraries"
 #   Windows: "C:\\Users\\username\\calibre-libraries"
+#   Docker: "/calibre-libraries" (mounted volume)
 #
-# For Docker, if compose.yaml contains the following lines:
+# Examples - Relative paths (resolved from base directory):
+#   Linux/Mac: "calibre-libraries" or "../calibre"
+#   Docker: "calibre-libraries" (relative to /config)
+#
+# For Docker, if compose.yaml contains:
 #   volumes:
-#     # Mount the Calibre libraries directory
 #     - /path/to/your/calibre-libraries:/calibre-libraries:rw
-# Use the following for library_path: /calibre-libraries
+# Use either:
+#   Absolute: "/calibre-libraries"
+#   Relative to /config: "calibre-libraries" (if /config/../calibre-libraries maps correctly)
 library_path: "/path/to/your/calibre-libraries"
 
-# IP and port for the Biblio server to bind to.
-# For Docker, ensure this is in line with definitions in the 
-# compose.yaml and Dockerfile.
+# IP and port for the Biblio server to bind to
 # Format: "IP:PORT"
 # Examples:
-#   "0.0.0.0:8080" - Listen on all interfaces, port 8080
+#   "0.0.0.0:8080" - Listen on all interfaces, port 8080 (recommended)
 #   "127.0.0.1:3000" - Listen only on localhost, port 3000
+#   "192.168.1.100:8080" - Listen on specific IP, port 8080
+#
+# Note: For Docker, ensure the port matches the port binding in compose.yaml
 service_ip_and_port: "0.0.0.0:8080"
 
 # Path to the users.ids file containing user credentials
-# Format: username:password_hash (one per line)
-# Each user should have a corresponding entry with hashed password
+# Format: username:password_hash:role:email:created_at (one per line)
+# Relative paths are resolved from the base directory
+#
+# Examples:
+#   Relative: "users.ids"
+#   Absolute: "/config/users.ids" (Docker) or "/etc/biblio/users.ids" (Linux)
 users_file_path: "users.ids"
 
 # HTTPS/TLS Configuration
 #
-# To enable HTTPS:
-# 1. Set use_https to true
-# 2. Generate or obtain SSL/TLS certificates
-# 3. Update certificate_path and private_key_path with file locations
-# 4. Rebuild and restart the application
+# Set use_https to true to enable HTTPS
+# Required fields if use_https is true:
+#   - certificate_path: X.509 certificate in PEM format
+#   - private_key_path: Private key in PEM format
 #
 # CERTIFICATE GENERATION METHODS:
 #
@@ -48,21 +69,31 @@ users_file_path: "users.ids"
 #    mkdir -p certs
 #    openssl req -x509 -newkey rsa:4096 -keyout certs/key.pem -out certs/cert.pem -days 365 -nodes
 #
-# B. Let's Encrypt (for production):
-#    Use Certbot to obtain free certificates:
-#    certbot certonly --standalone -d your-domain.com
-#    Update certificate_path and private_key_path to point to:
-#    /etc/letsencrypt/live/your-domain.com/fullchain.pem and privkey.pem
-#
-# C. Self-Signed with Specific Properties:
+# B. Self-Signed with Specific Properties:
 #    openssl req -x509 -newkey rsa:4096 -keyout certs/key.pem -out certs/cert.pem \
 #    -days 365 -nodes -subj "/C=US/ST=State/L=City/O=Organization/CN=localhost"
+#
+# C. Let's Encrypt (for production):
+#    Use Certbot to obtain free certificates:
+#    certbot certonly --standalone -d your-domain.com
+#    Update certificate_path and private_key_path to point to the live certificates
+#
 use_https: false
 
 # Path to the SSL/TLS certificate file (PEM format)
 # Must be a valid X.509 certificate in PEM format
+# Relative paths are resolved from the base directory
+#
+# Examples:
+#   Relative: "certs/cert.pem"
+#   Absolute: "/config/certs/cert.pem" (Docker) or "/etc/biblio/cert.pem" (Linux)
 certificate_path: "certs/cert.pem"
 
 # Path to the SSL/TLS private key file (PEM format)
 # Must be the private key corresponding to the certificate above
+# Relative paths are resolved from the base directory
+#
+# Examples:
+#   Relative: "certs/key.pem"
+#   Absolute: "/config/certs/key.pem" (Docker) or "/etc/biblio/key.pem" (Linux)
 private_key_path: "certs/key.pem"

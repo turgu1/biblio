@@ -114,6 +114,7 @@ Update these settings in `config.yaml`:
 
 ```yaml
 # Set the path to your libraries directory
+# Relative paths are resolved from the current working directory
 # If you created libraries/ in the current directory, use:
 library_path: "./libraries"
 
@@ -123,12 +124,15 @@ library_path: "./libraries"
 # The IP and port for the server (default is usually fine)
 service_ip_and_port: "0.0.0.0:8080"
 
-# Path to users credentials file (optional)
+# Path to users credentials file (optional, relative or absolute)
 users_file_path: "./users.ids"
 
 # HTTPS settings (optional, disabled by default)
 use_https: false
 ```
+
+**Note**: This assumes you're running in standard mode (not in Docker). 
+For Docker deployment, see the README.md or set `APP_IN_DOCKER=true` and use `/config/config.yaml`.
 
 ## Step 6: Start the Server
 

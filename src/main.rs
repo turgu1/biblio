@@ -23,10 +23,21 @@ async fn main() -> std::io::Result<()> {
     // Initialize tracing
     tracing_subscriber::fmt::init();
 
+    // Determine configuration file path based on deployment mode
+    let config_path = if std::env::var("APP_IN_DOCKER").unwrap_or_default() == "true" {
+        "/config/config.yaml"
+    } else {
+        "config.yaml"
+    };
+
     // Initialize configuration from YAML file
-    if let Err(e) = config::init("config.yaml") {
+    if let Err(e) = config::init(config_path) {
         error!("Failed to initialize configuration: {}", e);
-        error!("Ensure config.yaml exists in the working directory. Copy config.yaml.example to get started.");
+        if std::env::var("APP_IN_DOCKER").unwrap_or_default() == "true" {
+            error!("Ensure config.yaml exists at /config/config.yaml (mounted volume).");
+        } else {
+            error!("Ensure config.yaml exists in the working directory. Copy config.yaml.example to get started.");
+        }
         return Err(std::io::Error::new(
             std::io::ErrorKind::NotFound,
             format!("Configuration initialization failed: {}", e)

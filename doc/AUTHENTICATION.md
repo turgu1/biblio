@@ -152,12 +152,30 @@ Then format as: `username:$argon2id$...` in users.ids
 
 ### Change Users File Location
 
-Edit `config.yaml`:
+Edit `config.yaml` and update the `users_file_path`:
+
 ```yaml
+# Standard mode (relative to current working directory)
 users_file_path: "/path/to/users.ids"
+
+# Or relative:
+users_file_path: "./users.ids"
+```
+
+For Docker deployment (when `APP_IN_DOCKER=true`):
+```yaml
+# Relative paths are resolved from /config mount
+users_file_path: "users.ids"
+
+# Or absolute:
+users_file_path: "/config/users.ids"
 ```
 
 Then restart the application. No rebuild needed!
+
+**Deployment Modes**:
+- **Standard Mode**: `APP_IN_DOCKER` not set or `false` - Paths relative to working directory
+- **Docker Mode**: `APP_IN_DOCKER=true` - Paths relative to `/config` volume mount
 
 ## Logging
 
@@ -521,14 +539,19 @@ curl -X DELETE http://localhost:8080/api/admin/users/newuser
 ## Troubleshooting
 
 **"Failed to initialize configuration"**
-- Verify `config.yaml` exists in the working directory
+- Verify `config.yaml` exists in the correct location:
+  - Standard mode: working directory
+  - Docker mode: `/config/config.yaml` (when `APP_IN_DOCKER=true`)
 - Copy `config.yaml.example` to get started: `cp config.yaml.example config.yaml`
 - Check that the file is valid YAML format
+- Check that `APP_IN_DOCKER` environment variable is set correctly if using Docker
 - Restart the application after configuration changes
 
 **"Users file not found"**
 - Verify `users_file_path` in `config.yaml` is correct
 - Ensure users.ids exists in the configured location
+- For Docker: verify file is in the `/config` mount or use absolute path
+- For standard mode: verify file is in the working directory or use absolute path
 - Check file permissions
 
 **"No valid users found"**
@@ -546,11 +569,19 @@ curl -X DELETE http://localhost:8080/api/admin/users/newuser
 - Check logs with `RUST_LOG=error` for detailed error messages
 - Verify file path and permissions
 - Ensure file content is valid UTF-8
+- For Docker: verify `/config` volume is properly mounted
+
+**Configuration path issues**
+- Standard mode: Paths are relative to the working directory when the application starts
+- Docker mode: Paths are relative to `/config` volume mount, or use absolute paths
+- Always use absolute paths if uncertain about relative path resolution
+- Set `APP_IN_DOCKER=true` when running in Docker containers
 
 **Admin Dashboard Access Denied**
 - Ensure your user account has `admin` role
 - Check that the role is correctly set in users.ids file
 - Refresh the page or clear browser cache
+
 
 ## File Statistics
 

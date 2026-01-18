@@ -117,7 +117,11 @@ biblio/
      ```yaml
      library_path: "/path/to/your/calibre-libraries"
      ```
-   - Other settings (server port, HTTPS, etc.) can also be customized in this file
+     Or use a relative path:
+     ```yaml
+     library_path: "calibre-libraries"  # relative to current working directory
+     ```
+   - Other settings (server port, HTTPS, users file, etc.) can also be customized in this file
    - **Note**: The `config.yaml` file is local configuration and should not be committed to version control
 
 3. **Build the application**:
@@ -151,32 +155,41 @@ biblio/
      ```bash
      cp config.yaml.example config.yaml
      ```
-   - Edit `config.yaml` and set the `library_path` to the Docker mount path:
+   - Edit `config.yaml` and configure paths for Docker:
      ```yaml
-     library_path: "/calibre-libraries"
+     library_path: "/calibre-libraries"  # Use Docker mount path
+     users_file_path: "users.ids"         # Relative to /config volume
+     certificate_path: "certs/cert.pem"   # Relative to /config volume
      ```
-   - This should match the volume mount path in compose.yaml
+   - This configuration will be mounted to `/config` in the container
 
-2. **Update compose.yml** (if needed):
-   - Edit `compose.yml` and update the volume mount path for your Calibre libraries:
+2. **Update compose.yaml** (if needed):
+   - Edit `compose.yaml` and update the volume mounts:
      ```yaml
      volumes:
-       - /your/actual/calibre/path:/calibre-libraries:rw
+       - /path/to/config/dir:/config:rw           # Mount config directory
+       - /your/actual/calibre/path:/calibre-libraries:rw  # Mount calibre libraries
      ```
+   - The `APP_IN_DOCKER=true` environment variable is already set in compose.yaml
 
-3. **Build and run with Docker Compose**:
+3. **Prepare configuration files**:
+   - Ensure your `config.yaml` is in the mounted config directory
+   - Create `users.ids` in the config directory if using authentication
+   - Create `certs/` subdirectory in the config directory if using HTTPS
+
+4. **Build and run with Docker Compose**:
    ```bash
    docker compose up -d
    ```
 
-4. **Access the application**:
+5. **Access the application**:
    - Open your web browser and go to: `http://localhost:8080`
 
 #### Docker Commands
 
 - **View logs**:
   ```bash
-  docker compose logs -f biblio
+  docker compose logs -f web-server
   ```
 
 - **Stop the application**:
@@ -193,6 +206,8 @@ biblio/
   ```bash
   docker build -t biblio .
   docker run -p 8080:8080 \
+    -e APP_IN_DOCKER=true \
+    -v /path/to/config/dir:/config:rw \
     -v /your/calibre/path:/calibre-libraries:rw \
     biblio
   ```
@@ -323,6 +338,18 @@ All API responses follow this format:
 
 Biblio loads configuration from a `config.yaml` file at startup. All settings can be modified without recompiling.
 
+### Configuration Location
+
+The application supports two deployment modes controlled by the `APP_IN_DOCKER` environment variable:
+
+- **Standard Mode** (`APP_IN_DOCKER` not set or `false`):
+  - Configuration file: `config.yaml` in the current working directory
+  - Relative paths in config.yaml are resolved from the current working directory
+
+- **Docker Mode** (`APP_IN_DOCKER=true`):
+  - Configuration file: `/config/config.yaml` (mounted volume)
+  - Relative paths in config.yaml are resolved from `/config`
+
 ### Initial Setup
 
 1. **Copy the example configuration**:
@@ -330,18 +357,33 @@ Biblio loads configuration from a `config.yaml` file at startup. All settings ca
    cp config.yaml.example config.yaml
    ```
 
-2. **Edit config.yaml** with your settings
+2. **Edit config.yaml** with your settings:
+   - Update `library_path` to point to your Calibre libraries
+   - Configure other settings as needed (port, HTTPS, users file, etc.)
+   - Use absolute paths or relative paths (resolved from base directory)
 
-3. **Run the application** - configuration is loaded at startup
+3. **For Docker deployment**:
+   - Place `config.yaml` in a directory that will be mounted as `/config`
+   - Update `compose.yaml` to mount your config directory:
+     ```yaml
+     volumes:
+       - /path/to/config/dir:/config:rw
+       - /path/to/calibre-libraries:/calibre-libraries:rw
+     ```
+   - In `config.yaml`, you can use either:
+     - Absolute paths: `/calibre-libraries`
+     - Relative paths: `calibre-libraries` (relative to `/config`)
+
+4. **Run the application** - configuration is loaded at startup
 
 ### Configuration Options
 
 **library_path** (string)
 - Path to your Calibre libraries directory
+- Relative paths are resolved from the current working directory (standard mode) or `/config` (Docker mode)
 - Examples:
-  - Linux/Mac: `/home/username/calibre-libraries`
-  - Windows: `C:\Users\username\calibre-libraries`
-  - Docker: `/calibre-libraries`
+  - Absolute: `/home/username/calibre-libraries`, `/calibre-libraries` (Docker), `C:\Users\username\calibre-libraries` (Windows)
+  - Relative: `calibre-libraries`, `../calibre`, `./libraries`
 
 **service_ip_and_port** (string)
 - IP address and port for the server to listen on
@@ -352,8 +394,12 @@ Biblio loads configuration from a `config.yaml` file at startup. All settings ca
 
 **users_file_path** (string)
 - Path to the users credentials file
-- Format: `username:password_hash` (one per line)
-- Default: `"./users.ids"`
+- Relative paths are resolved from the base directory (current working directory or `/config` in Docker)
+- Format: `username:password_hash:role:email:created_at` (one per line)
+- Examples:
+  - Relative: `users.ids` (resolved from base directory)
+  - Absolute: `/config/users.ids` (Docker), `/etc/biblio/users.ids` (Linux), `C:\biblio\users.ids` (Windows)
+- Default: `"users.ids"`
 
 **use_https** (boolean)
 - Enable HTTPS/TLS for secure connections
@@ -361,13 +407,21 @@ Biblio loads configuration from a `config.yaml` file at startup. All settings ca
 
 **certificate_path** (string)
 - Path to SSL/TLS certificate file (PEM format)
+- Relative paths are resolved from the base directory
 - Required if `use_https` is `true`
-- Default: `"./certs/cert.pem"`
+- Examples:
+  - Relative: `certs/cert.pem`
+  - Absolute: `/config/certs/cert.pem` (Docker), `/etc/biblio/cert.pem` (Linux)
+- Default: `"certs/cert.pem"`
 
 **private_key_path** (string)
 - Path to SSL/TLS private key file (PEM format)
+- Relative paths are resolved from the base directory
 - Required if `use_https` is `true`
-- Default: `"./certs/key.pem"`
+- Examples:
+  - Relative: `certs/key.pem`
+  - Absolute: `/config/certs/key.pem` (Docker), `/etc/biblio/key.pem` (Linux)
+- Default: `"certs/key.pem"`
 
 ## Development
 

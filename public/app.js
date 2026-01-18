@@ -1868,13 +1868,9 @@ class BiblioApp {
             // Apply current cover size (set CSS custom properties)
             this.applyCoverSizeCSS();
             
-            // Reset displayed count and re-render if library changed or grid is empty
-            if (this.gridRenderedForLibrary !== this.currentLibraryId) {
-                this.displayedBooksCount = 0;
-                this.renderBooks();
-            } else if (booksGrid.innerHTML === '' || this.displayedBooksCount === 0) {
-                this.renderBooks();
-            }
+            // Always reset displayed count when switching to grid mode to show current filters
+            this.displayedBooksCount = 0;
+            this.renderBooks();
             this.setupInfiniteScroll();
         } else {
             booksGrid.style.display = 'none';
@@ -1882,10 +1878,8 @@ class BiblioApp {
             if (tableRadio) tableRadio.checked = true;
             if (columnVisibilityItem) columnVisibilityItem.style.display = 'flex';
             if (coverSizeItem) coverSizeItem.style.display = 'none';
-            // Reset displayed count if library changed or switching modes
-            if (this.tableRenderedForLibrary !== this.currentLibraryId) {
-                this.displayedBooksCount = 0;
-            }
+            // Always reset displayed count when switching to table mode to show current filters
+            this.displayedBooksCount = 0;
             this.renderBooksTable();
             this.setupTableInfiniteScroll();
         }

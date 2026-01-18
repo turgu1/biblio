@@ -1,11 +1,22 @@
 /// Configuration module for Biblio
 /// 
 /// This module loads configuration from a YAML file at runtime.
-/// The configuration file should be located at `config.yaml` in the working directory.
+/// 
+/// Location:
+/// - If APP_IN_DOCKER environment variable is set to "true", config.yaml is expected
+///   at `/config/config.yaml` (a mounted volume in Docker)
+/// - Otherwise, config.yaml is expected in the current working directory
+/// 
+/// Path Resolution:
+/// - Relative paths in config.yaml are resolved relative to the base directory
+///   (either `/config` for Docker or current directory for standard Linux)
+/// - Absolute paths are used as-is
+/// 
 /// See `config.yaml.example` for setup instructions.
 
 use serde::{Deserialize, Serialize};
 use std::fs;
+use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use tracing::{error, info, warn};
 
@@ -32,10 +43,37 @@ pub struct Config {
 }
 
 impl Config {
+    /// Determine the base directory for path resolution
+    fn get_base_dir() -> PathBuf {
+        if std::env::var("APP_IN_DOCKER").unwrap_or_default() == "true" {
+            PathBuf::from("/config")
+        } else {
+            std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."))
+        }
+    }
+
+    /// Resolve a path: if relative, make it relative to base_dir; if absolute, use as-is
+    fn resolve_path(base_dir: &PathBuf, path: &str) -> String {
+        let p = PathBuf::from(path);
+        if p.is_absolute() {
+            path.to_string()
+        } else {
+            base_dir.join(p).to_string_lossy().to_string()
+        }
+    }
+
     /// Load configuration from the YAML file
     pub fn load(path: &str) -> Result<Self, Box<dyn std::error::Error>> {
         let contents = fs::read_to_string(path)?;
-        let config: Config = serde_yaml_ng::from_str(&contents)?;
+        let mut config: Config = serde_yaml_ng::from_str(&contents)?;
+        
+        // Resolve relative paths
+        let base_dir = Self::get_base_dir();
+        config.library_path = Self::resolve_path(&base_dir, &config.library_path);
+        config.users_file_path = Self::resolve_path(&base_dir, &config.users_file_path);
+        config.certificate_path = Self::resolve_path(&base_dir, &config.certificate_path);
+        config.private_key_path = Self::resolve_path(&base_dir, &config.private_key_path);
+        
         Ok(config)
     }
 }
@@ -47,6 +85,13 @@ static CONFIG: std::sync::OnceLock<Arc<Mutex<Config>>> = std::sync::OnceLock::ne
 pub fn init(config_path: &str) -> Result<(), Box<dyn std::error::Error>> {
     let config = Config::load(config_path)?;
     info!("Configuration loaded from {}", config_path);
+    
+    // Determine and log which mode we're running in
+    if std::env::var("APP_IN_DOCKER").unwrap_or_default() == "true" {
+        info!("Running in Docker mode (APP_IN_DOCKER=true)");
+    } else {
+        info!("Running in standard mode (APP_IN_DOCKER not set or false)");
+    }
     
     // Validate configuration paths exist or warn if they don't
     if !std::path::Path::new(&config.library_path).exists() {

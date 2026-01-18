@@ -39,13 +39,6 @@ pub struct ChangePasswordRequest {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct ResetPasswordRequest {
-    pub username: String,
-    pub reset_token: String,
-    pub new_password: String,
-}
-
-#[derive(Debug, Deserialize)]
 pub struct AuditLogQuery {
     pub username: Option<String>,
     pub limit: Option<usize>,
@@ -479,7 +472,8 @@ pub async fn refresh_libraries(
     cache: web::Data<Mutex<LibraryCache>>,
 ) -> Result<HttpResponse> {
     let mut cache = cache.lock().unwrap();
-    let libraries_path = std::path::Path::new(config::LIBRARY_PATH);
+    let library_path = config::library_path();
+    let libraries_path = std::path::Path::new(&library_path);
     
     // Clear and reload the cache
     cache.clear();
@@ -517,7 +511,8 @@ pub async fn login(
     audit_logger: web::Data<audit::AuditLogger>,
 ) -> Result<HttpResponse> {
     // Load users from file to get the latest data (including newly created users)
-    let file_users = match auth::load_users(config::USERS_FILE_PATH) {
+    let users_path = config::users_file_path();
+    let file_users = match auth::load_users(&users_path) {
         Ok(users) => users,
         Err(e) => {
             audit_logger.log_event(
@@ -651,7 +646,8 @@ pub async fn change_password(
     }
 
     // Load users from file
-    let mut file_users = match auth::load_users(config::USERS_FILE_PATH) {
+    let users_path = config::users_file_path();
+    let mut file_users = match auth::load_users(&users_path) {
         Ok(users) => users,
         Err(e) => {
             audit_logger.log_event(
@@ -681,7 +677,7 @@ pub async fn change_password(
                         user.password_hash = new_hash;
 
                         // Save updated users to file
-                        if let Err(e) = auth::save_users(&file_users, config::USERS_FILE_PATH) {
+                        if let Err(e) = auth::save_users(&file_users, &users_path) {
                             audit_logger.log_event(
                                 audit::AuditEventType::PasswordChange,
                                 &req.username,
@@ -775,7 +771,8 @@ pub async fn change_password(
 fn verify_admin_user(admin_username: Option<&str>) -> Result<(), String> {
     let username = admin_username.ok_or("Admin username required")?;
     
-    let file_users = auth::load_users(config::USERS_FILE_PATH)
+    let users_path = config::users_file_path();
+    let file_users = auth::load_users(&users_path)
         .map_err(|e| format!("Failed to load users: {}", e))?;
     
     let user = file_users.iter()
@@ -814,7 +811,8 @@ pub async fn list_users(
     }
 
     // Read users from file to get the latest data (including newly created users)
-    match auth::load_users(config::USERS_FILE_PATH) {
+    let users_path = config::users_file_path();
+    match auth::load_users(&users_path) {
         Ok(file_users) => {
             let user_responses: Vec<UserResponse> = file_users
                 .iter()
@@ -914,7 +912,8 @@ pub async fn create_user(
             };
 
             // Load all users from file (not from cache), add the new one, and save back to file
-            let mut all_users = match auth::load_users(config::USERS_FILE_PATH) {
+            let users_path = config::users_file_path();
+            let mut all_users = match auth::load_users(&users_path) {
                 Ok(users) => users,
                 Err(e) => {
                     audit_logger.log_event(
@@ -936,7 +935,7 @@ pub async fn create_user(
             all_users.push(new_user);
 
             // Save to file
-            if let Err(e) = auth::save_users(&all_users, config::USERS_FILE_PATH) {
+            if let Err(e) = auth::save_users(&all_users, &users_path) {
                 audit_logger.log_event(
                     audit::AuditEventType::UserCreated,
                     "admin",
@@ -1017,7 +1016,8 @@ pub async fn update_user(
     }
 
     // Load users from file
-    let mut file_users = match auth::load_users(config::USERS_FILE_PATH) {
+    let users_path = config::users_file_path();
+    let mut file_users = match auth::load_users(&users_path) {
         Ok(users) => users,
         Err(e) => {
             audit_logger.log_event(
@@ -1071,7 +1071,7 @@ pub async fn update_user(
     }
 
     // Save updated users to file
-    if let Err(e) = auth::save_users(&file_users, config::USERS_FILE_PATH) {
+    if let Err(e) = auth::save_users(&file_users, &users_path) {
         audit_logger.log_event(
             audit::AuditEventType::UserModified,
             "admin",
@@ -1153,7 +1153,8 @@ pub async fn delete_user(
     }
 
     // Load users from file
-    let mut file_users = match auth::load_users(config::USERS_FILE_PATH) {
+    let users_path = config::users_file_path();
+    let mut file_users = match auth::load_users(&users_path) {
         Ok(users) => users,
         Err(e) => {
             audit_logger.log_event(
@@ -1194,7 +1195,7 @@ pub async fn delete_user(
     }
 
     // Save updated users to file
-    if let Err(e) = auth::save_users(&file_users, config::USERS_FILE_PATH) {
+    if let Err(e) = auth::save_users(&file_users, &users_path) {
         audit_logger.log_event(
             audit::AuditEventType::UserDeleted,
             "admin",
@@ -1276,7 +1277,8 @@ pub async fn admin_change_password(
     }
 
     // Load users from file
-    let mut file_users = match auth::load_users(config::USERS_FILE_PATH) {
+    let users_path = config::users_file_path();
+    let mut file_users = match auth::load_users(&users_path) {
         Ok(users) => users,
         Err(e) => {
             audit_logger.log_event(
@@ -1302,7 +1304,7 @@ pub async fn admin_change_password(
                 user.password_hash = password_hash;
 
                 // Save updated users to file
-                if let Err(e) = auth::save_users(&file_users, config::USERS_FILE_PATH) {
+                if let Err(e) = auth::save_users(&file_users, &users_path) {
                     audit_logger.log_event(
                         audit::AuditEventType::PasswordChange,
                         "admin",

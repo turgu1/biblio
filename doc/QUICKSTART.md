@@ -11,7 +11,21 @@ cargo build --release
 
 The binary will be created at: `target/release/biblio`
 
-## 2. Prepare Your Calibre Libraries
+## 2. Configure the Application
+
+Before running, you need to set up your configuration:
+
+```bash
+# Copy the configuration example
+cp config.yaml.example config.yaml
+
+# Edit config.yaml with your settings
+# - library_path: Point to your Calibre libraries directory
+# - service_ip_and_port: Server address and port (default: 0.0.0.0:8080)
+# - Other settings as needed
+```
+
+## 3. Prepare Your Calibre Libraries
 
 You need to have Calibre libraries with metadata.db files. If you don't have any yet, you can:
 
@@ -31,7 +45,7 @@ mkdir -p "libraries/TestLibrary/Author Name"
 # or use an existing Calibre library folder
 ```
 
-## 3. Directory Structure
+## 4. Directory Structure
 
 After adding libraries, your structure should look like:
 
@@ -55,9 +69,11 @@ biblio/
 │       ├── metadata.db
 │       └── ...
 └── README.md
+└── config.yaml            # Your configuration file
+└── config.yaml.example    # Configuration template
 ```
 
-## 4. Run the Application
+## 5. Run the Application
 
 ```bash
 # Method 1: From the project directory
@@ -75,7 +91,7 @@ You should see output like:
 Starting Biblio server on http://0.0.0.0:8080
 ```
 
-## 5. Access the Web Interface
+## 6. Access the Web Interface
 
 Open your web browser and navigate to:
 ```
@@ -84,7 +100,7 @@ http://localhost:8080
 
 You should see the Biblio interface with your libraries loaded!
 
-## 6. First Steps in the App
+## 7. First Steps in the App
 
 1. **Select a Library**: In the left panel, select one of your libraries
 2. **View Books**: The center panel will populate with book covers

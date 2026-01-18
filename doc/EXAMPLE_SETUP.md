@@ -95,7 +95,42 @@ libraries/
     └── ...
 ```
 
-## Step 5: Start the Server
+## Step 5: Configure the Application
+
+Before starting the server, you need to set up your configuration:
+
+```bash
+cd <biblio-parent-folder>/biblio
+
+# Copy the configuration example
+cp config.yaml.example config.yaml
+
+# Edit config.yaml with your settings
+# Using your favorite editor (nano, vi, code, etc.)
+nano config.yaml
+```
+
+Update these settings in `config.yaml`:
+
+```yaml
+# Set the path to your libraries directory
+# If you created libraries/ in the current directory, use:
+library_path: "./libraries"
+
+# Or use an absolute path:
+# library_path: "/home/username/my-libraries"
+
+# The IP and port for the server (default is usually fine)
+service_ip_and_port: "0.0.0.0:8080"
+
+# Path to users credentials file (optional)
+users_file_path: "./users.ids"
+
+# HTTPS settings (optional, disabled by default)
+use_https: false
+```
+
+## Step 6: Start the Server
 
 ### Option A: Using Cargo (Development)
 
@@ -138,7 +173,7 @@ nohup ./target/release/biblio > biblio.log 2>&1 &
 ps aux | grep biblio
 ```
 
-## Step 6: Access the Web Interface
+## Step 7: Access the Web Interface
 
 Open your browser to:
 ```
@@ -152,7 +187,7 @@ You should see:
 4. Right panel showing "Select a book to view details"
 5. Bottom status bar
 
-## Step 7: Select and Browse a Library
+## Step 8: Select and Browse a Library
 
 1. In the **left panel**, click on a library name (e.g., "MyBooks")
 2. Wait for the interface to load (1-2 seconds)
@@ -162,7 +197,7 @@ You should see:
    - Books: (number of books)
    - Filtered: (same number initially)
 
-## Step 8: Search and Filter
+## Step 9: Search and Filter
 
 ### Search Books
 1. In the **center panel toolbar**, type in the search box
@@ -185,7 +220,7 @@ You should see:
 2. Check a series name
 3. Grid shows only books in that series
 
-## Step 9: View Book Details
+## Step 10: View Book Details
 
 1. Click on any book cover in the grid
 2. The book gets a blue border
@@ -198,7 +233,7 @@ You should see:
    - Rating
    - Comments/description
 
-## Step 10: Additional Features
+## Step 11: Additional Features
 
 ### Sort Books
 In the **center panel toolbar**:

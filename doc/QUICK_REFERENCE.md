@@ -158,27 +158,24 @@ libraries/
 
 ## 🔧 Configuration
 
-### Change Port
-Edit `src/main.rs`:
-```rust
-.bind("0.0.0.0:8080")?  // Change 8080 to desired port
+### Change Configuration
+
+Edit `config.yaml`:
+```yaml
+service_ip_and_port: "0.0.0.0:8080"  # Change 8080 to desired port
+library_path: "/path/to/libraries"   # Change libraries path
 ```
 
-### Change Libraries Path
-Edit `src/main.rs`:
-```rust
-let libraries_path = Path::new("./libraries");  // Change path here
-```
-
-Then rebuild: `cargo build --release`
+No rebuild needed! Just restart the application.
 
 ## 🐛 Troubleshooting
 
 | Problem | Solution |
 |---------|----------|
-| No libraries found | Create `libraries/` dir with Calibre libraries |
+| Configuration not found | Copy `config.yaml.example` to `config.yaml` |
+| No libraries found | Check `library_path` in `config.yaml` exists |
 | No covers showing | Check `cache/covers/` exists in library |
-| Port in use | Change port in src/main.rs, rebuild |
+| Port already in use | Change `service_ip_and_port` in `config.yaml`, restart |
 | Slow performance | Use `--release` build, reduce book count |
 | Compilation error | Run `cargo update` then `cargo clean` |
 

@@ -1,0 +1,68 @@
+---
+# Biblio Configuration Example
+#
+# SETUP INSTRUCTIONS:
+# 1. Copy this file to `config.yaml`
+# 2. Update the library_path to point to your Calibre libraries directory. 
+#    If using Docker, synchronize with the compose.yaml volumes definition.
+# 3. Adjust other settings as needed for your environment
+# 4. Restart the application
+
+# Path to the Calibre libraries directory
+# Examples:
+#   Linux/Mac: "/home/username/calibre-libraries"
+#   Windows: "C:\\Users\\username\\calibre-libraries"
+#
+# For Docker, if compose.yaml contains the following lines:
+#   volumes:
+#     # Mount the Calibre libraries directory
+#     - /path/to/your/calibre-libraries:/calibre-libraries:rw
+# Use the following for library_path: /calibre-libraries
+library_path: "/path/to/your/calibre-libraries"
+
+# IP and port for the Biblio server to bind to.
+# For Docker, ensure this is in line with definitions in the 
+# compose.yaml and Dockerfile.
+# Format: "IP:PORT"
+# Examples:
+#   "0.0.0.0:8080" - Listen on all interfaces, port 8080
+#   "127.0.0.1:3000" - Listen only on localhost, port 3000
+service_ip_and_port: "0.0.0.0:8080"
+
+# Path to the users.ids file containing user credentials
+# Format: username:password_hash (one per line)
+# Each user should have a corresponding entry with hashed password
+users_file_path: "users.ids"
+
+# HTTPS/TLS Configuration
+#
+# To enable HTTPS:
+# 1. Set use_https to true
+# 2. Generate or obtain SSL/TLS certificates
+# 3. Update certificate_path and private_key_path with file locations
+# 4. Rebuild and restart the application
+#
+# CERTIFICATE GENERATION METHODS:
+#
+# A. Self-Signed Certificate (for development/testing):
+#    mkdir -p certs
+#    openssl req -x509 -newkey rsa:4096 -keyout certs/key.pem -out certs/cert.pem -days 365 -nodes
+#
+# B. Let's Encrypt (for production):
+#    Use Certbot to obtain free certificates:
+#    certbot certonly --standalone -d your-domain.com
+#    Update certificate_path and private_key_path to point to:
+#    /etc/letsencrypt/live/your-domain.com/fullchain.pem and privkey.pem
+#
+# C. Self-Signed with Specific Properties:
+#    openssl req -x509 -newkey rsa:4096 -keyout certs/key.pem -out certs/cert.pem \
+#    -days 365 -nodes -subj "/C=US/ST=State/L=City/O=Organization/CN=localhost"
+use_https: false
+
+# Path to the SSL/TLS certificate file (PEM format)
+# Must be a valid X.509 certificate in PEM format
+certificate_path: "certs/cert.pem"
+
+# Path to the SSL/TLS private key file (PEM format)
+# Must be the private key corresponding to the certificate above
+private_key_path: "certs/key.pem"

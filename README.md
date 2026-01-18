@@ -64,8 +64,7 @@ biblio/
 │   ├── auth.rs                     # Authentication and login logic
 │   ├── db.rs                       # Calibre database access layer
 │   ├── library.rs                  # Library discovery and scanning
-│   ├── config.rs                   # Local configuration (git-ignored)
-│   ├── config.rs.example           # Configuration template
+│   ├── config.rs                   # Runtime configuration module
 │   ├── session.rs                  # Session management and cookies
 │   ├── rbac.rs                     # Role-based access control system
 │   ├── audit.rs                    # Audit logging for admin operations
@@ -109,16 +108,17 @@ biblio/
    cd <biblio-parent-folder>/biblio
    ```
 
-2. **Configure the library path**:
+2. **Configure the application**:
    - Copy the configuration example file:
      ```bash
-     cp src/config.rs.example src/config.rs
+     cp config.yaml.example config.yaml
      ```
-   - Edit `src/config.rs` and set the `LIBRARY_PATH` to your Calibre libraries directory:
-     ```rust
-     pub const LIBRARY_PATH: &str = "/path/to/your/calibre-libraries";
+   - Edit `config.yaml` and set the `library_path` to your Calibre libraries directory:
+     ```yaml
+     library_path: "/path/to/your/calibre-libraries"
      ```
-   - **Note**: The `src/config.rs` file is local configuration and should not be committed to version control
+   - Other settings (server port, HTTPS, etc.) can also be customized in this file
+   - **Note**: The `config.yaml` file is local configuration and should not be committed to version control
 
 3. **Build the application**:
    ```bash
@@ -146,15 +146,16 @@ biblio/
 
 #### Setup Steps
 
-1. **Configure the library path**:
+1. **Configure the application**:
    - Copy the configuration example file:
      ```bash
-     cp src/config.rs.example src/config.rs
+     cp config.yaml.example config.yaml
      ```
-   - Edit `src/config.rs` and set the `LIBRARY_PATH` to your Calibre libraries directory:
-     ```rust
-     pub const LIBRARY_PATH: &str = "/calibre-libraries";
+   - Edit `config.yaml` and set the `library_path` to the Docker mount path:
+     ```yaml
+     library_path: "/calibre-libraries"
      ```
+   - This should match the volume mount path in compose.yaml
 
 2. **Update compose.yml** (if needed):
    - Edit `compose.yml` and update the volume mount path for your Calibre libraries:
@@ -320,75 +321,53 @@ All API responses follow this format:
 
 ## Configuration
 
-### Library Path
+Biblio loads configuration from a `config.yaml` file at startup. All settings can be modified without recompiling.
 
-By default, libraries are loaded from the `./libraries` directory relative to where the binary is run. To use a different path, modify the `libraries_path` in `src/main.rs`:
+### Initial Setup
 
-```rust
-let libraries_path = Path::new("./libraries");  // Change this path
-```
+1. **Copy the example configuration**:
+   ```bash
+   cp config.yaml.example config.yaml
+   ```
 
-Then rebuild the application.
+2. **Edit config.yaml** with your settings
 
-### Server Port
+3. **Run the application** - configuration is loaded at startup
 
-The server listens on `0.0.0.0:8080` by default. To change the port, modify `src/config.rs`:
+### Configuration Options
 
-```rust
-pub const SERVICE_IP_AND_PORT: &str = "0.0.0.0:8080";  // Change port here
-```
+**library_path** (string)
+- Path to your Calibre libraries directory
+- Examples:
+  - Linux/Mac: `/home/username/calibre-libraries`
+  - Windows: `C:\Users\username\calibre-libraries`
+  - Docker: `/calibre-libraries`
 
-### HTTPS/TLS Support
+**service_ip_and_port** (string)
+- IP address and port for the server to listen on
+- Format: `"IP:PORT"`
+- Examples:
+  - `"0.0.0.0:8080"` - Listen on all interfaces, port 8080
+  - `"127.0.0.1:3000"` - Listen only on localhost, port 3000
 
-Biblio supports HTTPS for secure connections. To enable HTTPS:
+**users_file_path** (string)
+- Path to the users credentials file
+- Format: `username:password_hash` (one per line)
+- Default: `"./users.ids"`
 
-#### 1. Generate SSL/TLS Certificates
+**use_https** (boolean)
+- Enable HTTPS/TLS for secure connections
+- Default: `false`
 
-Choose one of the following methods:
+**certificate_path** (string)
+- Path to SSL/TLS certificate file (PEM format)
+- Required if `use_https` is `true`
+- Default: `"./certs/cert.pem"`
 
-**A. Self-Signed Certificate (Development/Testing)**
-```bash
-mkdir -p certs
-openssl req -x509 -newkey rsa:4096 -keyout certs/key.pem -out certs/cert.pem -days 365 -nodes
-```
-
-**B. Let's Encrypt (Production)**
-```bash
-# Install Certbot: https://certbot.eff.org
-certbot certonly --standalone -d your-domain.com
-
-# Update config.rs to point to:
-# /etc/letsencrypt/live/your-domain.com/fullchain.pem (certificate)
-# /etc/letsencrypt/live/your-domain.com/privkey.pem (private key)
-```
-
-#### 2. Update Configuration
-
-Edit `src/config.rs` and set:
-
-```rust
-pub const USE_HTTPS: bool = true;
-pub const CERTIFICATE_PATH: &str = "./certs/cert.pem";    // Path to your certificate
-pub const PRIVATE_KEY_PATH: &str = "./certs/key.pem";     // Path to your private key
-```
-
-#### 3. Rebuild and Run
-
-```bash
-cargo build --release
-./target/release/biblio
-# Server will now run on https://0.0.0.0:8080
-```
-
-#### 4. Browser Access
-
-When using self-signed certificates, browsers will show a security warning. This is expected for self-signed certs. For production, use certificates from a trusted CA (like Let's Encrypt).
-
-**Features**:
-- Automatic HTTP/2 support (ALPN negotiation)
-- Supports both HTTP/2 and HTTP/1.1
-- Secure cipher suites via Rustls
-- No external TLS library dependencies required (native Rust implementation)
+**private_key_path** (string)
+- Path to SSL/TLS private key file (PEM format)
+- Required if `use_https` is `true`
+- Default: `"./certs/key.pem"`
 
 ## Development
 

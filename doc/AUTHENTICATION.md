@@ -25,12 +25,17 @@ Login capability has been implemented using Argon2 password hashing and credenti
   - `actix-identity = "0.7"` - Identity handling
   - `argon2 = "0.5"` - Password hashing
   - `rand = "0.8"` - Random number generation for salts
+  - `serde_yaml_ng = "0.10"` - YAML configuration parsing
 
-- **src/config.rs** - Added configuration:
-  - `USERS_FILE_PATH: &str` - Path to users.ids file (default: "./users.ids")
+- **src/config.rs** - Converted to runtime configuration loader:
+  - `Config` struct with YAML deserialization
+  - `init()` function to load configuration at startup
+  - `users_file_path()` function - Path to users.ids file (default: "./users.ids")
+  - Thread-safe access to configuration via `OnceLock`
 
 - **src/main.rs** - Updated to:
-  - Load users from users.ids file
+  - Call `config::init("config.yaml")` at startup
+  - Load users from users.ids file via config
   - Pass users to API handlers
   - Log authentication initialization status
 
@@ -147,15 +152,12 @@ Then format as: `username:$argon2id$...` in users.ids
 
 ### Change Users File Location
 
-Edit `src/config.rs`:
-```rust
-pub const USERS_FILE_PATH: &str = "/path/to/users.ids";
+Edit `config.yaml`:
+```yaml
+users_file_path: "/path/to/users.ids"
 ```
 
-Then rebuild:
-```bash
-cargo build --release
-```
+Then restart the application. No rebuild needed!
 
 ## Logging
 
@@ -518,8 +520,14 @@ curl -X DELETE http://localhost:8080/api/admin/users/newuser
 
 ## Troubleshooting
 
+**"Failed to initialize configuration"**
+- Verify `config.yaml` exists in the working directory
+- Copy `config.yaml.example` to get started: `cp config.yaml.example config.yaml`
+- Check that the file is valid YAML format
+- Restart the application after configuration changes
+
 **"Users file not found"**
-- Verify USERS_FILE_PATH in config.rs is correct
+- Verify `users_file_path` in `config.yaml` is correct
 - Ensure users.ids exists in the configured location
 - Check file permissions
 
@@ -551,7 +559,9 @@ curl -X DELETE http://localhost:8080/api/admin/users/newuser
 - **src/audit.rs**: ~130 lines - Audit logging with extended event types
 - **src/rbac.rs**: ~100 lines - Role-based access control
 - **src/session.rs**: ~90 lines - Session management
-- **src/config.rs**: ~30 lines - Configuration
+- **src/config.rs**: ~125 lines - Runtime configuration loader
+- **config.yaml**: ~25 lines - Configuration file (runtime loaded)
+- **config.yaml.example**: ~70 lines - Configuration template with documentation
 - **public/index.html**: ~560 lines - Main library browser
 - **public/admin.html**: ~500 lines - Admin user management dashboard
 - **public/profile.html**: ~450 lines - User profile and password management

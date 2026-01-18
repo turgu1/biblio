@@ -20,11 +20,12 @@ Cargo.lock
 # Libraries (user data)
 /libraries/
 /certs/
+/temp/
 
 # Logs
 *.log
 
-src/config.rs
-compose.yml
+config.yaml
+compose.yaml
 note.txt
 users.ids

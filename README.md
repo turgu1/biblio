@@ -562,14 +562,11 @@ Biblio reads Calibre's SQLite metadata.db files. The main tables accessed are:
 ## Future Enhancements
 
 - [ ] Advanced filtering with AND/OR logic
-- [ ] Book metadata editing
 - [ ] Book file access and download
 - [ ] Per-user library access (fine-grained permissions)
 - [ ] Dark theme
 - [ ] Advanced search with full-text indexing
 - [ ] Book recommendations
-- [ ] Reading progress tracking
-- [ ] Export/Import functionality
 - [ ] Mobile app
 - [ ] Email notifications for admin events
 - [ ] Activity audit log viewer

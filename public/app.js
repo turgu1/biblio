@@ -176,6 +176,9 @@ class BiblioApp {
             await this.loadLibraries();
             this.setupEventListeners();
             
+            // Restore filter section collapsed/expanded states
+            this.restoreFilterSectionStates();
+            
             // If there was a saved library, select it; otherwise select first library
             if (savedState && savedState.currentLibraryId && this.libraries.some(lib => lib.id === savedState.currentLibraryId)) {
                 await this.selectLibrary(savedState.currentLibraryId);
@@ -1615,6 +1618,56 @@ class BiblioApp {
         const section = document.getElementById(sectionId);
         if (section) {
             section.style.display = show ? 'flex' : 'none';
+        }
+    }
+
+    toggleFilterSection(sectionId) {
+        const content = document.getElementById(sectionId);
+        const header = content ? content.previousElementSibling : null;
+        const toggle = header ? header.querySelector('.filter-section-toggle') : null;
+        
+        if (content && toggle) {
+            content.classList.toggle('collapsed');
+            toggle.classList.toggle('collapsed');
+            this.saveFilterSectionStates();
+        }
+    }
+
+    saveFilterSectionStates() {
+        const sections = ['librariesList', 'authorsList', 'seriesList', 'tagsList', 'formatsList'];
+        const states = {};
+        sections.forEach(sectionId => {
+            const content = document.getElementById(sectionId);
+            if (content) {
+                states[sectionId] = content.classList.contains('collapsed');
+            }
+        });
+        localStorage.setItem('biblioFilterSectionStates', JSON.stringify(states));
+    }
+
+    restoreFilterSectionStates() {
+        const states = localStorage.getItem('biblioFilterSectionStates');
+        if (states) {
+            try {
+                const stateObj = JSON.parse(states);
+                Object.keys(stateObj).forEach(sectionId => {
+                    const content = document.getElementById(sectionId);
+                    const header = content ? content.previousElementSibling : null;
+                    const toggle = header ? header.querySelector('.filter-section-toggle') : null;
+                    
+                    if (content && toggle) {
+                        if (stateObj[sectionId]) {
+                            content.classList.add('collapsed');
+                            toggle.classList.add('collapsed');
+                        } else {
+                            content.classList.remove('collapsed');
+                            toggle.classList.remove('collapsed');
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Failed to restore filter section states:', e);
+            }
         }
     }
 

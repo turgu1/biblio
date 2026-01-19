@@ -97,16 +97,50 @@
         }
 
         .filter-section {
-            margin-bottom: 20px;
+            margin-bottom: 0;
+            border-bottom: 1px solid #ecf0f1;
         }
 
-        .filter-section h3 {
+        .filter-section-header {
             font-size: 14px;
             font-weight: 600;
-            margin-bottom: 8px;
             color: #2c3e50;
-            border-bottom: 1px solid #ecf0f1;
-            padding-bottom: 5px;
+            padding: 12px 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            user-select: none;
+        }
+
+        .filter-section-header:hover {
+            background-color: #f9f9f9;
+            padding: 12px 5px;
+            margin: 0 -5px;
+            border-radius: 3px;
+        }
+
+        .filter-section-toggle {
+            display: inline-block;
+            transition: transform 0.2s;
+            font-size: 12px;
+        }
+
+        .filter-section-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .filter-section-content {
+            max-height: 500px;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+            padding-bottom: 12px;
+        }
+
+        .filter-section-content.collapsed {
+            max-height: 0;
+            padding-bottom: 0;
+            overflow: hidden;
         }
 
         .filter-item {
@@ -534,17 +568,21 @@
         <div class="left-panel">
             <div id="librarySelector">
                 <div class="filter-section">
-                    <h3>📚 Libraries</h3>
-                    <div id="librariesList" style="max-height: 150px; overflow-y: auto;"></div>
+                    <div class="filter-section-header" onclick="app.toggleFilterSection('librariesList')">
+                        <span>📚 Libraries</span>
+                        <span class="filter-section-toggle collapsed">▼</span>
+                    </div>
+                    <div id="librariesList" class="filter-section-content collapsed" style="overflow-y: auto;"></div>
                 </div>
             </div>
 
             <div class="filter-section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin: 0; padding: 0;">
-                    <h3 style="margin: 0; padding: 0;">👤 Authors <span id="authorCount" style="font-size: 0.8em; color: #7f8c8d;"></span></h3>
-                    <button onclick="app.clearAuthors()" style="padding: 4px 8px; font-size: 10px; cursor: pointer; background: #3498db; color: white; border: none; border-radius: 3px; margin-top: -10px;">Clear</button>
+                <div class="filter-section-header" onclick="app.toggleFilterSection('authorsList')">
+                    <span>👤 Authors <span id="authorCount" style="font-size: 0.8em; color: #7f8c8d;"></span></span>
+                    <button onclick="event.stopPropagation(); app.clearAuthors()" style="padding: 4px 8px; font-size: 10px; cursor: pointer; background: #3498db; color: white; border: none; border-radius: 3px; margin-left: auto;">Clear</button>
+                    <span class="filter-section-toggle collapsed">▼</span>
                 </div>
-                <div id="authorsList" style="max-height: 200px; overflow-y: auto;">
+                <div id="authorsList" class="filter-section-content collapsed" style="overflow-y: auto;">
                     <div class="loading">
                         <div class="spinner"></div>
                         Loading...
@@ -553,11 +591,12 @@
             </div>
 
             <div class="filter-section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin: 0; padding: 0;">
-                    <h3 style="margin: 0; padding: 0;">📖 Series <span id="seriesCount" style="font-size: 0.8em; color: #7f8c8d;"></span></h3>
-                    <button onclick="app.clearSeries()" style="padding: 4px 8px; font-size: 10px; cursor: pointer; background: #3498db; color: white; border: none; border-radius: 3px; margin-top: -10px;">Clear</button>
+                <div class="filter-section-header" onclick="app.toggleFilterSection('seriesList')">
+                    <span>📖 Series <span id="seriesCount" style="font-size: 0.8em; color: #7f8c8d;"></span></span>
+                    <button onclick="event.stopPropagation(); app.clearSeries()" style="padding: 4px 8px; font-size: 10px; cursor: pointer; background: #3498db; color: white; border: none; border-radius: 3px; margin-left: auto;">Clear</button>
+                    <span class="filter-section-toggle collapsed">▼</span>
                 </div>
-                <div id="seriesList" style="max-height: 200px; overflow-y: auto;">
+                <div id="seriesList" class="filter-section-content collapsed" style="overflow-y: auto;">
                     <div class="loading">
                         <div class="spinner"></div>
                         Loading...
@@ -566,11 +605,12 @@
             </div>
 
             <div class="filter-section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin: 0; padding: 0;">
-                    <h3 style="margin: 0; padding: 0;">🏷️ Tags <span id="tagCount" style="font-size: 0.8em; color: #7f8c8d;"></span></h3>
-                    <button onclick="app.clearTags()" style="padding: 4px 8px; font-size: 10px; cursor: pointer; background: #3498db; color: white; border: none; border-radius: 3px; margin-top: -10px;">Clear</button>
+                <div class="filter-section-header" onclick="app.toggleFilterSection('tagsList')">
+                    <span>🏷️ Tags <span id="tagCount" style="font-size: 0.8em; color: #7f8c8d;"></span></span>
+                    <button onclick="event.stopPropagation(); app.clearTags()" style="padding: 4px 8px; font-size: 10px; cursor: pointer; background: #3498db; color: white; border: none; border-radius: 3px; margin-left: auto;">Clear</button>
+                    <span class="filter-section-toggle collapsed">▼</span>
                 </div>
-                <div id="tagsList" style="max-height: 200px; overflow-y: auto;">
+                <div id="tagsList" class="filter-section-content collapsed" style="overflow-y: auto;">
                     <div class="loading">
                         <div class="spinner"></div>
                         Loading...
@@ -579,11 +619,12 @@
             </div>
 
             <div class="filter-section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin: 0; padding: 0;">
-                    <h3 style="margin: 0; padding: 0;">📄 Formats <span id="formatCount" style="font-size: 0.8em; color: #7f8c8d;"></span></h3>
-                    <button onclick="app.clearFormats()" style="padding: 4px 8px; font-size: 10px; cursor: pointer; background: #3498db; color: white; border: none; border-radius: 3px; margin-top: -10px;">Clear</button>
+                <div class="filter-section-header" onclick="app.toggleFilterSection('formatsList')">
+                    <span>📄 Formats <span id="formatCount" style="font-size: 0.8em; color: #7f8c8d;"></span></span>
+                    <button onclick="event.stopPropagation(); app.clearFormats()" style="padding: 4px 8px; font-size: 10px; cursor: pointer; background: #3498db; color: white; border: none; border-radius: 3px; margin-left: auto;">Clear</button>
+                    <span class="filter-section-toggle collapsed">▼</span>
                 </div>
-                <div id="formatsList" style="max-height: 150px; overflow-y: auto;">
+                <div id="formatsList" class="filter-section-content collapsed" style="overflow-y: auto;">
                     <div style="padding: 10px; color: #95a5a6; font-size: 12px;">Select a library to load formats</div>
                 </div>
             </div>
@@ -730,6 +771,6 @@
         <div id="statusMessage" style="text-align: right;">Ready</div>
     </div>
 
-    <script src="app.js?v=20"></script>
+    <script src="app.js?v=22"></script>
 </body>
 </html>

@@ -72,6 +72,7 @@ impl CalibreDb {
             let (series, series_index) = self.get_book_series(book_id).unwrap_or_default();
             let tags = self.get_book_tags(book_id).unwrap_or_default();
             let formats = self.get_book_formats(book_id).unwrap_or_default();
+            let comments = self.get_book_comments(book_id).ok().flatten();
             
             Ok(Book {
                 id: book_id,
@@ -80,7 +81,7 @@ impl CalibreDb {
                 series,
                 series_index,
                 tags,
-                comments: None,
+                comments,
                 publisher: None,
                 pubdate: None,
                 rating: None,
@@ -110,6 +111,7 @@ impl CalibreDb {
             let (series, series_index) = self.get_book_series(id).unwrap_or_default();
             let tags = self.get_book_tags(id).unwrap_or_default();
             let formats = self.get_book_formats(id).unwrap_or_default();
+            let comments = self.get_book_comments(id).ok().flatten();
             
             Ok(Book {
                 id,
@@ -118,7 +120,7 @@ impl CalibreDb {
                 series,
                 series_index,
                 tags,
-                comments: None,
+                comments,
                 publisher: None,
                 pubdate: None,
                 rating: None,
@@ -250,5 +252,17 @@ impl CalibreDb {
         })?.collect::<SqlResult<Vec<_>>>()?;
 
         Ok(formats)
+    }
+
+    pub fn get_book_comments(&self, book_id: i32) -> SqlResult<Option<String>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT text FROM comments WHERE book = ?"
+        )?;
+        
+        let comments = stmt.query_row([book_id], |row| {
+            row.get::<_, String>(0)
+        }).optional()?;
+
+        Ok(comments)
     }
 }

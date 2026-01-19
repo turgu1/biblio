@@ -253,20 +253,35 @@
 
         .detail-section {
             margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 4px;
         }
 
         .detail-label {
-            font-weight: 600;
+            font-weight: 900;
             font-size: 12px;
             color: #7f8c8d;
             text-transform: uppercase;
-            margin-bottom: 4px;
+            display: inline;
         }
 
         .detail-value {
             font-size: 14px;
             color: #2c3e50;
             line-height: 1.4;
+            display: inline;
+            flex: 1;
+        }
+
+        #detailComments {
+            display: block !important;
+            margin-top: 4px;
+            width: 100%;
+            font-size: 13px;
+            max-height: 150px;
+            overflow-y: auto;
         }
 
         .detail-value a {
@@ -624,54 +639,50 @@
                     <img id="coverImage" src="" alt="Book cover" style="max-width: 100%; max-height: 100%; object-fit: contain; border: 1px solid #bdc3c7; border-radius: 4px;">
                 </div>
 
-                <div class="detail-section">
-                    <div class="detail-label">Formats</div>
-                    <div class="detail-value" id="detailFormats" style="display: flex; flex-wrap: wrap; gap: 8px;">
-                        <div class="loading" style="width: 100%;">
-                            <div class="spinner" style="width: 12px; height: 12px; margin-right: 5px;"></div>
-                            Loading formats...
-                        </div>
+                <div id="detailFormats" style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px;">
+                    <div class="loading" style="width: 100%;">
+                        <div class="spinner" style="width: 12px; height: 12px; margin-right: 5px;"></div>
+                        Loading formats...
                     </div>
                 </div>
 
                 <div class="detail-section">
-                    <div class="detail-label">Title</div>
-                    <div class="detail-value" id="detailTitle"></div>
+                    <span class="detail-label">Title:</span>
+                    <span class="detail-value" id="detailTitle"></span>
                 </div>
 
                 <div class="detail-section">
-                    <div class="detail-label">Authors</div>
-                    <div class="detail-value" id="detailAuthors"></div>
+                    <span class="detail-label">Authors:</span>
+                    <span class="detail-value" id="detailAuthors"></span>
                 </div>
 
-                <div class="detail-section">
-                    <div class="detail-label">Series</div>
-                    <div class="detail-value" id="detailSeries"></div>
+                <div class="detail-section" id="detailCommentsSection">
+                    <div class="detail-value" id="detailComments"></div>
                 </div>
 
-                <div class="detail-section">
-                    <div class="detail-label">Tags</div>
-                    <div class="detail-value" id="detailTags"></div>
+                <div class="detail-section" id="detailSeriesSection">
+                    <span class="detail-label">Series:</span>
+                    <span class="detail-value" id="detailSeries"></span>
                 </div>
 
-                <div class="detail-section">
-                    <div class="detail-label">Publisher</div>
-                    <div class="detail-value" id="detailPublisher"></div>
+                <div class="detail-section" id="detailTagsSection">
+                    <span class="detail-label">Tags:</span>
+                    <span class="detail-value" id="detailTags"></span>
                 </div>
 
-                <div class="detail-section">
-                    <div class="detail-label">Published</div>
-                    <div class="detail-value" id="detailPubdate"></div>
+                <div class="detail-section" id="detailPublisherSection">
+                    <span class="detail-label">Publisher:</span>
+                    <span class="detail-value" id="detailPublisher"></span>
                 </div>
 
-                <div class="detail-section">
-                    <div class="detail-label">Rating</div>
-                    <div class="detail-value" id="detailRating"></div>
+                <div class="detail-section" id="detailPubdateSection">
+                    <span class="detail-label">Published:</span>
+                    <span class="detail-value" id="detailPubdate"></span>
                 </div>
 
-                <div class="detail-section">
-                    <div class="detail-label">Comments</div>
-                    <div class="detail-value" id="detailComments" style="font-size: 13px; max-height: 150px; overflow-y: auto;"></div>
+                <div class="detail-section" id="detailRatingSection">
+                    <span class="detail-label">Rating:</span>
+                    <span class="detail-value" id="detailRating"></span>
                 </div>
             </div>
         </div>
@@ -719,6 +730,6 @@
         <div id="statusMessage" style="text-align: right;">Ready</div>
     </div>
 
-    <script src="app.js?v=19"></script>
+    <script src="app.js?v=20"></script>
 </body>
 </html>

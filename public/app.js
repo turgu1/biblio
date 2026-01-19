@@ -1556,19 +1556,44 @@ class BiblioApp {
         const formattedAuthors = book.authors.map(author => this.formatAuthorName(author)).join(' & ');
         document.getElementById('detailAuthors').textContent = formattedAuthors || 'Unknown';
         
+        // Handle Series section
+        let seriesText = 'None';
         if (book.series && book.series_index) {
-            document.getElementById('detailSeries').textContent = `${book.series} #${book.series_index}`;
+            seriesText = `${book.series} #${book.series_index}`;
         } else if (book.series) {
-            document.getElementById('detailSeries').textContent = book.series;
-        } else {
-            document.getElementById('detailSeries').textContent = 'None';
+            seriesText = book.series;
         }
+        document.getElementById('detailSeries').textContent = seriesText;
+        this.toggleDetailSection('detailSeriesSection', seriesText !== 'None');
 
-        document.getElementById('detailTags').textContent = book.tags.length > 0 ? book.tags.join(', ') : 'None';
-        document.getElementById('detailPublisher').textContent = book.publisher || 'Unknown';
-        document.getElementById('detailPubdate').textContent = book.pubdate ? new Date(book.pubdate).toLocaleDateString() : 'Unknown';
-        document.getElementById('detailRating').textContent = book.rating ? `${book.rating}/10` : 'Not rated';
-        document.getElementById('detailComments').textContent = book.comments || 'No comments available.';
+        // Handle Tags section
+        let tagsText = book.tags.length > 0 ? book.tags.join(', ') : '';
+        document.getElementById('detailTags').textContent = tagsText;
+        this.toggleDetailSection('detailTagsSection', tagsText !== '');
+
+        // Handle Publisher section
+        let publisherText = book.publisher || '';
+        document.getElementById('detailPublisher').textContent = publisherText;
+        this.toggleDetailSection('detailPublisherSection', publisherText !== '');
+
+        // Handle Published section
+        let pubdateText = book.pubdate ? new Date(book.pubdate).toLocaleDateString() : '';
+        document.getElementById('detailPubdate').textContent = pubdateText;
+        this.toggleDetailSection('detailPubdateSection', pubdateText !== '');
+
+        // Handle Rating section
+        let ratingText = book.rating ? `${book.rating}/10` : '';
+        document.getElementById('detailRating').textContent = ratingText;
+        this.toggleDetailSection('detailRatingSection', ratingText !== '');
+
+        // Handle Comments section - use innerHTML to render HTML formatting
+        if (book.comments && book.comments.trim()) {
+            document.getElementById('detailComments').innerHTML = book.comments;
+            this.toggleDetailSection('detailCommentsSection', true);
+        } else {
+            document.getElementById('detailComments').innerHTML = '';
+            this.toggleDetailSection('detailCommentsSection', false);
+        }
 
         // Update cover image
         const coverImage = document.getElementById('coverImage');
@@ -1584,6 +1609,13 @@ class BiblioApp {
 
         // Load and display formats
         this.loadAndDisplayFormats(book.id);
+    }
+
+    toggleDetailSection(sectionId, show) {
+        const section = document.getElementById(sectionId);
+        if (section) {
+            section.style.display = show ? 'flex' : 'none';
+        }
     }
 
     generateTemporaryCover(title, author) {

@@ -562,7 +562,6 @@ Biblio reads Calibre's SQLite metadata.db files. The main tables accessed are:
 ## Future Enhancements
 
 - [ ] Advanced filtering with AND/OR logic
-- [ ] Book file access and download
 - [ ] Per-user library access (fine-grained permissions)
 - [ ] Dark theme
 - [ ] Advanced search with full-text indexing

@@ -12,7 +12,8 @@ services:
       context: .
       target: final
     ports:
-      - 8080:8080
+      # - 8080:8080/tcp
+      - 8433:8433/tcp
     environment:
       - RUST_LOG=info
       - APP_IN_DOCKER=true
@@ -24,12 +25,12 @@ services:
       # The path should point to the directory containing your Calibre library folders
       - /path/to/your/calibre-libraries:/calibre-libraries:rw
       # config location outside of the docker container
-      - /path/to/your/config-location:/config:ro
+      - /path/to/your/config-location:/config:rw
     restart: unless-stopped
     healthcheck:
-      # Could also be using https if enabled in the config.yaml file
+      # Could also be using https port (8433) if enabled in the config.yaml file
       # modify the following line accordingly:
-      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      test: ["CMD", "curl", "-f", "http://localhost:8433"]
       interval: 30s
       timeout: 3s
       retries: 3

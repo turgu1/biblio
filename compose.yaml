@@ -12,17 +12,18 @@ services:
       context: .
       target: final
     ports:
-      - 8080:8080
+      # - 8080:8080/tcp
+      - 8433:8433/tcp
     environment:
       - RUST_LOG=info
       - APP_IN_DOCKER=true
     volumes:
       # Mount the Calibre libraries directory
       - /home/turgu1/calibre-libraries:/calibre-libraries:rw
-      - /home/turgu1/Dev/biblio:/config:ro
+      - /home/turgu1/Dev/biblio:/config:rw
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      test: ["CMD", "curl", "-f", "http://localhost:8433"]
       interval: 30s
       timeout: 3s
       retries: 3

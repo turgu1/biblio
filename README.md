@@ -149,7 +149,7 @@ biblio/
      certificate_path: "certs/cert.pem"
      key_path: "certs/key.pem"
      ```
-   - The server will then listen on `https://localhost:8443`
+   - The server will then listen on `https://localhost:8433`
    - If HTTPS is not configured, the server defaults to HTTP on port 8080
 
 5. **Run the server**:
@@ -164,7 +164,7 @@ biblio/
 
 6. **Access the application**:
    - HTTP: `http://localhost:8080` (default)
-   - HTTPS: `https://localhost:8443` (if configured)
+   - HTTPS: `https://localhost:8433` (if configured)
    - **First login**:
      - Username: `admin`
      - Password: `admin`
@@ -179,15 +179,16 @@ biblio/
 #### Setup Steps
 
 1. **Configure the application**:
+   - Insure that /path/to/config/dir exists
    - Copy the configuration example file:
      ```bash
-     cp config.yaml.example config.yaml
+     cp config.yaml.example /path/to/config/dir/config.yaml
      ```
-   - Edit `config.yaml` and configure paths for Docker:
+   - Edit `/path/to/config/dir/config.yaml` and configure paths for Docker:
      ```yaml
      library_path: "/calibre-libraries"  # Use Docker mount path
-     users_file_path: "users.ids"         # Relative to /config volume
-     certificate_path: "certs/cert.pem"   # Relative to /config volume
+     users_file_path: "users.ids"         # Relative to /path/to/config/dir
+     certificate_path: "certs/cert.pem"   # Relative to /path/to/config/dir
      ```
    - This configuration will be mounted to `/config` in the container
 
@@ -203,25 +204,25 @@ biblio/
 3. **(Optional) Prepare HTTPS certificates**:
    - If you want to enable HTTPS, create and prepare certificates:
      ```bash
-     mkdir -p config/certs
-     # Place your certificate and key files in config/certs/:
-     # - config/certs/cert.pem (certificate)
-     # - config/certs/key.pem (private key)
+     mkdir -p /path/to/config/dir/certs
+     # Place your certificate and key files in certs/:
+     # - certs/cert.pem (certificate)
+     # - certs/key.pem (private key)
      ```
-   - Update `config.yaml` to enable HTTPS:
+   - Update `/path/to/config/dir/config.yaml` to enable HTTPS:
      ```yaml
      use_https: true
      certificate_path: "certs/cert.pem"
      key_path: "certs/key.pem"
      ```
-   - The server will then listen on `https://0.0.0.0:8443` inside the container
-   - You may need to add port mapping in compose.yaml: `"8443:8443/tcp"`
+   - The server will then listen on `https://0.0.0.0:8433` inside the container
+   - You may need to add port mapping in compose.yaml: `"8433:8433/tcp"`
 
 4. **Update compose.yaml** (if needed):
    - Edit `compose.yaml` and update the volume mounts:
      ```yaml
      volumes:
-       - /path/to/config/dir:/config:ro           # Mount config directory
+       - /path/to/config/dir:/config:rw           # Mount config directory
        - /your/actual/calibre/path:/calibre-libraries:rw  # Mount calibre libraries
      ```
    - The `APP_IN_DOCKER=true` environment variable is already set in compose.yaml
@@ -229,7 +230,7 @@ biblio/
      ```yaml
      ports:
        - "8080:8080/tcp"    # HTTP (if use_https: false)
-       - "8443:8443/tcp"    # HTTPS (if use_https: true)
+       - "8433:8433/tcp"    # HTTPS (if use_https: true)
      ```
 
 5. **Prepare configuration files**:
@@ -244,7 +245,7 @@ biblio/
 
 7. **Access the application**:
    - HTTP: `http://localhost:8080` (default)
-   - HTTPS: `https://localhost:8443` (if configured)
+   - HTTPS: `https://localhost:8433` (if configured)
    - **First login**:
      - Username: `admin`
      - Password: `admin`
@@ -272,7 +273,7 @@ biblio/
   docker build -t biblio .
   docker run -p 8080:8080 \
     -e APP_IN_DOCKER=true \
-    -v /path/to/config/dir:/config:ro \
+    -v /path/to/config/dir:/config:rw \
     -v /your/calibre/path:/calibre-libraries:rw \
     biblio
   ```
@@ -432,7 +433,7 @@ The application supports two deployment modes controlled by the `APP_IN_DOCKER` 
    - Update `compose.yaml` to mount your config directory:
      ```yaml
      volumes:
-       - /path/to/config/dir:/config:ro
+       - /path/to/config/dir:/config:rw
        - /path/to/calibre-libraries:/calibre-libraries:rw
      ```
    - In `config.yaml`, you can use either:

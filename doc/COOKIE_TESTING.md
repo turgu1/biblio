@@ -32,7 +32,7 @@ The following user preferences are automatically saved and restored:
 
 1. Open the application in your browser
 2. Open Developer Tools (F12 or right-click → Inspect)
-3. Navigate to **Application** → **Cookies** → **http://localhost:8080**
+3. Navigate to **Application** → **Cookies** → **http://localhost:8433**
 4. You should see a cookie named `biblioAppState`
 5. Click on it to view the JSON contents
 
@@ -127,7 +127,7 @@ The following user preferences are automatically saved and restored:
    - Enter a search term
    - Change sort order
 2. **Close the entire browser** (not just the tab)
-3. **Reopen the browser and navigate back to http://localhost:8080**
+3. **Reopen the browser and navigate back to http://localhost:8433**
 4. Verify that:
    - Your library is selected
    - Your filters are applied
@@ -188,7 +188,7 @@ The cookie expires after 30 days of inactivity. To test:
 
 To inspect the cookie contents manually:
 
-1. Open DevTools → Application → Cookies → http://localhost:8080
+1. Open DevTools → Application → Cookies → http://localhost:8433
 2. Click on `biblioAppState`
 3. You'll see the cookie value, which looks like:
 ```json

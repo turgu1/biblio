@@ -16,7 +16,7 @@ cargo run --release
 ./target/release/biblio
 
 # Open browser
-# → http://localhost:8080
+# → http://localhost:8433
 ```
 
 ## 📁 Project Structure
@@ -162,7 +162,7 @@ libraries/
 
 Edit `config.yaml`:
 ```yaml
-service_ip_and_port: "0.0.0.0:8080"  # Change 8080 to desired port
+service_ip_and_port: "0.0.0.0:8433"  # Change 8433 to desired port
 library_path: "/path/to/libraries"   # Change libraries path
 ```
 
@@ -310,7 +310,7 @@ Recommended setup:
 # 1. Start server
 cargo run --release
 
-# 2. Open browser to http://localhost:8080
+# 2. Open browser to http://localhost:8433
 
 # 3. Select library from left panel
 

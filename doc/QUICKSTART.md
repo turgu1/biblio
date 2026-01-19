@@ -21,7 +21,7 @@ cp config.yaml.example config.yaml
 
 # Edit config.yaml with your settings
 # - library_path: Point to your Calibre libraries directory
-# - service_ip_and_port: Server address and port (default: 0.0.0.0:8080)
+# - service_ip_and_port: Server address and port (default: 0.0.0.0:8433)
 # - Other settings as needed
 ```
 
@@ -88,14 +88,14 @@ RUST_LOG=debug ./target/release/biblio
 
 You should see output like:
 ```
-Starting Biblio server on http://0.0.0.0:8080
+Starting Biblio server on http://0.0.0.0:8433
 ```
 
 ## 6. Access the Web Interface
 
 Open your web browser and navigate to:
 ```
-http://localhost:8080
+http://localhost:8433
 ```
 
 You should see the Biblio interface with your libraries loaded!
@@ -121,10 +121,10 @@ These shortcuts will be implemented in future versions:
 
 Edit `src/main.rs` and find this line:
 ```rust
-.bind("0.0.0.0:8080")?
+.bind("0.0.0.0:8433")?
 ```
 
-Change `8080` to your desired port, then rebuild:
+Change `8433` to your desired port, then rebuild:
 ```bash
 cargo build --release
 ```
@@ -172,10 +172,10 @@ cargo clean
 cargo build --release
 ```
 
-### Port 8080 is already in use
+### Port 8433 is already in use
 ```bash
 # Find what's using the port
-lsof -i :8080
+lsof -i :8433
 
 # Either:
 # 1. Stop the other application

@@ -12,7 +12,6 @@ services:
       context: .
       target: final
     ports:
-      # - 8080:8080/tcp
       - 8433:8433/tcp
     environment:
       - RUST_LOG=info
@@ -28,8 +27,6 @@ services:
       - /path/to/your/config-location:/config:rw
     restart: unless-stopped
     healthcheck:
-      # Could also be using https port (8433) if enabled in the config.yaml file
-      # modify the following line accordingly:
       test: ["CMD", "curl", "-f", "http://localhost:8433"]
       interval: 30s
       timeout: 3s

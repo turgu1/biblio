@@ -210,11 +210,11 @@ cp -r ~/Calibre\ Library libraries/MyLibrary
 ### Run the Server
 ```bash
 ./target/release/biblio
-# Server starts at http://localhost:8080
+# Server starts at http://localhost:8433
 ```
 
 ### Access the Web Interface
-Open your browser to `http://localhost:8080`
+Open your browser to `http://localhost:8433`
 
 ## Project Statistics
 

@@ -44,7 +44,7 @@ Created:   5 new documentation files
 ```
 ✅ Code compiles without errors
 ✅ Code compiles without warnings
-✅ Server runs successfully on 0.0.0.0:8080
+✅ Server runs successfully on 0.0.0.0:8433
 ✅ Browser loads application without errors
 ✅ No JavaScript console errors
 ✅ All 8 integration points verified
@@ -173,7 +173,7 @@ User sees exact same state!
 ## 🧪 Testing Checklist
 
 ### Quick 30-Second Test ✅
-1. Open http://localhost:8080
+1. Open http://localhost:8433
 2. Select some filters and search for something
 3. Press F5 to refresh page
 4. Verify filters and search are still there → ✅

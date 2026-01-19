@@ -70,7 +70,7 @@ Welcome! This document explains the session persistence feature that has been ad
 ### ✅ Complete
 - [x] Code implementation (5 methods, 8 integrations)
 - [x] Compilation (no errors, no warnings)
-- [x] Server running (0.0.0.0:8080)
+- [x] Server running (0.0.0.0:8433)
 - [x] Browser access working
 - [x] All tests passing
 
@@ -115,7 +115,7 @@ Automatic state persistence using browser cookies. Users' filters, search, sort,
 ## 🚀 Getting Started
 
 ### For Users
-1. Open http://localhost:8080
+1. Open http://localhost:8433
 2. Use app normally (select filters, search, sort)
 3. Refresh page - your state is still there! ✅
 4. Read [User Guide](#user-guide) below for details
@@ -269,7 +269,7 @@ restoreFilterUI() {
 ## 🧪 Test It (30 Seconds)
 
 ### Quick Verification
-1. Open http://localhost:8080
+1. Open http://localhost:8433
 2. Select a filter checkbox
 3. Type in the search box
 4. Change the sort dropdown

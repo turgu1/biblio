@@ -96,6 +96,8 @@ biblio/
 
 ## Installation
 
+In the following installation description, the internet port number used by the application is `8433` and is defined as such in all configuration files. This number can be change as you desire (must be >1024), as long as the port number is not in use by another applicaion on the host and is properly set in the `config.yaml`, `compose.yaml`, and `Dockerfile` configuration files.
+
 ### Prerequisites
 
 - Rust 1.70+ ([Install Rust](https://rustup.rs/))
@@ -150,7 +152,6 @@ biblio/
      key_path: "certs/key.pem"
      ```
    - The server will then listen on `https://localhost:8433`
-   - If HTTPS is not configured, the server defaults to HTTP on port 8080
 
 5. **Run the server**:
    ```bash
@@ -163,8 +164,7 @@ biblio/
    ```
 
 6. **Access the application**:
-   - HTTP: `http://localhost:8080` (default)
-   - HTTPS: `https://localhost:8433` (if configured)
+   - HTTPS: `https://localhost:8433`
    - **First login**:
      - Username: `admin`
      - Password: `admin`
@@ -229,8 +229,7 @@ biblio/
    - For HTTPS, verify the port mapping is present:
      ```yaml
      ports:
-       - "8080:8080/tcp"    # HTTP (if use_https: false)
-       - "8433:8433/tcp"    # HTTPS (if use_https: true)
+       - "8433:8433"
      ```
 
 5. **Prepare configuration files**:
@@ -244,8 +243,7 @@ biblio/
    ```
 
 7. **Access the application**:
-   - HTTP: `http://localhost:8080` (default)
-   - HTTPS: `https://localhost:8433` (if configured)
+   - HTTPS: `https://localhost:8433`
    - **First login**:
      - Username: `admin`
      - Password: `admin`
@@ -271,7 +269,7 @@ biblio/
 - **Run with manual Docker**:
   ```bash
   docker build -t biblio .
-  docker run -p 8080:8080 \
+  docker run -p 8433:8433 \
     -e APP_IN_DOCKER=true \
     -v /path/to/config/dir:/config:rw \
     -v /your/calibre/path:/calibre-libraries:rw \
@@ -455,9 +453,9 @@ The application supports two deployment modes controlled by the `APP_IN_DOCKER` 
 - IP address and port for the server to listen on
 - Format: `"IP:PORT"`
 - Examples:
-  - `"0.0.0.0:8080"` - Listen on all interfaces, port 8080
+  - `"0.0.0.0:8433"` - Listen on all interfaces, port 8433
   - `"127.0.0.1:3000"` - Listen only on localhost, port 3000
-
+  - `"192.168.1.100:8080"` - Listen on specific IP, port 8080
 **users_file_path** (string)
 - Path to the users credentials file
 - Relative paths are resolved from the base directory (current working directory or `/config` in Docker)
@@ -589,8 +587,8 @@ Biblio reads Calibre's SQLite metadata.db files. The main tables accessed are:
 - Try opening the library in Calibre to verify it's valid
 
 ### Port Already in Use
-- The default port is 8080. If it's already in use, modify `src/main.rs` and rebuild
-- Or use: `lsof -i :8080` to find what's using the port
+- The default port is 8433. If it's already in use, modify `src/main.rs` and rebuild
+- Or use: `lsof -i :8433` to find what's using the port
 
 ### Slow Performance
 - Reduce the number of books loaded by filtering at startup

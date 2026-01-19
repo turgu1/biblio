@@ -109,7 +109,7 @@ The persisted state is stored as a single JSON object in a cookie named `biblioA
 1. **Creation**: First time user changes any filter/search/sort
 2. **Updates**: Every change to filters, search, or sort
 3. **Expiration**: 30 days from last update
-4. **Scope**: Specific to domain and port (localhost:8080)
+4. **Scope**: Specific to domain and port (localhost:8433)
 5. **Clearing**: User can clear cookies in browser settings
 
 ### Browser Compatibility
@@ -176,7 +176,7 @@ The persisted state is stored as a single JSON object in a cookie named `biblioA
 ### ✅ Compilation & Runtime
 - [x] Code compiles without errors (verified: "Finished `dev` profile")
 - [x] No compilation warnings
-- [x] Server starts successfully on 0.0.0.0:8080
+- [x] Server starts successfully on 0.0.0.0:8433
 - [x] Browser loads application without errors
 - [x] No JavaScript console errors visible
 
@@ -189,9 +189,9 @@ The persisted state is stored as a single JSON object in a cookie named `biblioA
 ## How to Verify the Feature
 
 ### Quick Verification (30 seconds)
-1. Open http://localhost:8080 in browser
+1. Open http://localhost:8433 in browser
 2. Press F12 to open Developer Tools
-3. Go to Application → Cookies → http://localhost:8080
+3. Go to Application → Cookies → http://localhost:8433
 4. Verify `biblioAppState` cookie exists
 5. Click it to view the JSON state
 

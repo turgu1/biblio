@@ -303,7 +303,7 @@ Response:
 ## Usage Examples
 
 ### Logging In
-1. Open http://localhost:8080
+1. Open http://localhost:8433
 2. See gradient login page
 3. Enter username: `admin`
 4. Enter password: `admin`
@@ -331,7 +331,7 @@ See `doc/AUTHENTICATION.md` for instructions on:
 ### Login Always Fails
 - Verify credentials in users.ids file
 - Check server logs for error messages
-- Ensure backend is running on port 8080
+- Ensure backend is running on port 8433
 
 ### Session Lost After Refresh
 - localStorage may be cleared

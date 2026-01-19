@@ -237,7 +237,7 @@ This implementation demonstrates:
 ## 🎬 Getting Started with the Feature
 
 ### For Users
-1. Open http://localhost:8080
+1. Open http://localhost:8433
 2. Browse and set up your preferences
 3. Note that your setup will persist across refreshes
 4. See [COOKIE_TESTING.md](<biblio-parent-folder>/biblio/doc/COOKIE_TESTING.md) for detailed testing

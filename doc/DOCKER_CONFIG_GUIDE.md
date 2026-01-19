@@ -34,7 +34,7 @@ cargo run --release
 Example `config.yaml`:
 ```yaml
 library_path: "/home/user/calibre-libraries"
-service_ip_and_port: "0.0.0.0:8080"
+service_ip_and_port: "0.0.0.0:8433"
 users_file_path: "users.ids"
 use_https: false
 ```
@@ -79,7 +79,7 @@ docker compose logs -f web-server
 ```bash
 docker build -t biblio .
 
-docker run -p 8080:8080 \
+docker run -p 8433:8433 \
   -e APP_IN_DOCKER=true \
   -e RUST_LOG=info \
   -v ~/biblio-config:/config:rw \
@@ -123,7 +123,7 @@ certificate_path: "/etc/biblio/cert.pem"  # Always /etc/biblio/cert.pem
 **service_ip_and_port** (string)
 - Server binding address
 - Format: `"IP:PORT"`
-- Example: `"0.0.0.0:8080"` (listen all interfaces)
+- Example: `"0.0.0.0:8433"` (listen all interfaces)
 
 **users_file_path** (string)
 - User credentials file
@@ -164,7 +164,7 @@ services:
       # Mount Calibre libraries (read-only recommended)
       - /path/to/calibre-libraries:/calibre-libraries:ro
     ports:
-      - "8080:8080"
+      - "8433:8433"
 ```
 
 ### File Layout Example
@@ -277,7 +277,7 @@ cp config.yaml.example ~/.biblio/config.yaml
 # Edit config for your paths
 cat > ~/.biblio/config.yaml << EOF
 library_path: "/home/username/calibre-libraries"
-service_ip_and_port: "0.0.0.0:8080"
+service_ip_and_port: "0.0.0.0:8433"
 users_file_path: "users.ids"
 use_https: false
 EOF
@@ -302,7 +302,7 @@ cp config.yaml.example ~/docker-biblio/config.yaml
 # Edit for Docker (all paths relative to /config)
 cat > ~/docker-biblio/config.yaml << EOF
 library_path: "/calibre-libraries"
-service_ip_and_port: "0.0.0.0:8080"
+service_ip_and_port: "0.0.0.0:8433"
 users_file_path: "users.ids"
 use_https: true
 certificate_path: "certs/cert.pem"

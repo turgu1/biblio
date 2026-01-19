@@ -490,50 +490,50 @@ The system supports four role levels with different permissions:
 
 ### Test Login
 ```bash
-curl -X POST http://localhost:8080/api/auth/login \
+curl -X POST http://localhost:8433/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"admin"}'
 ```
 
 ### Test Logout
 ```bash
-curl -X POST http://localhost:8080/api/auth/logout
+curl -X POST http://localhost:8433/api/auth/logout
 ```
 
 ### Test Current User
 ```bash
-curl -X GET http://localhost:8080/api/auth/current-user
+curl -X GET http://localhost:8433/api/auth/current-user
 ```
 
 ### Test Change Password
 ```bash
-curl -X POST http://localhost:8080/api/auth/change-password \
+curl -X POST http://localhost:8433/api/auth/change-password \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","current_password":"admin","new_password":"NewPass123!"}'
 ```
 
 ### Test Admin: List Users
 ```bash
-curl -X GET http://localhost:8080/api/admin/users
+curl -X GET http://localhost:8433/api/admin/users
 ```
 
 ### Test Admin: Create User
 ```bash
-curl -X POST http://localhost:8080/api/admin/users \
+curl -X POST http://localhost:8433/api/admin/users \
   -H "Content-Type: application/json" \
   -d '{"username":"newuser","password":"NewPass123!","role":"user","email":"newuser@example.com"}'
 ```
 
 ### Test Admin: Reset Password
 ```bash
-curl -X POST http://localhost:8080/api/admin/users/newuser/password \
+curl -X POST http://localhost:8433/api/admin/users/newuser/password \
   -H "Content-Type: application/json" \
   -d '{"username":"newuser","new_password":"ResetPass456!"}'
 ```
 
 ### Test Admin: Delete User
 ```bash
-curl -X DELETE http://localhost:8080/api/admin/users/newuser
+curl -X DELETE http://localhost:8433/api/admin/users/newuser
 ```
 
 ## Troubleshooting

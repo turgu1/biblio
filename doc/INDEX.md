@@ -115,7 +115,7 @@ cargo run --release
 
 ### 3️⃣ Open Browser
 ```
-http://localhost:8080
+http://localhost:8433
 ```
 
 **That's it! Your library is now browsable!** 📚
@@ -329,7 +329,7 @@ books
 3. ✅ Documentation is complete
 4. ✅ Add your libraries to `libraries/` folder
 5. ✅ Run `./target/release/biblio`
-6. ✅ Open `http://localhost:8080`
+6. ✅ Open `http://localhost:8433`
 
 ### For Development:
 1. ✅ Code is clean and modular
@@ -353,7 +353,7 @@ books
 ```bash
 cd <biblio-parent-folder>/biblio
 ./target/release/biblio
-# Open http://localhost:8080
+# Open http://localhost:8433
 ```
 
 ### Soon
@@ -534,7 +534,7 @@ cd <biblio-parent-folder>/biblio
 ./target/release/biblio
 
 # Then open:
-http://localhost:8080
+http://localhost:8433
 
 # And enjoy your books! 📚
 ```

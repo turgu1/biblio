@@ -122,7 +122,7 @@ library_path: "./libraries"
 # library_path: "/home/username/my-libraries"
 
 # The IP and port for the server (default is usually fine)
-service_ip_and_port: "0.0.0.0:8080"
+service_ip_and_port: "0.0.0.0:8433"
 
 # Path to users credentials file (optional, relative or absolute)
 users_file_path: "./users.ids"
@@ -149,7 +149,7 @@ cargo run --release
 # ...
 # Finished release [optimized] target(s) in X.XXs
 # Running `target/release/biblio`
-# Starting Biblio server on http://0.0.0.0:8080
+# Starting Biblio server on http://0.0.0.0:8433
 ```
 
 ### Option B: Using Pre-built Binary
@@ -161,7 +161,7 @@ cd <biblio-parent-folder>/biblio
 ./target/release/biblio
 
 # Output:
-# Starting Biblio server on http://0.0.0.0:8080
+# Starting Biblio server on http://0.0.0.0:8433
 ```
 
 ### Option C: Running in Background
@@ -181,7 +181,7 @@ ps aux | grep biblio
 
 Open your browser to:
 ```
-http://localhost:8080
+http://localhost:8433
 ```
 
 You should see:
@@ -255,7 +255,7 @@ Uncheck filter checkboxes in the left panel to show all books again
 
 ```
 1. Server running: ./target/release/biblio
-2. Browser open: http://localhost:8080
+2. Browser open: http://localhost:8433
 3. Loaded libraries shown: "MyBooks (1250)", "Academic (340)"
 4. Click library "MyBooks" → Grid shows 1250 books
 5. Search "Tolkien" → Grid shows 5 books
@@ -306,7 +306,7 @@ ls libraries/MyBooks/cache/covers/ | head -5
 ### Server Won't Start
 ```bash
 # Check port is not in use
-lsof -i :8080
+lsof -i :8433
 
 # If in use, either:
 # 1. Kill other process: kill -9 <PID>
@@ -390,14 +390,14 @@ server {
     server_name books.example.com;
 
     location / {
-        proxy_pass http://localhost:8080;
+        proxy_pass http://localhost:8433;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 
     location /api/ {
-        proxy_pass http://localhost:8080/api/;
+        proxy_pass http://localhost:8433/api/;
         proxy_buffering off;
     }
 }

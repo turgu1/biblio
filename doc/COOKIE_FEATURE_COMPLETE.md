@@ -32,7 +32,7 @@ A complete session persistence system that automatically saves and restores:
 
 ### ✅ Quality Assurance
 - Code compiles without errors or warnings
-- Server runs successfully on 0.0.0.0:8080
+- Server runs successfully on 0.0.0.0:8433
 - Browser loads application without errors
 - No JavaScript console errors
 - All methods properly integrated
@@ -47,7 +47,7 @@ Cookie Name: 'biblioAppState'
 Expiration: 30 days
 Format: JSON
 Size: ~500 bytes - 1 KB
-Scope: Domain-specific (localhost:8080)
+Scope: Domain-specific (localhost:8433)
 ```
 
 ### State Object
@@ -190,7 +190,7 @@ See [doc/COOKIE_TESTING.md](/doc/COOKIE_TESTING.md) for:
 8. **Expiration** - Cookie expires after 30 days
 
 ### Quick Test (30 seconds)
-1. Open http://localhost:8080
+1. Open http://localhost:8433
 2. Select filters, search for something
 3. Press F5 to refresh
 4. Verify filters and search are still there ✅
@@ -311,7 +311,7 @@ Result: ✅ Same state waiting, seamless experience
 | Current library is saved | ✅ | currentLibraryId property in state |
 | Code compiles | ✅ | "Finished `dev` profile" message |
 | No JavaScript errors | ✅ | Browser console clean |
-| Server runs | ✅ | 0.0.0.0:8080 listening |
+| Server runs | ✅ | 0.0.0.0:8433 listening |
 | UI loads correctly | ✅ | Application visible in browser |
 | Well documented | ✅ | 3 new doc files + updates |
 | Test procedures provided | ✅ | 8 comprehensive tests |

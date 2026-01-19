@@ -230,11 +230,11 @@ cp -r ~/Calibre\ Library libraries/MyLibrary
 ### Run
 ```bash
 ./target/release/biblio
-# Server starts at http://localhost:8080
+# Server starts at http://localhost:8433
 ```
 
 ### Access
-Open browser to: `http://localhost:8080`
+Open browser to: `http://localhost:8433`
 
 ---
 
@@ -368,7 +368,7 @@ The project demonstrates:
 cargo run                    # Auto-recompiles on changes
 
 # Open browser to localhost
-firefox http://localhost:8080
+firefox http://localhost:8433
 
 # Make changes to code
 # Server auto-restarts

@@ -40,11 +40,11 @@ library_path: "/path/to/your/calibre-libraries"
 # IP and port for the Biblio server to bind to
 # Format: "IP:PORT"
 # Examples:
-#   "0.0.0.0:8080" - Listen on all interfaces, port 8080 (recommended)
+#   "0.0.0.0:8433" - Listen on all interfaces, port 8433 (recommended)
 #   "127.0.0.1:3000" - Listen only on localhost, port 3000
 #   "192.168.1.100:8080" - Listen on specific IP, port 8080
 #
-# Note: For Docker, ensure the port matches the port binding in compose.yaml
+# Note: For Docker, ensure the port matches the port binding in both compose.yaml and Dockerfile
 service_ip_and_port: "0.0.0.0:8433"
 
 # Path to the users.ids file containing user credentials

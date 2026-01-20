@@ -23,10 +23,10 @@ class BiblioApp {
         this.isLoadingMore = false;
         this.isAuthenticated = false;
         this.currentUsername = null;
-        
+
         // Splitter drag state
         this.resizing = null;
-        
+
         // View mode and table settings
         this.currentViewMode = 'grid';
         this.coverSize = 120;
@@ -46,7 +46,7 @@ class BiblioApp {
             rating: true,
             pubdate: true
         };
-        
+
         // Track which library each view was rendered for
         this.gridRenderedForLibrary = null;
         this.tableRenderedForLibrary = null;
@@ -158,10 +158,10 @@ class BiblioApp {
 
     async init() {
         console.log('Initializing Biblio App...');
-        
+
         // Load view preferences
         this.loadViewPreferences();
-        
+
         // Check if user is authenticated
         const authState = this.loadAuthState();
         if (authState && authState.isAuthenticated) {
@@ -169,28 +169,28 @@ class BiblioApp {
             this.currentUsername = authState.username;
             this.showMainApp();
             this.checkAdminStatus();
-            
+
             // Load saved app state from cookies
             const savedState = this.loadAppState();
-            
+
             await this.loadLibraries();
             this.setupEventListeners();
-            
+
             // Restore filter section collapsed/expanded states
             this.restoreFilterSectionStates();
-            
+
             // If there was a saved library, select it; otherwise select first library
             if (savedState && savedState.currentLibraryId && this.libraries.some(lib => lib.id === savedState.currentLibraryId)) {
                 await this.selectLibrary(savedState.currentLibraryId);
             } else if (this.libraries.length > 0) {
                 await this.selectLibrary(this.libraries[0].id);
             }
-            
+
             // After library is loaded, restore the selected book if it exists
             if (this.selectedBookId && this.selectedBookLibraryId) {
                 await this.restoreSelectedBook();
             }
-            
+
             // Update view display with saved preferences
             this.updateViewDisplay();
         } else {
@@ -203,7 +203,7 @@ class BiblioApp {
         const auth = this.loadAuthState();
         const adminBtn = document.getElementById('adminBtn');
         if (!adminBtn) return;
-        
+
         if (auth && auth.role === 'admin') {
             adminBtn.style.display = 'inline-block';
         } else {
@@ -242,11 +242,11 @@ class BiblioApp {
             const contentArea = document.querySelector('.content-area');
             const topPanel = document.querySelector('.top-panel');
             const bottomPanel = document.querySelector('.bottom-panel');
-            
+
             // Hide the main content and panels
             contentArea.style.display = 'none';
             if (bottomPanel) bottomPanel.style.display = 'none';
-            
+
             // Create login container
             const loginContainer = document.createElement('div');
             loginContainer.id = 'loginContainer';
@@ -258,7 +258,7 @@ class BiblioApp {
                 height: 100%;
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             `;
-            
+
             loginContainer.innerHTML = `
                 <div style="
                     background: white;
@@ -339,24 +339,24 @@ class BiblioApp {
                     "></div>
                 </div>
             `;
-            
+
             document.body.appendChild(loginContainer);
-            
+
             // Clear password field for security (override browser autofill)
             const passwordField = document.getElementById('passwordInput');
             const usernameField = document.getElementById('usernameInput');
-            
+
             // Aggressive clearing to prevent browser autofill
             if (passwordField) {
                 // Add input event listener to clear field if autofilled
                 passwordField.addEventListener('input', () => {
                     // Don't prevent input, just monitor
                 });
-                
+
                 // Set readonly briefly to prevent autofill, then remove
                 passwordField.setAttribute('readonly', '');
                 passwordField.value = '';
-                
+
                 // Remove readonly after browser autofill attempt would have happened
                 setTimeout(() => {
                     if (passwordField) {
@@ -364,30 +364,30 @@ class BiblioApp {
                         passwordField.value = '';
                     }
                 }, 50);
-                
+
                 // Additional clearing attempts
                 setTimeout(() => {
                     if (passwordField) {
                         passwordField.value = '';
                     }
                 }, 100);
-                
+
                 setTimeout(() => {
                     if (passwordField) {
                         passwordField.value = '';
                     }
                 }, 200);
             }
-            
+
             // Also clear username field
             if (usernameField) {
                 usernameField.value = '';
             }
-            
+
             // Hide buttons in top panel
             const buttons = topPanel.querySelectorAll('button');
             buttons.forEach(btn => btn.style.display = 'none');
-            
+
             // Setup login form handler
             const loginForm = document.getElementById('loginForm');
             if (loginForm) {
@@ -400,17 +400,17 @@ class BiblioApp {
 
     async handleLogin(e) {
         e.preventDefault();
-        
+
         const username = document.getElementById('usernameInput').value;
         const password = document.getElementById('passwordInput').value;
         const errorDiv = document.getElementById('loginError');
-        
+
         if (!username || !password) {
             errorDiv.textContent = 'Please enter username and password';
             errorDiv.style.display = 'block';
             return;
         }
-        
+
         try {
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
@@ -419,31 +419,31 @@ class BiblioApp {
                 },
                 body: JSON.stringify({ username, password })
             });
-            
+
             const data = await response.json();
-            
+
             if (data.success) {
                 this.isAuthenticated = true;
                 this.currentUsername = username;
                 // Extract role from login response, default to 'reader' if not provided
                 const role = data.data && data.data.role ? data.data.role : 'reader';
                 this.saveAuthState(username, role);
-                
+
                 // Remove login page
                 const loginContainer = document.getElementById('loginContainer');
                 loginContainer.remove();
-                
+
                 // Show main app
                 this.showMainApp();
-                
+
                 // Check admin status AFTER auth state is saved
                 this.checkAdminStatus();
-                
+
                 // Initialize app
                 const savedState = this.loadAppState();
                 await this.loadLibraries();
                 this.setupEventListeners();
-                
+
                 if (savedState && savedState.currentLibraryId && this.libraries.some(lib => lib.id === savedState.currentLibraryId)) {
                     await this.selectLibrary(savedState.currentLibraryId);
                 } else if (this.libraries.length > 0) {
@@ -466,10 +466,10 @@ class BiblioApp {
         const contentArea = document.querySelector('.content-area');
         const topPanel = document.querySelector('.top-panel');
         const bottomPanel = document.querySelector('.bottom-panel');
-        
+
         contentArea.style.display = 'flex';
         if (bottomPanel) bottomPanel.style.display = 'flex';
-        
+
         // Show/update buttons in top panel (except admin button, which is handled by checkAdminStatus)
         const buttons = topPanel.querySelectorAll('button');
         buttons.forEach(btn => {
@@ -480,7 +480,7 @@ class BiblioApp {
                 btn.style.display = 'inline-block';
             }
         });
-        
+
         // Add user info and logout button
         const userInfo = topPanel.querySelector('#userInfo');
         if (!userInfo) {
@@ -502,7 +502,7 @@ class BiblioApp {
                 ">Logout</button>
             `;
             topPanel.appendChild(userInfoDiv);
-            
+
             document.getElementById('logoutBtn').addEventListener('click', () => this.handleLogout());
         }
     }
@@ -515,21 +515,21 @@ class BiblioApp {
         } catch (error) {
             console.error('Logout error:', error);
         }
-        
+
         this.isAuthenticated = false;
         this.currentUsername = null;
         this.clearAuthState();
-        
+
         // Hide admin button
         const adminBtn = document.getElementById('adminBtn');
         if (adminBtn) {
             adminBtn.style.display = 'none';
         }
-        
+
         // Remove user info
         const userInfo = document.getElementById('userInfo');
         if (userInfo) userInfo.remove();
-        
+
         // Hide main content and show login page
         document.querySelector('.content-area').style.display = 'none';
         this.showLoginPage();
@@ -580,10 +580,10 @@ class BiblioApp {
             this.currentLibraryId = libraryId;
             this.selectedBook = null;
             this.displayedBooksCount = 0;
-            
+
             // Check if we're switching to a different library
             const isSwitchingLibrary = this.currentLibrary && this.currentLibrary.id !== libraryId;
-            
+
             // If switching libraries, clear all filters
             if (isSwitchingLibrary) {
                 this.selectedAuthors.clear();
@@ -608,14 +608,14 @@ class BiblioApp {
             this.updateStatus('Loading books...');
             await this.loadBooks();
             await this.loadFilters();
-            
+
             // If switching libraries, clear UI; otherwise restore saved state
             if (isSwitchingLibrary) {
                 const searchInput = document.getElementById('searchInput');
                 if (searchInput) {
                     searchInput.value = '';
                 }
-                
+
                 const sortSelect = document.getElementById('sortSelect');
                 if (sortSelect) {
                     sortSelect.value = 'recent';
@@ -641,7 +641,7 @@ class BiblioApp {
                     this.applyFilters();
                 }
             }
-            
+
             this.updateStatus('Ready');
         } catch (error) {
             console.error('Error selecting library:', error);
@@ -735,7 +735,7 @@ class BiblioApp {
 
     renderAuthorsGrouped(sortedAuthors) {
         const authorsList = document.getElementById('authorsList');
-        
+
         // Group authors by first letter of sort field
         const groups = {};
         sortedAuthors.forEach(author => {
@@ -745,34 +745,34 @@ class BiblioApp {
             }
             groups[lastNameKey].push(author);
         });
-        
+
         // Sort group keys alphabetically
         const sortedKeys = Object.keys(groups).sort();
-        
+
         // Create collapsible sections for each letter
         sortedKeys.forEach((letter, index) => {
             const groupContainer = document.createElement('div');
             groupContainer.className = 'author-group';
-            
+
             // Group header (clickable to expand/collapse)
             const header = document.createElement('div');
             header.className = 'author-group-header';
             header.style.cssText = 'cursor: pointer; padding: 8px 10px; background: #ecf0f1; font-weight: 500; border-radius: 3px; margin-bottom: 5px; user-select: none; display: flex; align-items: center; justify-content: space-between;';
-            
+
             const letterSpan = document.createElement('span');
             letterSpan.textContent = `${letter} (${groups[letter].length})`;
             header.appendChild(letterSpan);
-            
+
             const toggleIcon = document.createElement('span');
             toggleIcon.textContent = '▼';
             toggleIcon.style.cssText = 'font-size: 12px; transition: transform 0.2s;';
             header.appendChild(toggleIcon);
-            
+
             // Group content (authors)
             const content = document.createElement('div');
             content.className = 'author-group-content';
             content.style.cssText = 'padding-left: 10px; display: none;';
-            
+
             groups[letter].forEach(author => {
                 const item = document.createElement('div');
                 item.className = 'filter-item';
@@ -785,20 +785,20 @@ class BiblioApp {
                 `;
                 content.appendChild(item);
             });
-            
+
             // Toggle functionality
             header.addEventListener('click', () => {
                 const isOpen = content.style.display !== 'none';
                 content.style.display = isOpen ? 'none' : 'block';
                 toggleIcon.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(-180deg)';
             });
-            
+
             // Expand first group by default
             if (index === 0) {
                 content.style.display = 'block';
                 toggleIcon.style.transform = 'rotate(-180deg)';
             }
-            
+
             groupContainer.appendChild(header);
             groupContainer.appendChild(content);
             authorsList.appendChild(groupContainer);
@@ -808,7 +808,7 @@ class BiblioApp {
     getLastNameFirstLetter(author) {
         // Use the sort field for consistent grouping
         const sortField = author.sort || author.name;
-        
+
         // Get first letter and convert to uppercase
         const firstLetter = sortField.charAt(0).toUpperCase();
         // Return letter or # for non-alphabetic
@@ -890,7 +890,7 @@ class BiblioApp {
 
     renderTagsGrouped(sortedTags) {
         const tagsList = document.getElementById('tagsList');
-        
+
         // Group tags by first letter
         const groups = {};
         sortedTags.forEach(tag => {
@@ -900,34 +900,34 @@ class BiblioApp {
             }
             groups[firstLetter].push(tag);
         });
-        
+
         // Sort group keys alphabetically
         const sortedKeys = Object.keys(groups).sort();
-        
+
         // Create collapsible sections for each letter
         sortedKeys.forEach((letter, index) => {
             const groupContainer = document.createElement('div');
             groupContainer.className = 'filter-group';
-            
+
             // Group header (clickable to expand/collapse)
             const header = document.createElement('div');
             header.className = 'filter-group-header';
             header.style.cssText = 'cursor: pointer; padding: 8px 10px; background: #ecf0f1; font-weight: 500; border-radius: 3px; margin-bottom: 5px; user-select: none; display: flex; align-items: center; justify-content: space-between;';
-            
+
             const letterSpan = document.createElement('span');
             letterSpan.textContent = `${letter} (${groups[letter].length})`;
             header.appendChild(letterSpan);
-            
+
             const toggleIcon = document.createElement('span');
             toggleIcon.textContent = '▼';
             toggleIcon.style.cssText = 'font-size: 12px; transition: transform 0.2s;';
             header.appendChild(toggleIcon);
-            
+
             // Group content (tags)
             const content = document.createElement('div');
             content.className = 'filter-group-content';
             content.style.cssText = 'padding-left: 10px; display: none;';
-            
+
             groups[letter].forEach(tag => {
                 const item = document.createElement('div');
                 item.className = 'filter-item';
@@ -939,20 +939,20 @@ class BiblioApp {
                 `;
                 content.appendChild(item);
             });
-            
+
             // Toggle functionality
             header.addEventListener('click', () => {
                 const isOpen = content.style.display !== 'none';
                 content.style.display = isOpen ? 'none' : 'block';
                 toggleIcon.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(-180deg)';
             });
-            
+
             // Expand first group by default
             if (index === 0) {
                 content.style.display = 'block';
                 toggleIcon.style.transform = 'rotate(-180deg)';
             }
-            
+
             groupContainer.appendChild(header);
             groupContainer.appendChild(content);
             tagsList.appendChild(groupContainer);
@@ -1014,7 +1014,7 @@ class BiblioApp {
 
     renderSeriesGrouped(sortedSeries) {
         const seriesList = document.getElementById('seriesList');
-        
+
         // Group series by first letter of sort field
         const groups = {};
         sortedSeries.forEach(s => {
@@ -1025,34 +1025,34 @@ class BiblioApp {
             }
             groups[firstLetter].push(s);
         });
-        
+
         // Sort group keys alphabetically
         const sortedKeys = Object.keys(groups).sort();
-        
+
         // Create collapsible sections for each letter
         sortedKeys.forEach((letter, index) => {
             const groupContainer = document.createElement('div');
             groupContainer.className = 'filter-group';
-            
+
             // Group header (clickable to expand/collapse)
             const header = document.createElement('div');
             header.className = 'filter-group-header';
             header.style.cssText = 'cursor: pointer; padding: 8px 10px; background: #ecf0f1; font-weight: 500; border-radius: 3px; margin-bottom: 5px; user-select: none; display: flex; align-items: center; justify-content: space-between;';
-            
+
             const letterSpan = document.createElement('span');
             letterSpan.textContent = `${letter} (${groups[letter].length})`;
             header.appendChild(letterSpan);
-            
+
             const toggleIcon = document.createElement('span');
             toggleIcon.textContent = '▼';
             toggleIcon.style.cssText = 'font-size: 12px; transition: transform 0.2s;';
             header.appendChild(toggleIcon);
-            
+
             // Group content (series)
             const content = document.createElement('div');
             content.className = 'filter-group-content';
             content.style.cssText = 'padding-left: 10px; display: none;';
-            
+
             groups[letter].forEach(s => {
                 const item = document.createElement('div');
                 item.className = 'filter-item';
@@ -1064,20 +1064,20 @@ class BiblioApp {
                 `;
                 content.appendChild(item);
             });
-            
+
             // Toggle functionality
             header.addEventListener('click', () => {
                 const isOpen = content.style.display !== 'none';
                 content.style.display = isOpen ? 'none' : 'block';
                 toggleIcon.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(-180deg)';
             });
-            
+
             // Expand first group by default
             if (index === 0) {
                 content.style.display = 'block';
                 toggleIcon.style.transform = 'rotate(-180deg)';
             }
-            
+
             groupContainer.appendChild(header);
             groupContainer.appendChild(content);
             seriesList.appendChild(groupContainer);
@@ -1095,7 +1095,7 @@ class BiblioApp {
                     });
                 }
             });
-            
+
             this.formats = Object.keys(this.formatsCount).sort();
             this.renderFormats(this.formats, this.formatsCount);
         } catch (error) {
@@ -1316,7 +1316,7 @@ class BiblioApp {
         document.getElementById('statusFiltered').textContent = filtered.length;
         this.displayedBooksCount = 0;
         this.renderBooks();
-        
+
         // Fill screen with available books if there's room
         if (this.currentViewMode === 'grid') {
             setTimeout(() => this.fillScreenWithCovers(), 100);
@@ -1368,7 +1368,7 @@ class BiblioApp {
 
     renderBooksGrid() {
         const booksGrid = document.getElementById('booksGrid');
-        
+
         // Clear grid on first render
         if (this.displayedBooksCount === 0) {
             booksGrid.innerHTML = '';
@@ -1425,10 +1425,10 @@ class BiblioApp {
 
     setupInfiniteScroll() {
         const booksGrid = document.getElementById('booksGrid');
-        
+
         // Remove existing listener if any
         booksGrid.removeEventListener('scroll', this.handleScroll);
-        
+
         // Add new scroll listener
         this.handleScroll = () => {
             if (this.isLoadingMore || this.displayedBooksCount >= this.filteredBooks.length) {
@@ -1457,17 +1457,17 @@ class BiblioApp {
         this.selectedBookId = book.id;
         this.selectedBookLibraryId = libraryId || this.currentLibraryId;
         this.saveAppState();
-        
+
         // Update selected styling for grid view
         document.querySelectorAll('.book-item').forEach(item => {
             item.classList.remove('selected');
         });
-        
+
         // Update selected styling for table view
         document.querySelectorAll('.books-table tbody tr').forEach(row => {
             row.classList.remove('selected');
         });
-        
+
         // Add selected class to appropriate element
         if (this.currentViewMode === 'grid') {
             // For grid view, try to find the element that was clicked
@@ -1492,12 +1492,12 @@ class BiblioApp {
         try {
             // Try to find the book in the current library's all books
             let book = this.allBooks.find(b => b.id === this.selectedBookId);
-            
+
             if (book) {
                 // Book is in the current library, restore it
                 this.selectedBook = book;
                 this.renderBookDetails(book);
-                
+
                 // Highlight the book in the grid if visible
                 document.querySelectorAll('.book-item').forEach(item => {
                     item.classList.remove('selected');
@@ -1520,7 +1520,7 @@ class BiblioApp {
                     this.selectedBookLibraryId = this.currentLibraryId;
                     this.saveAppState();
                     this.renderBookDetails(firstBook);
-                    
+
                     // Highlight the first book in the grid
                     document.querySelectorAll('.book-item').forEach(item => {
                         item.classList.remove('selected');
@@ -1558,7 +1558,7 @@ class BiblioApp {
         document.getElementById('detailTitle').textContent = book.title;
         const formattedAuthors = book.authors.map(author => this.formatAuthorName(author)).join(' & ');
         document.getElementById('detailAuthors').textContent = formattedAuthors || 'Unknown';
-        
+
         // Handle Series section
         let seriesText = 'None';
         if (book.series && book.series_index) {
@@ -1625,7 +1625,7 @@ class BiblioApp {
         const content = document.getElementById(sectionId);
         const header = content ? content.previousElementSibling : null;
         const toggle = header ? header.querySelector('.filter-section-toggle') : null;
-        
+
         if (content && toggle) {
             content.classList.toggle('collapsed');
             toggle.classList.toggle('collapsed');
@@ -1654,7 +1654,7 @@ class BiblioApp {
                     const content = document.getElementById(sectionId);
                     const header = content ? content.previousElementSibling : null;
                     const toggle = header ? header.querySelector('.filter-section-toggle') : null;
-                    
+
                     if (content && toggle) {
                         if (stateObj[sectionId]) {
                             content.classList.add('collapsed');
@@ -1674,13 +1674,13 @@ class BiblioApp {
     generateTemporaryCover(title, author) {
         const width = 300;
         const height = 450;
-        
+
         // Create a canvas element
         const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
         const ctx = canvas.getContext('2d');
-        
+
         // Generate a color based on title hash for variety
         const hash = title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
         const colors = [
@@ -1688,39 +1688,39 @@ class BiblioApp {
             '#1abc9c', '#e67e22', '#34495e', '#c0392b', '#16a085'
         ];
         const backgroundColor = colors[hash % colors.length];
-        
+
         // Fill background with gradient
         const gradient = ctx.createLinearGradient(0, 0, 0, height);
         gradient.addColorStop(0, backgroundColor);
         gradient.addColorStop(1, this.shadeColor(backgroundColor, -30));
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, width, height);
-        
+
         // Add a decorative border
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
         ctx.lineWidth = 2;
         ctx.strokeRect(10, 10, width - 20, height - 20);
-        
+
         // Draw title
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 28px Arial, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
-        
+
         // Wrap title text
         const titleLines = this.wrapText(ctx, title, width - 40, 28);
         const titleStartY = height / 2 - (titleLines.length * 35) / 2;
-        
+
         titleLines.forEach((line, index) => {
             ctx.fillText(line, width / 2, titleStartY + index * 35);
         });
-        
+
         // Draw author
         ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
         ctx.font = '16px Arial, sans-serif';
         const authorY = titleStartY + titleLines.length * 35 + 30;
         ctx.fillText(author, width / 2, authorY);
-        
+
         // Convert canvas to data URL
         return canvas.toDataURL('image/png');
     }
@@ -1729,11 +1729,11 @@ class BiblioApp {
         const words = text.split(' ');
         const lines = [];
         let currentLine = '';
-        
+
         words.forEach(word => {
             const testLine = currentLine + (currentLine ? ' ' : '') + word;
             const metrics = ctx.measureText(testLine);
-            
+
             if (metrics.width > maxWidth && currentLine) {
                 lines.push(currentLine);
                 currentLine = word;
@@ -1741,11 +1741,11 @@ class BiblioApp {
                 currentLine = testLine;
             }
         });
-        
+
         if (currentLine) {
             lines.push(currentLine);
         }
-        
+
         return lines;
     }
 
@@ -1760,7 +1760,7 @@ class BiblioApp {
 
     async loadAndDisplayFormats(bookId) {
         const formatsContainer = document.getElementById('detailFormats');
-        
+
         // Get formats from the selected book object
         if (this.selectedBook && this.selectedBook.formats && this.selectedBook.formats.length > 0) {
             formatsContainer.innerHTML = this.selectedBook.formats.map(format => {
@@ -1780,20 +1780,20 @@ class BiblioApp {
     setupEventListeners() {
         document.getElementById('searchInput').addEventListener('input', (e) => {
             this.searchTerm = e.target.value;
-            
+
             // Show/hide clear button based on input value
             const clearBtn = document.getElementById('clearSearchBtn');
             if (clearBtn) {
                 clearBtn.style.display = this.searchTerm ? 'flex' : 'none';
             }
-            
+
             this.saveAppState();
             this.applyFilters();
         });
-        
+
         // Setup splitter event listeners
         this.setupSplitters();
-        
+
         // Setup responsive panel sizing
         this.setupResponsivePanelSizing();
     }
@@ -1801,19 +1801,19 @@ class BiblioApp {
     clearSearch() {
         const searchInput = document.getElementById('searchInput');
         const clearBtn = document.getElementById('clearSearchBtn');
-        
+
         // Clear the input and search term
         searchInput.value = '';
         this.searchTerm = '';
-        
+
         // Hide clear button
         if (clearBtn) {
             clearBtn.style.display = 'none';
         }
-        
+
         // Focus back on input
         searchInput.focus();
-        
+
         // Reapply filters
         this.displayedBooksCount = 0;
         this.saveAppState();
@@ -1823,57 +1823,63 @@ class BiblioApp {
     setupSplitters() {
         const splitterLeft = document.getElementById('splitterLeft');
         const splitterRight = document.getElementById('splitterRight');
-        
+
+        // Helper function to get X coordinate from mouse or touch event
+        const getClientX = (e) => {
+            return e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+        };
+
+        // Helper function to start resizing from either mouse or touch
+        const startResize = (side, e) => {
+            e.preventDefault();
+            this.resizing = {
+                side: side,
+                startX: getClientX(e),
+                startLeftWidth: document.querySelector('.left-panel').offsetWidth,
+                startRightWidth: document.querySelector('.right-panel').offsetWidth,
+                splitter: e.target
+            };
+            e.target.classList.add('active');
+        };
+
         if (splitterLeft) {
-            splitterLeft.addEventListener('mousedown', (e) => {
-                e.preventDefault();
-                this.resizing = {
-                    side: 'left',
-                    startX: e.clientX,
-                    startLeftWidth: document.querySelector('.left-panel').offsetWidth,
-                    startRightWidth: document.querySelector('.right-panel').offsetWidth,
-                    splitter: e.target
-                };
-                e.target.classList.add('active');
-            });
+            splitterLeft.addEventListener('mousedown', (e) => startResize('left', e));
+            splitterLeft.addEventListener('touchstart', (e) => startResize('left', e), { passive: false });
         }
-        
+
         if (splitterRight) {
-            splitterRight.addEventListener('mousedown', (e) => {
-                e.preventDefault();
-                this.resizing = {
-                    side: 'right',
-                    startX: e.clientX,
-                    startLeftWidth: document.querySelector('.left-panel').offsetWidth,
-                    startRightWidth: document.querySelector('.right-panel').offsetWidth,
-                    splitter: e.target
-                };
-                e.target.classList.add('active');
-            });
+            splitterRight.addEventListener('mousedown', (e) => startResize('right', e));
+            splitterRight.addEventListener('touchstart', (e) => startResize('right', e), { passive: false });
         }
-        
+
         document.addEventListener('mousemove', (e) => this.handleResize(e));
+        document.addEventListener('touchmove', (e) => this.handleResize(e), { passive: false });
         document.addEventListener('mouseup', () => this.stopResizing());
-        
+        document.addEventListener('touchend', () => this.stopResizing());
+
         // Load saved pane sizes
         this.loadPaneSizes();
     }
 
     handleResize(e) {
         if (!this.resizing) return;
-        
+
+        // Get X coordinate from mouse or touch event
+        const clientX = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : null);
+        if (clientX === null) return;
+
         const leftPanel = document.querySelector('.left-panel');
         const rightPanel = document.querySelector('.right-panel');
-        
+
         if (!leftPanel || !rightPanel) return;
-        
+
         if (this.resizing.side === 'left') {
-            const deltaX = e.clientX - this.resizing.startX;
+            const deltaX = clientX - this.resizing.startX;
             const newLeftWidth = Math.max(150, Math.min(500, this.resizing.startLeftWidth + deltaX));
             leftPanel.style.width = newLeftWidth + 'px';
             leftPanel.style.flex = `0 0 ${newLeftWidth}px`;
         } else if (this.resizing.side === 'right') {
-            const deltaX = e.clientX - this.resizing.startX;
+            const deltaX = clientX - this.resizing.startX;
             const newRightWidth = Math.max(150, Math.min(500, this.resizing.startRightWidth - deltaX));
             rightPanel.style.width = newRightWidth + 'px';
             rightPanel.style.flex = `0 0 ${newRightWidth}px`;
@@ -1886,12 +1892,12 @@ class BiblioApp {
                 this.resizing.splitter.classList.remove('active');
             }
             this.savePaneSizes();
-            
+
             // Re-apply table column widths when panels are resized
             if (this.currentViewMode === 'table') {
                 this.loadTableColumnWidths();
             }
-            
+
             this.resizing = null;
         }
     }
@@ -1899,12 +1905,12 @@ class BiblioApp {
     savePaneSizes() {
         const leftWidth = document.querySelector('.left-panel').offsetWidth;
         const rightWidth = document.querySelector('.right-panel').offsetWidth;
-        
+
         const paneSizes = {
             leftWidth: leftWidth,
             rightWidth: rightWidth
         };
-        
+
         localStorage.setItem('biblioPaneSizes', JSON.stringify(paneSizes));
     }
 
@@ -1915,12 +1921,12 @@ class BiblioApp {
                 const sizes = JSON.parse(paneSizes);
                 const leftPanel = document.querySelector('.left-panel');
                 const rightPanel = document.querySelector('.right-panel');
-                
+
                 if (sizes.leftWidth && leftPanel) {
                     leftPanel.style.width = sizes.leftWidth + 'px';
                     leftPanel.style.flex = `0 0 ${sizes.leftWidth}px`;
                 }
-                
+
                 if (sizes.rightWidth && rightPanel) {
                     rightPanel.style.width = sizes.rightWidth + 'px';
                     rightPanel.style.flex = `0 0 ${sizes.rightWidth}px`;
@@ -1929,7 +1935,7 @@ class BiblioApp {
                 console.error('Error loading pane sizes:', error);
             }
         }
-        
+
         // Check if adjustment is needed for current viewport
         // Use setTimeout to ensure DOM is fully rendered
         setTimeout(() => {
@@ -1941,7 +1947,7 @@ class BiblioApp {
     setupResponsivePanelSizing() {
         // Auto-adjust on load
         this.adjustPanelsForViewport();
-        
+
         // Re-adjust on window resize with debouncing
         let resizeTimeout;
         window.addEventListener('resize', () => {
@@ -1993,7 +1999,7 @@ class BiblioApp {
             adjustmentNeeded = true;
             // Calculate scaling factor
             scaleFactor = (availableWidth - minCenterWidth) / (leftWidth + rightWidth);
-            
+
             // Scale down panels proportionally
             newLeftWidth = Math.max(150, Math.floor(leftWidth * scaleFactor));
             newRightWidth = Math.max(150, Math.floor(rightWidth * scaleFactor));
@@ -2076,17 +2082,17 @@ class BiblioApp {
         const tableRadio = document.querySelector('input[name="viewMode"][value="table"]');
         const columnVisibilityItem = document.getElementById('columnVisibilityItem');
         const coverSizeItem = document.getElementById('coverSizeItem');
-        
+
         if (this.currentViewMode === 'grid') {
             booksGrid.style.display = 'grid';
             booksTable.style.display = 'none';
             if (gridRadio) gridRadio.checked = true;
             if (columnVisibilityItem) columnVisibilityItem.style.display = 'none';
             if (coverSizeItem) coverSizeItem.style.display = 'flex';
-            
+
             // Apply current cover size (set CSS custom properties)
             this.applyCoverSizeCSS();
-            
+
             // Always reset displayed count when switching to grid mode to show current filters
             this.displayedBooksCount = 0;
             this.renderBooks();
@@ -2135,7 +2141,7 @@ class BiblioApp {
                 console.error('Error loading view preferences:', error);
             }
         }
-        
+
         // Sync checkboxes with loaded column visibility state
         this.syncColumnVisibilityCheckboxes();
     }
@@ -2152,7 +2158,7 @@ class BiblioApp {
 
     toggleColumnVisibility(colName) {
         this.columnVisibility[colName] = !this.columnVisibility[colName];
-        
+
         // If showing a column, ensure it has a valid width
         if (this.columnVisibility[colName]) {
             const currentWidth = this.tableColumnWidths[colName];
@@ -2169,10 +2175,10 @@ class BiblioApp {
                 this.tableColumnWidths[colName] = defaultWidths[colName] || 15;
             }
         }
-        
+
         this.saveViewPreferences();
         this.updateColumnVisibility();
-        
+
         // Update checkbox state
         const checkbox = document.querySelector(`input[data-col="${colName}"]`);
         if (checkbox) {
@@ -2189,21 +2195,21 @@ class BiblioApp {
             const proportionalGap = Math.round(size * 0.125);
             const proportionalPadding = proportionalGap;
             const proportionalMargin = Math.round(size * 0.067);
-            
+
             grid.style.setProperty('--cover-width', size + 'px');
             grid.style.setProperty('--item-gap', proportionalGap + 'px');
             grid.style.setProperty('--grid-padding', proportionalPadding + 'px');
             grid.style.setProperty('--cover-margin', proportionalMargin + 'px');
-            
+
             // Calculate title font size and line clamp based on cover size
             const { fontSize, lineClamp } = this.calculateTitleMetrics(size);
             grid.style.setProperty('--title-font-size', fontSize + 'px');
             grid.style.setProperty('--title-lines', lineClamp.toString());
-            
+
             // After CSS properties are applied, check if we need to load more books to fill screen
             setTimeout(() => this.fillScreenWithCovers(), 50);
         }
-        
+
         // Update range slider and label
         const slider = document.getElementById('coverSizeSlider');
         const label = document.getElementById('coverSizeLabel');
@@ -2214,10 +2220,10 @@ class BiblioApp {
     fillScreenWithCovers() {
         const booksGrid = document.getElementById('booksGrid');
         if (!booksGrid || this.currentViewMode !== 'grid') return;
-        
+
         const scrollHeight = booksGrid.scrollHeight;
         const clientHeight = booksGrid.clientHeight;
-        
+
         // If there's vertical space available and we have more books to load, load them
         if (scrollHeight <= clientHeight && this.displayedBooksCount < this.filteredBooks.length) {
             this.isLoadingMore = true;
@@ -2233,10 +2239,10 @@ class BiblioApp {
     fillScreenWithRows() {
         const booksTable = document.getElementById('booksTable');
         if (!booksTable || this.currentViewMode !== 'table') return;
-        
+
         const scrollHeight = booksTable.scrollHeight;
         const clientHeight = booksTable.clientHeight;
-        
+
         // If there's vertical space available and we have more books to load, load them
         if (scrollHeight <= clientHeight && this.displayedBooksCount < this.filteredBooks.length) {
             this.isLoadingMore = true;
@@ -2253,7 +2259,7 @@ class BiblioApp {
         // Calculate dynamic font size: scale from 10px (at 50px) to 14px (at 250px)
         // Linear interpolation: fontSize = 10 + (coverWidth - 50) * (14 - 10) / (250 - 50)
         const fontSize = Math.max(10, Math.min(14, 10 + (coverWidth - 50) * 4 / 200));
-        
+
         // Calculate line clamp based on cover width
         // At small sizes: 1 line, at medium: 2 lines, at large: 3 lines
         let lineClamp = 2;
@@ -2268,7 +2274,7 @@ class BiblioApp {
         } else {
             lineClamp = 3;
         }
-        
+
         return { fontSize: Math.round(fontSize * 10) / 10, lineClamp };
     }
 
@@ -2282,16 +2288,16 @@ class BiblioApp {
     updateColumnVisibility() {
         const table = document.getElementById('booksTableElement');
         if (!table) return;
-        
+
         const headers = table.querySelectorAll('th.resizable-col');
         const columns = ['title', 'authors', 'series', 'publisher', 'rating', 'pubdate'];
-        
+
         // Hide/show headers
         headers.forEach((th, index) => {
             const colName = columns[index];
             th.style.display = this.columnVisibility[colName] ? 'table-cell' : 'none';
         });
-        
+
         // Hide/show cells in rows
         const rows = table.querySelectorAll('tbody tr');
         rows.forEach(row => {
@@ -2301,7 +2307,7 @@ class BiblioApp {
                 td.style.display = this.columnVisibility[colName] ? 'table-cell' : 'none';
             });
         });
-        
+
         // Recalculate visible column percentages
         this.recalculateColumnWidths();
     }
@@ -2311,13 +2317,13 @@ class BiblioApp {
         const visibleColumns = Object.entries(this.columnVisibility)
             .filter(([_, visible]) => visible)
             .map(([col, _]) => col);
-        
+
         const table = document.getElementById('booksTableElement');
         if (!table || visibleColumns.length === 0) return;
-        
+
         const headers = table.querySelectorAll('th.resizable-col');
         const columns = ['title', 'authors', 'series', 'publisher', 'rating', 'pubdate'];
-        
+
         // Default widths for columns
         const defaultWidths = {
             title: 30,
@@ -2327,14 +2333,14 @@ class BiblioApp {
             rating: 10,
             pubdate: 10
         };
-        
+
         // Ensure all visible columns have valid widths
         visibleColumns.forEach(colName => {
             if (!this.tableColumnWidths[colName] || this.tableColumnWidths[colName] <= 0) {
                 this.tableColumnWidths[colName] = defaultWidths[colName] || 15;
             }
         });
-        
+
         // Calculate new percentages distributed among visible columns
         let totalVisiblePercentage = 0;
         headers.forEach((th, index) => {
@@ -2342,12 +2348,12 @@ class BiblioApp {
                 totalVisiblePercentage += this.tableColumnWidths[columns[index]] || 0;
             }
         });
-        
+
         // Redistribute percentages
         headers.forEach((th, index) => {
             const colName = columns[index];
             if (this.columnVisibility[colName]) {
-                const newPercent = totalVisiblePercentage > 0 
+                const newPercent = totalVisiblePercentage > 0
                     ? (this.tableColumnWidths[colName] / totalVisiblePercentage) * 100
                     : (100 / visibleColumns.length);
                 th.style.width = newPercent + '%';
@@ -2359,17 +2365,17 @@ class BiblioApp {
         const tbody = document.getElementById('booksTableBody');
         const table = document.getElementById('booksTableElement');
         if (!tbody || !table) return;
-        
+
         // Clear tbody on initial render
         if (this.displayedBooksCount === 0) {
             tbody.innerHTML = '';
         }
-        
+
         // Calculate which books to display
         const startIndex = this.displayedBooksCount;
         const endIndex = Math.min(this.displayedBooksCount + this.booksPerPage, this.filteredBooks.length);
         const booksToDisplay = this.filteredBooks.slice(startIndex, endIndex);
-        
+
         // Add new rows to table
         booksToDisplay.forEach(book => {
             const row = document.createElement('tr');
@@ -2378,7 +2384,7 @@ class BiblioApp {
             if (this.selectedBookId === book.id && this.selectedBookLibraryId === this.currentLibraryId) {
                 row.classList.add('selected');
             }
-            
+
             row.innerHTML = `
                 <td>${this.escapeHtml(book.title || '')}</td>
                 <td>${this.escapeHtml((book.authors || []).map(author => this.formatAuthorName(author)).join(', '))}</td>
@@ -2387,18 +2393,18 @@ class BiblioApp {
                 <td>${book.rating ? (book.rating / 2).toFixed(1) : 'N/A'}</td>
                 <td>${book.pubdate ? new Date(book.pubdate).toLocaleDateString() : 'N/A'}</td>
             `;
-            
+
             row.addEventListener('click', (e) => {
                 this.selectBook(book, this.currentLibraryId);
             });
-            
+
             tbody.appendChild(row);
         });
-        
+
         // Update displayed count
         this.displayedBooksCount = endIndex;
         this.tableRenderedForLibrary = this.currentLibraryId;
-        
+
         // Load and apply saved column widths (only on first render)
         if (startIndex === 0) {
             this.loadTableColumnWidths();
@@ -2407,10 +2413,10 @@ class BiblioApp {
             // Setup resize observer for responsive column scaling
             this.setupTableResizeObserver();
         }
-        
+
         // Apply column visibility
         this.updateColumnVisibility();
-        
+
         // Setup infinite scroll on first render
         if (startIndex === 0 && this.displayedBooksCount === this.booksPerPage) {
             this.setupTableInfiniteScroll();
@@ -2420,10 +2426,10 @@ class BiblioApp {
     setupTableInfiniteScroll() {
         const booksTable = document.getElementById('booksTable');
         if (!booksTable) return;
-        
+
         // Remove existing listener if any
         booksTable.removeEventListener('scroll', this.handleTableScroll);
-        
+
         // Add new scroll listener
         this.handleTableScroll = () => {
             if (this.isLoadingMore || this.displayedBooksCount >= this.filteredBooks.length) {
@@ -2449,19 +2455,19 @@ class BiblioApp {
 
     setupTableColumnResizing() {
         const resizeHandles = document.querySelectorAll('.col-resize');
-        
+
         resizeHandles.forEach((handle, index) => {
             handle.addEventListener('mousedown', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 const th = handle.closest('th');
                 const table = document.getElementById('booksTableElement');
                 const startX = e.clientX;
                 const startWidth = th.offsetWidth;
                 const startTableWidth = table.offsetWidth;
                 const colName = th.getAttribute('data-col') || this.getColumnNameByIndex(index);
-                
+
                 const handleMouseMove = (e) => {
                     const deltaX = e.clientX - startX;
                     const newWidth = Math.max(50, startWidth + deltaX);
@@ -2469,15 +2475,15 @@ class BiblioApp {
                     const percentage = (newWidth / startTableWidth) * 100;
                     th.style.width = percentage + '%';
                 };
-                
+
                 const handleMouseUp = () => {
                     document.removeEventListener('mousemove', handleMouseMove);
                     document.removeEventListener('mouseup', handleMouseUp);
-                    
+
                     // Save new column widths as percentages
                     this.saveTableColumnWidths();
                 };
-                
+
                 document.addEventListener('mousemove', handleMouseMove);
                 document.addEventListener('mouseup', handleMouseUp);
             });
@@ -2492,10 +2498,10 @@ class BiblioApp {
     saveTableColumnWidths() {
         const table = document.getElementById('booksTableElement');
         if (!table) return;
-        
+
         const headers = table.querySelectorAll('th.resizable-col');
         const columns = ['title', 'authors', 'series', 'publisher', 'rating', 'pubdate'];
-        
+
         headers.forEach((th, index) => {
             const colName = columns[index];
             const width = th.offsetWidth;
@@ -2503,17 +2509,17 @@ class BiblioApp {
             const percentage = (width / tableWidth) * 100;
             this.tableColumnWidths[colName] = percentage;
         });
-        
+
         this.saveViewPreferences();
     }
 
     loadTableColumnWidths() {
         const table = document.getElementById('booksTableElement');
         if (!table) return;
-        
+
         const headers = table.querySelectorAll('th.resizable-col');
         const columns = ['title', 'authors', 'series', 'publisher', 'rating', 'pubdate'];
-        
+
         // Default widths for columns
         const defaultWidths = {
             title: 30,
@@ -2523,17 +2529,17 @@ class BiblioApp {
             rating: 10,
             pubdate: 10
         };
-        
+
         headers.forEach((th, index) => {
             const colName = columns[index];
             let width = this.tableColumnWidths[colName];
-            
+
             // Ensure width is valid
             if (!width || width <= 0) {
                 width = defaultWidths[colName] || 15;
                 this.tableColumnWidths[colName] = width;
             }
-            
+
             // Always apply as percentage for responsive scaling
             th.style.width = width + '%';
         });
@@ -2542,13 +2548,13 @@ class BiblioApp {
     setupTableResizeObserver() {
         const booksTable = document.getElementById('booksTable');
         if (!booksTable) return;
-        
+
         // Create resize observer to detect when panel is resized
         const resizeObserver = new ResizeObserver(() => {
             // Re-apply column widths when container is resized
             this.loadTableColumnWidths();
         });
-        
+
         resizeObserver.observe(booksTable);
     }
 
@@ -2568,22 +2574,22 @@ class BiblioApp {
             this.updateStatus('Refreshing libraries...');
             // Save current app state before refresh
             const savedState = this.loadAppState();
-            
+
             const response = await fetch('/api/libraries/refresh', {
                 method: 'POST'
             });
             const data = await response.json();
-            
+
             if (data.success) {
                 // Update libraries but preserve current state
                 this.libraries = data.data || [];
-                
+
                 // Re-render libraries
                 this.renderLibraries();
-                
+
                 // Recheck panel sizes on refresh
                 this.adjustPanelsForViewport();
-                
+
                 // Restore previous selection if the library still exists
                 if (savedState && savedState.currentLibraryId && this.libraries.some(lib => lib.id === savedState.currentLibraryId)) {
                     await this.selectLibrary(savedState.currentLibraryId);

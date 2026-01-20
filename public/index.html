@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,7 +28,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             flex-wrap: wrap;
         }
 
@@ -59,8 +60,8 @@
         .content-area {
             display: flex;
             flex: 1;
-            gap: 10px;
-            padding: 10px;
+            gap: 4px;
+            padding: 6px;
             overflow: hidden;
         }
 
@@ -69,7 +70,7 @@
             width: 250px;
             background-color: white;
             border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             overflow-y: auto;
             padding: 15px;
             flex-shrink: 0;
@@ -77,7 +78,7 @@
 
         /* Splitter Styles */
         .splitter {
-            width: 2px;
+            width: 8px;
             background-color: #d0d0d0;
             cursor: col-resize;
             transition: background-color 0.2s;
@@ -167,7 +168,7 @@
             min-width: 200px;
             background-color: white;
             border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -208,7 +209,7 @@
 
         .book-item:hover {
             transform: translateY(-5px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .book-cover {
@@ -263,7 +264,7 @@
             width: 300px;
             background-color: white;
             border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             overflow-y: auto;
             padding: 15px;
             flex-shrink: 0;
@@ -510,8 +511,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         /* Responsive design */
@@ -542,6 +548,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Top Panel -->
     <div class="top-panel">
@@ -569,7 +576,8 @@
             <div class="filter-section">
                 <div class="filter-section-header" onclick="app.toggleFilterSection('authorsList')">
                     <span>👤 Authors <span id="authorCount" style="font-size: 0.8em; color: #7f8c8d;"></span></span>
-                    <button onclick="event.stopPropagation(); app.clearAuthors()" style="padding: 4px 8px; font-size: 10px; cursor: pointer; background: #3498db; color: white; border: none; border-radius: 3px; margin-left: auto;">Clear</button>
+                    <button onclick="event.stopPropagation(); app.clearAuthors()"
+                        style="padding: 4px 8px; font-size: 10px; cursor: pointer; background: #3498db; color: white; border: none; border-radius: 3px; margin-left: auto;">Clear</button>
                     <span class="filter-section-toggle collapsed">▼</span>
                 </div>
                 <div id="authorsList" class="filter-section-content collapsed" style="overflow-y: auto;">
@@ -583,7 +591,8 @@
             <div class="filter-section">
                 <div class="filter-section-header" onclick="app.toggleFilterSection('seriesList')">
                     <span>📖 Series <span id="seriesCount" style="font-size: 0.8em; color: #7f8c8d;"></span></span>
-                    <button onclick="event.stopPropagation(); app.clearSeries()" style="padding: 4px 8px; font-size: 10px; cursor: pointer; background: #3498db; color: white; border: none; border-radius: 3px; margin-left: auto;">Clear</button>
+                    <button onclick="event.stopPropagation(); app.clearSeries()"
+                        style="padding: 4px 8px; font-size: 10px; cursor: pointer; background: #3498db; color: white; border: none; border-radius: 3px; margin-left: auto;">Clear</button>
                     <span class="filter-section-toggle collapsed">▼</span>
                 </div>
                 <div id="seriesList" class="filter-section-content collapsed" style="overflow-y: auto;">
@@ -597,7 +606,8 @@
             <div class="filter-section">
                 <div class="filter-section-header" onclick="app.toggleFilterSection('tagsList')">
                     <span>🏷️ Tags <span id="tagCount" style="font-size: 0.8em; color: #7f8c8d;"></span></span>
-                    <button onclick="event.stopPropagation(); app.clearTags()" style="padding: 4px 8px; font-size: 10px; cursor: pointer; background: #3498db; color: white; border: none; border-radius: 3px; margin-left: auto;">Clear</button>
+                    <button onclick="event.stopPropagation(); app.clearTags()"
+                        style="padding: 4px 8px; font-size: 10px; cursor: pointer; background: #3498db; color: white; border: none; border-radius: 3px; margin-left: auto;">Clear</button>
                     <span class="filter-section-toggle collapsed">▼</span>
                 </div>
                 <div id="tagsList" class="filter-section-content collapsed" style="overflow-y: auto;">
@@ -611,7 +621,8 @@
             <div class="filter-section">
                 <div class="filter-section-header" onclick="app.toggleFilterSection('formatsList')">
                     <span>📄 Formats <span id="formatCount" style="font-size: 0.8em; color: #7f8c8d;"></span></span>
-                    <button onclick="event.stopPropagation(); app.clearFormats()" style="padding: 4px 8px; font-size: 10px; cursor: pointer; background: #3498db; color: white; border: none; border-radius: 3px; margin-left: auto;">Clear</button>
+                    <button onclick="event.stopPropagation(); app.clearFormats()"
+                        style="padding: 4px 8px; font-size: 10px; cursor: pointer; background: #3498db; color: white; border: none; border-radius: 3px; margin-left: auto;">Clear</button>
                     <span class="filter-section-toggle collapsed">▼</span>
                 </div>
                 <div id="formatsList" class="filter-section-content collapsed" style="overflow-y: auto;">
@@ -627,8 +638,11 @@
         <div class="center-panel">
             <div class="books-toolbar">
                 <div style="flex: 1; display: flex; align-items: center; position: relative;">
-                    <input type="text" id="searchInput" placeholder="Search books or authors..." style="flex: 1; padding: 6px 10px; border: 1px solid #bdc3c7; border-radius: 4px; padding-right: 35px;">
-                    <button id="clearSearchBtn" style="position: absolute; right: 8px; background: none; border: none; cursor: pointer; padding: 4px 6px; color: #95a5a6; font-size: 16px; display: none; line-height: 1; padding: 0; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;" title="Clear search" onclick="app.clearSearch()">✕</button>
+                    <input type="text" id="searchInput" placeholder="Search books or authors..."
+                        style="flex: 1; padding: 6px 10px; border: 1px solid #bdc3c7; border-radius: 4px; padding-right: 35px;">
+                    <button id="clearSearchBtn"
+                        style="position: absolute; right: 8px; background: none; border: none; cursor: pointer; padding: 4px 6px; color: #95a5a6; font-size: 16px; display: none; line-height: 1; padding: 0; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;"
+                        title="Clear search" onclick="app.clearSearch()">✕</button>
                 </div>
                 <select id="sortSelect" onchange="app.updateSort()">
                     <option value="recent">Recent</option>
@@ -643,12 +657,18 @@
                 <table id="booksTableElement">
                     <thead>
                         <tr>
-                            <th style="width: 30%;" data-col="title" class="resizable-col">Title <span class="col-resize"></span></th>
-                            <th style="width: 20%;" data-col="authors" class="resizable-col">Authors <span class="col-resize"></span></th>
-                            <th style="width: 15%;" data-col="series" class="resizable-col">Series <span class="col-resize"></span></th>
-                            <th style="width: 15%;" data-col="publisher" class="resizable-col">Publisher <span class="col-resize"></span></th>
-                            <th style="width: 10%;" data-col="rating" class="resizable-col">Rating <span class="col-resize"></span></th>
-                            <th style="width: 10%;" data-col="pubdate" class="resizable-col">Published <span class="col-resize"></span></th>
+                            <th style="width: 30%;" data-col="title" class="resizable-col">Title <span
+                                    class="col-resize"></span></th>
+                            <th style="width: 20%;" data-col="authors" class="resizable-col">Authors <span
+                                    class="col-resize"></span></th>
+                            <th style="width: 15%;" data-col="series" class="resizable-col">Series <span
+                                    class="col-resize"></span></th>
+                            <th style="width: 15%;" data-col="publisher" class="resizable-col">Publisher <span
+                                    class="col-resize"></span></th>
+                            <th style="width: 10%;" data-col="rating" class="resizable-col">Rating <span
+                                    class="col-resize"></span></th>
+                            <th style="width: 10%;" data-col="pubdate" class="resizable-col">Published <span
+                                    class="col-resize"></span></th>
                         </tr>
                     </thead>
                     <tbody id="booksTableBody">
@@ -666,11 +686,14 @@
                 Select a book to view details
             </div>
             <div id="bookDetails" class="details-content">
-                <div id="detailsCover" style="text-align: center; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; height: 250px;">
-                    <img id="coverImage" src="" alt="Book cover" style="max-width: 100%; max-height: 100%; object-fit: contain; border: 1px solid #bdc3c7; border-radius: 4px;">
+                <div id="detailsCover"
+                    style="text-align: center; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; aspect-ratio: 2/3; width: 100%; flex-shrink: 0;">
+                    <img id="coverImage" src="" alt="Book cover"
+                        style="width: 100%; height: 100%; object-fit: contain; border: 1px solid #bdc3c7; border-radius: 4px;">
                 </div>
 
-                <div id="detailFormats" style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px;">
+                <div id="detailFormats"
+                    style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px;">
                     <div class="loading" style="width: 100%;">
                         <div class="spinner" style="width: 12px; height: 12px; margin-right: 5px;"></div>
                         Loading formats...
@@ -745,17 +768,25 @@
             </div>
             <div class="status-item" style="margin-left: 20px;" id="coverSizeItem">
                 <span>Cover Size:</span>
-                <input type="range" id="coverSizeSlider" min="50" max="250" value="120" step="10" style="width: 150px; margin-left: 8px; margin-right: 8px; cursor: pointer;" oninput="app.setCoverSize(this.value)">
+                <input type="range" id="coverSizeSlider" min="50" max="250" value="120" step="10"
+                    style="width: 150px; margin-left: 8px; margin-right: 8px; cursor: pointer;"
+                    oninput="app.setCoverSize(this.value)">
                 <span id="coverSizeLabel" style="margin-left: 8px; min-width: 40px;">120</span>
             </div>
             <div class="status-item" style="margin-left: 20px; display: none;" id="columnVisibilityItem">
                 <span>Columns:</span>
-                <label style="margin-left: 8px; margin-right: 6px;"><input type="checkbox" data-col="title" checked onchange="app.toggleColumnVisibility('title')"> Title</label>
-                <label style="margin-right: 6px;"><input type="checkbox" data-col="authors" checked onchange="app.toggleColumnVisibility('authors')"> Authors</label>
-                <label style="margin-right: 6px;"><input type="checkbox" data-col="series" checked onchange="app.toggleColumnVisibility('series')"> Series</label>
-                <label style="margin-right: 6px;"><input type="checkbox" data-col="publisher" checked onchange="app.toggleColumnVisibility('publisher')"> Publisher</label>
-                <label style="margin-right: 6px;"><input type="checkbox" data-col="rating" checked onchange="app.toggleColumnVisibility('rating')"> Rating</label>
-                <label><input type="checkbox" data-col="pubdate" checked onchange="app.toggleColumnVisibility('pubdate')"> Published</label>
+                <label style="margin-left: 8px; margin-right: 6px;"><input type="checkbox" data-col="title" checked
+                        onchange="app.toggleColumnVisibility('title')"> Title</label>
+                <label style="margin-right: 6px;"><input type="checkbox" data-col="authors" checked
+                        onchange="app.toggleColumnVisibility('authors')"> Authors</label>
+                <label style="margin-right: 6px;"><input type="checkbox" data-col="series" checked
+                        onchange="app.toggleColumnVisibility('series')"> Series</label>
+                <label style="margin-right: 6px;"><input type="checkbox" data-col="publisher" checked
+                        onchange="app.toggleColumnVisibility('publisher')"> Publisher</label>
+                <label style="margin-right: 6px;"><input type="checkbox" data-col="rating" checked
+                        onchange="app.toggleColumnVisibility('rating')"> Rating</label>
+                <label><input type="checkbox" data-col="pubdate" checked
+                        onchange="app.toggleColumnVisibility('pubdate')"> Published</label>
             </div>
         </div>
         <div id="statusMessage" style="text-align: right;">Ready</div>
@@ -763,4 +794,5 @@
 
     <script src="app.js?v=35"></script>
 </body>
+
 </html>

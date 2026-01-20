@@ -44,6 +44,47 @@ pub struct AuditLogQuery {
     pub limit: Option<usize>,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct ClientDiagnostics {
+    pub window_width: u32,
+    pub window_height: u32,
+    // pub content_area_width: u32,
+    // pub content_area_x: i32,
+    // pub content_area_y: i32,
+    // pub content_area_left: i32,
+    // pub content_area_top: i32,
+    // pub content_area_right: i32,
+    // pub content_area_bottom: i32,
+    // pub content_area_flex_direction: Option<String>,
+    // pub left_panel_width: u32,
+    // pub left_panel_x: i32,
+    // pub left_panel_y: i32,
+    // pub left_panel_left: i32,
+    // pub left_panel_top: i32,
+    // pub left_panel_right: i32,
+    // pub left_panel_bottom: i32,
+    // pub left_panel_height: i32,
+    // pub right_panel_width: u32,
+    // pub right_panel_x: i32,
+    // pub right_panel_y: i32,
+    // pub right_panel_left: i32,
+    // pub right_panel_top: i32,
+    // pub right_panel_right: i32,
+    // pub right_panel_bottom: i32,
+    // pub right_panel_height: i32,
+    // pub splitter_left_x: i32,
+    // pub splitter_left_y: i32,
+    // pub splitter_right_x: i32,
+    // pub splitter_right_y: i32,
+    // pub available_width: u32,
+    pub min_center_width: u32,
+    // pub total_required_width: u32,
+    pub adjustment_needed: bool,
+    // pub scale_factor: Option<f64>,
+    // pub new_left_width: Option<u32>,
+    // pub new_right_width: Option<u32>,
+}
+
 // User management request/response structures
 #[derive(Debug, Deserialize)]
 pub struct CreateUserRequest {
@@ -601,6 +642,62 @@ pub async fn logout(
     Ok(HttpResponse::Ok().json(ApiResponse {
         success: true,
         data: Some(serde_json::json!({"message": "logged out"})),
+        error: None,
+    }))
+}
+
+pub async fn log_client_diagnostics(
+    diagnostics: web::Json<ClientDiagnostics>,
+) -> Result<HttpResponse> {
+    use tracing::info;
+    
+    info!("📱 Client Diagnostics: {}x{} | Adjustment: {} | Center: {}% ({}px)", 
+        diagnostics.window_width, 
+        diagnostics.window_height,
+        if diagnostics.adjustment_needed { "YES" } else { "NO" },
+        55,
+        diagnostics.min_center_width
+    );
+    
+    // Detailed geometry logging available for debugging (commented out by default)
+    // Uncomment below to see full geometry details
+    /*
+    info!("  ─── CONTENT AREA ───");
+    info!("    Width: {}px", diagnostics.content_area_width);
+    info!("    Bounds: x={}, y={}, left={}, top={}, right={}, bottom={}", 
+        diagnostics.content_area_x, diagnostics.content_area_y, 
+        diagnostics.content_area_left, diagnostics.content_area_top, 
+        diagnostics.content_area_right, diagnostics.content_area_bottom);
+    if let Some(ref flex_dir) = diagnostics.content_area_flex_direction {
+        info!("    Flex-direction: {}", flex_dir);
+    }
+    
+    info!("  ─── LEFT PANEL ───");
+    info!("    Width: {}px, Height: {}px", diagnostics.left_panel_width, diagnostics.left_panel_height);
+    info!("    Position: x={}, y={} | Bounds: left={}, top={}, right={}, bottom={}", 
+        diagnostics.left_panel_x, diagnostics.left_panel_y,
+        diagnostics.left_panel_left, diagnostics.left_panel_top, 
+        diagnostics.left_panel_right, diagnostics.left_panel_bottom);
+    
+    info!("  ─── RIGHT PANEL ───");
+    info!("    Width: {}px, Height: {}px", diagnostics.right_panel_width, diagnostics.right_panel_height);
+    info!("    Position: x={}, y={} | Bounds: left={}, top={}, right={}, bottom={}", 
+        diagnostics.right_panel_x, diagnostics.right_panel_y,
+        diagnostics.right_panel_left, diagnostics.right_panel_top, 
+        diagnostics.right_panel_right, diagnostics.right_panel_bottom);
+    
+    info!("  ─── SPLITTERS ───");
+    info!("    Splitter Left: x={}, y={}", diagnostics.splitter_left_x, diagnostics.splitter_left_y);
+    info!("    Splitter Right: x={}, y={}", diagnostics.splitter_right_x, diagnostics.splitter_right_y);
+    
+    info!("  ─── LAYOUT ANALYSIS ───");
+    info!("    Available width: {}px | Min center: {}px", diagnostics.available_width, diagnostics.min_center_width);
+    info!("    Total required: {}px", diagnostics.total_required_width);
+    */
+    
+    Ok(HttpResponse::Ok().json(ApiResponse {
+        success: true,
+        data: Some(serde_json::json!({"message": "diagnostics received"})),
         error: None,
     }))
 }
@@ -1396,6 +1493,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .route("/auth/logout", web::post().to(logout))
             .route("/auth/current-user", web::get().to(get_current_user))
             .route("/auth/change-password", web::post().to(change_password))
+            .route("/diagnostics/client", web::post().to(log_client_diagnostics))
             .route("/admin/users", web::get().to(list_users))
             .route("/admin/users", web::post().to(create_user))
             .route("/admin/users/{username}", web::put().to(update_user))

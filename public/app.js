@@ -1793,6 +1793,9 @@ class BiblioApp {
         
         // Setup splitter event listeners
         this.setupSplitters();
+        
+        // Setup responsive panel sizing
+        this.setupResponsivePanelSizing();
     }
 
     clearSearch() {
@@ -1926,6 +1929,137 @@ class BiblioApp {
                 console.error('Error loading pane sizes:', error);
             }
         }
+        
+        // Check if adjustment is needed for current viewport
+        // Use setTimeout to ensure DOM is fully rendered
+        setTimeout(() => {
+            this.adjustPanelsForViewport();
+        }, 100);
+    }
+
+    // Responsive Panel Sizing - Auto-adjust when content exceeds screen
+    setupResponsivePanelSizing() {
+        // Auto-adjust on load
+        this.adjustPanelsForViewport();
+        
+        // Re-adjust on window resize with debouncing
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                this.adjustPanelsForViewport();
+            }, 250);
+        });
+    }
+
+    adjustPanelsForViewport() {
+        const contentArea = document.querySelector('.content-area');
+        if (!contentArea) return;
+
+        const leftPanel = document.querySelector('.left-panel');
+        const rightPanel = document.querySelector('.right-panel');
+        const splitterLeft = document.getElementById('splitterLeft');
+        const splitterRight = document.getElementById('splitterRight');
+
+        if (!leftPanel || !rightPanel || !splitterLeft || !splitterRight) return;
+
+        // Get bounding rectangles for position tracking (kept for debug capability)
+        const contentAreaBounds = contentArea.getBoundingClientRect();
+        const leftPanelBounds = leftPanel.getBoundingClientRect();
+        const rightPanelBounds = rightPanel.getBoundingClientRect();
+        const splitterLeftBounds = splitterLeft.getBoundingClientRect();
+        const splitterRightBounds = splitterRight.getBoundingClientRect();
+
+        // Get available width (excluding padding and splitters)
+        const contentAreaWidth = contentArea.offsetWidth;
+        const contentAreaStyle = window.getComputedStyle(contentArea);
+        const availableGap = 10 * 2; // padding: 10px on both sides
+        const splitterWidth = 4; // 2px splitter * 2
+        const minCenterWidth = Math.floor(contentAreaWidth * 0.55); // Minimum 55% of screen width for center panel
+
+        let availableWidth = contentAreaWidth - availableGap - splitterWidth;
+        let leftWidth = leftPanel.offsetWidth;
+        let rightWidth = rightPanel.offsetWidth;
+
+        const totalPanelWidth = leftWidth + rightWidth + minCenterWidth;
+
+        let scaleFactor = null;
+        let newLeftWidth = null;
+        let newRightWidth = null;
+        let adjustmentNeeded = false;
+
+        // Check if panels exceed available space
+        if (totalPanelWidth > availableWidth) {
+            adjustmentNeeded = true;
+            // Calculate scaling factor
+            scaleFactor = (availableWidth - minCenterWidth) / (leftWidth + rightWidth);
+            
+            // Scale down panels proportionally
+            newLeftWidth = Math.max(150, Math.floor(leftWidth * scaleFactor));
+            newRightWidth = Math.max(150, Math.floor(rightWidth * scaleFactor));
+
+            // Apply the new sizes
+            leftPanel.style.width = newLeftWidth + 'px';
+            leftPanel.style.flex = `0 0 ${newLeftWidth}px`;
+            rightPanel.style.width = newRightWidth + 'px';
+            rightPanel.style.flex = `0 0 ${newRightWidth}px`;
+
+            // Save the adjusted sizes
+            this.savePaneSizes();
+        }
+
+        // Send diagnostics to server (includes geometry data for debugging if needed)
+        this.sendDiagnosticsToServer({
+            window_width: window.innerWidth,
+            window_height: window.innerHeight,
+            content_area_width: contentAreaWidth,
+            content_area_x: Math.round(contentAreaBounds.x),
+            content_area_y: Math.round(contentAreaBounds.y),
+            content_area_left: Math.round(contentAreaBounds.left),
+            content_area_top: Math.round(contentAreaBounds.top),
+            content_area_right: Math.round(contentAreaBounds.right),
+            content_area_bottom: Math.round(contentAreaBounds.bottom),
+            content_area_flex_direction: contentAreaStyle.flexDirection,
+            left_panel_width: leftWidth,
+            left_panel_x: Math.round(leftPanelBounds.x),
+            left_panel_y: Math.round(leftPanelBounds.y),
+            left_panel_left: Math.round(leftPanelBounds.left),
+            left_panel_top: Math.round(leftPanelBounds.top),
+            left_panel_right: Math.round(leftPanelBounds.right),
+            left_panel_bottom: Math.round(leftPanelBounds.bottom),
+            left_panel_height: Math.round(leftPanelBounds.height),
+            right_panel_width: rightWidth,
+            right_panel_x: Math.round(rightPanelBounds.x),
+            right_panel_y: Math.round(rightPanelBounds.y),
+            right_panel_left: Math.round(rightPanelBounds.left),
+            right_panel_top: Math.round(rightPanelBounds.top),
+            right_panel_right: Math.round(rightPanelBounds.right),
+            right_panel_bottom: Math.round(rightPanelBounds.bottom),
+            right_panel_height: Math.round(rightPanelBounds.height),
+            splitter_left_x: Math.round(splitterLeftBounds.x),
+            splitter_left_y: Math.round(splitterLeftBounds.y),
+            splitter_right_x: Math.round(splitterRightBounds.x),
+            splitter_right_y: Math.round(splitterRightBounds.y),
+            available_width: availableWidth,
+            min_center_width: minCenterWidth,
+            total_required_width: totalPanelWidth,
+            adjustment_needed: adjustmentNeeded,
+            scale_factor: scaleFactor,
+            new_left_width: newLeftWidth,
+            new_right_width: newRightWidth
+        });
+    }
+
+    sendDiagnosticsToServer(diagnostics) {
+        fetch('/api/diagnostics/client', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(diagnostics)
+        }).catch(err => {
+            // Silently fail if server endpoint not available (no console logging to avoid clutter)
+        });
     }
 
     // View Mode and Table Column Width Management
@@ -2446,6 +2580,9 @@ class BiblioApp {
                 
                 // Re-render libraries
                 this.renderLibraries();
+                
+                // Recheck panel sizes on refresh
+                this.adjustPanelsForViewport();
                 
                 // Restore previous selection if the library still exists
                 if (savedState && savedState.currentLibraryId && this.libraries.some(lib => lib.id === savedState.currentLibraryId)) {

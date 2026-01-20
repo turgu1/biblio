@@ -494,7 +494,7 @@ class BiblioApp {
                 font-size: 14px;
             `;
             userInfoDiv.innerHTML = `
-                <span>Logged in as: <strong>${this.currentUsername}</strong></span>
+                <span><strong>${this.currentUsername}</strong></span>
                 <button id="logoutBtn" style="
                     background-color: #e74c3c;
                     padding: 6px 12px;

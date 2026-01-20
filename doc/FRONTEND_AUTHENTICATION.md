@@ -161,7 +161,7 @@ Return to login screen
 After successful login, the top panel shows:
 
 ```
-Logged in as: admin [Logout]
+admin [Logout]
 ```
 
 **Components**:

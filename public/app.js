@@ -2388,7 +2388,7 @@ class BiblioApp {
             row.innerHTML = `
                 <td>${this.escapeHtml(book.title || '')}</td>
                 <td>${this.escapeHtml((book.authors || []).map(author => this.formatAuthorName(author)).join(', '))}</td>
-                <td>${this.escapeHtml((book.series || ''))}</td>
+                <td>${this.escapeHtml(book.series && book.series_index ? `${book.series} #${book.series_index}` : (book.series || ''))}</td>
                 <td>${this.escapeHtml((book.publisher || ''))}</td>
                 <td>${book.rating ? (book.rating / 2).toFixed(1) : 'N/A'}</td>
                 <td>${book.pubdate ? new Date(book.pubdate).toLocaleDateString() : 'N/A'}</td>

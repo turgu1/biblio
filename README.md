@@ -21,7 +21,7 @@ A modern web application for browsing multiple Calibre e-book libraries with a r
   - **Consistent Formatting**: Author names formatted consistently with filter panel
   - **Infinite Scroll**: Progressively loads more rows as you scroll down
   - **Column State Persistence**: Remembers your column visibility preferences
-- **Responsive Design**: Works on desktop, tablet, and mobile devices
+- **Responsive Design**: Works on desktop, tablet, and mobile devices with at least 600 pixels in width
 - **Infinite Scroll**: Efficiently browse large libraries with progressive loading
 - **Session Persistence**: Automatically saves your filters, search, library selection, and view preferences using browser cookies
 - **User Authentication**: Secure login system with role-based access control

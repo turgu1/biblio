@@ -2457,19 +2457,25 @@ class BiblioApp {
         const resizeHandles = document.querySelectorAll('.col-resize');
 
         resizeHandles.forEach((handle, index) => {
-            handle.addEventListener('mousedown', (e) => {
+            // Helper function to get X coordinate from mouse or touch event
+            const getClientX = (e) => {
+                return e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+            };
+
+            // Helper function to start column resize
+            const startResize = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
 
                 const th = handle.closest('th');
                 const table = document.getElementById('booksTableElement');
-                const startX = e.clientX;
+                const startX = getClientX(e);
                 const startWidth = th.offsetWidth;
                 const startTableWidth = table.offsetWidth;
                 const colName = th.getAttribute('data-col') || this.getColumnNameByIndex(index);
 
                 const handleMouseMove = (e) => {
-                    const deltaX = e.clientX - startX;
+                    const deltaX = getClientX(e) - startX;
                     const newWidth = Math.max(50, startWidth + deltaX);
                     // Convert to percentage for responsive behavior
                     const percentage = (newWidth / startTableWidth) * 100;
@@ -2479,6 +2485,8 @@ class BiblioApp {
                 const handleMouseUp = () => {
                     document.removeEventListener('mousemove', handleMouseMove);
                     document.removeEventListener('mouseup', handleMouseUp);
+                    document.removeEventListener('touchmove', handleMouseMove);
+                    document.removeEventListener('touchend', handleMouseUp);
 
                     // Save new column widths as percentages
                     this.saveTableColumnWidths();
@@ -2486,7 +2494,12 @@ class BiblioApp {
 
                 document.addEventListener('mousemove', handleMouseMove);
                 document.addEventListener('mouseup', handleMouseUp);
-            });
+                document.addEventListener('touchmove', handleMouseMove, { passive: false });
+                document.addEventListener('touchend', handleMouseUp);
+            };
+
+            handle.addEventListener('mousedown', startResize);
+            handle.addEventListener('touchstart', startResize, { passive: false });
         });
     }
 

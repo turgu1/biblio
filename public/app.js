@@ -1348,6 +1348,24 @@ class BiblioApp {
                     return sortA.localeCompare(sortB);
                 });
                 break;
+            case 'series':
+                sorted.sort((a, b) => {
+                    const seriesA = a.series || null;
+                    const seriesB = b.series || null;
+                    // Books without series go to the end
+                    if (!seriesA && !seriesB) return 0;
+                    if (!seriesA) return 1;
+                    if (!seriesB) return -1;
+                    const seriesCompare = seriesA.localeCompare(seriesB);
+                    if (seriesCompare !== 0) {
+                        return seriesCompare;
+                    }
+                    // If series names are the same, sort by series_index
+                    const indexA = a.series_index ?? Infinity;
+                    const indexB = b.series_index ?? Infinity;
+                    return indexA - indexB;
+                });
+                break;
             case 'recent':
             default:
                 // Keep original order (most recent first)

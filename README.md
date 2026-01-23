@@ -1,4 +1,6 @@
-# Biblio - Web-Based E-book Library Browser
+# Biblio - Web-Based E-book Library Browser (v1.0.0)
+
+(Updated 2026.01.23)
 
 A modern web application for browsing multiple Calibre e-book libraries with a responsive panel-based UI.
 

@@ -1,3 +1,7 @@
+### Docker image
+
+A docker ready image is maintained in the Docker's hub (here)[https://hub.docker.com/r/turgu1/biblio] and is named `turgu1/biblio:latest`
+
 ### Building and running your application
 
 When you're ready, start your application by running:

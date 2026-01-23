@@ -8,6 +8,7 @@ A modern web application for browsing multiple Calibre e-book libraries with a r
 
 ## Features
 
+- **Docker support**: A docker ready image is maintained in the Docker's hub (here)[https://hub.docker.com/r/turgu1/biblio] and is named `turgu1/biblio:latest`
 - **Multiple Library Support**: Browse multiple Calibre libraries from a single interface
 - **Rich Metadata Display**: View detailed information about each book including authors, series, tags, and more
 - **Advanced Filtering**: Filter books by authors, tags, and series

@@ -340,6 +340,6 @@ cargo run --release
 
 ---
 
-**Version**: 0.1.0  
+**Version**: 1.0.0  
 **Last Updated**: January 2026  
 **Status**: Ready for Production

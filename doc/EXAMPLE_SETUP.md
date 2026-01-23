@@ -145,7 +145,7 @@ cd <biblio-parent-folder>/biblio
 cargo run --release
 
 # Output:
-# Compiling biblio v0.1.0
+# Compiling biblio v1.0.0
 # ...
 # Finished release [optimized] target(s) in X.XXs
 # Running `target/release/biblio`

@@ -548,7 +548,7 @@ http://localhost:8433
 | **Name** | Biblio |
 | **Type** | Web Application |
 | **Language** | Rust + JavaScript |
-| **Version** | 0.1.0 |
+| **Version** | 1.0.0 |
 | **Status** | Complete ✅ |
 | **Date** | January 13, 2026 |
 | **Location** | <biblio-parent-folder>/biblio |

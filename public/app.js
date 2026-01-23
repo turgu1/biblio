@@ -2639,7 +2639,7 @@ class BiblioApp {
     }
 
     showAbout() {
-        alert('Biblio - E-book Library Browser\n\nVersion 0.1.0\n\nA web-based application for browsing Calibre e-book libraries.\n\nBuilt with Rust (Actix-web) and modern web technologies');
+        alert('Biblio - E-book Library Browser\n\nVersion 1.0.0\n\nA web-based application for browsing Calibre e-book libraries.\n\nBuilt with Rust (Actix-web) and modern web technologies');
     }
 
     updateStatus(message) {

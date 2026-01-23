@@ -552,7 +552,7 @@ The application is:
 | Property | Value |
 |----------|-------|
 | **Project Name** | Biblio |
-| **Version** | 0.1.0 |
+| **Version** | 1.0.0 |
 | **Build Date** | January 13, 2026 |
 | **Status** | Complete & Ready |
 | **Binary Size** | 9.3 MB (Release) |

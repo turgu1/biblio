@@ -284,8 +284,10 @@ The application is organized into five panels:
 
 #### Top Panel (Command Bar)
 - **Refresh**: Reload the library list and rescan for new libraries
-- **Settings**: Configure application preferences (to be implemented)
+- **MyProfile**: User's information and password update form
+- **Admin button**: Visible to administrators only (🔐)
 - **About**: View version and application information
+- **Logout**: Current user's name and application exit
 
 #### Left Panel (Filters)
 - **Libraries**: Switch between available libraries
@@ -316,18 +318,17 @@ The application is organized into five panels:
 Shows comprehensive information for the selected book:
 - Book cover image
 - Title and authors
+- Comments/description (if applicable)
 - Series information (if applicable)
-- Tags/categories
-- Publisher and publication date
+- Tags/categories (if applicable)
+- Publisher and publication date (if applicable)
 - Rating (if available)
-- Comments/description
 
 #### Bottom Panel (Status & View Controls)
 - **Current library name**: Shows active library selection
 - **Total number of books**: Total books in current library
 - **Number of filtered books**: Books matching current filters and search
 - **Current operation status**: Real-time feedback (Ready, Loading, etc.)
-- **Admin button**: Visible to administrators only (🔐)
 - **View Mode Toggle**: Switch between Grid and Table display
 - **Cover Size Control** (Grid mode): Range slider and current size display
 - **Column Visibility Controls** (Table mode): Checkboxes to show/hide table columns

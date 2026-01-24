@@ -99,7 +99,7 @@ biblio/
 
 ## Installation
 
-In the following installation description, the internet port number used by the application is `8433` and is defined as such in all configuration files. This number can be changed as you desire (must be >1024) as long as the port number is not in use by another applicaion on the host and is properly set in the `config.yaml`, and if docker is used, in the `compose.yaml`, and `Dockerfile` configuration files.
+In the following installation description, the internet port number used by the application is `8433` by default in all configuration files. This number can be changed as you desire (must be >1024) as long as the port is not in use by another application on the host. Changes must be made in `config.yaml`, and if using Docker, also in `compose.yaml`.
 
 ### Prerequisites
 
